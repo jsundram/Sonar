@@ -1,0 +1,12 @@
+# ignore studio user options file
+*.suo
+
+# ignore build byproducts
+UI/twitter.yedda/obj/
+UI/twitter.yedda/bin/
+UI/Sonar/obj/
+UI/Sonar/bin/
+
+# ignore settings file: this has passwords in it!
+UI/Sonar/app.config
+

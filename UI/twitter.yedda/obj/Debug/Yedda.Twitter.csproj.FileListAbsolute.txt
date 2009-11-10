@@ -1,0 +1,5 @@
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\twitter.yedda\bin\Debug\Yedda.Twitter.dll
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\twitter.yedda\bin\Debug\Yedda.Twitter.pdb
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\twitter.yedda\obj\Debug\ResolveAssemblyReference.cache
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\twitter.yedda\obj\Debug\Yedda.Twitter.dll
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\twitter.yedda\obj\Debug\Yedda.Twitter.pdb

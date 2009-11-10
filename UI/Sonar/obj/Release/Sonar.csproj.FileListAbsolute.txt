@@ -1,0 +1,11 @@
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\bin\Release\Yedda.Twitter.dll
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\bin\Release\Yedda.Twitter.pdb
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\ResolveAssemblyReference.cache
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\WindowsApplication1.Sonar.resources
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\Sonar.csproj.GenerateResource.Cache
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\bin\Release\Sonar.exe.config
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\bin\Release\Sonar.exe
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\bin\Release\Sonar.pdb
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\Sonar.Properties.Resources.resources
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\Sonar.exe
+\\vmware-host\Shared Folders\jason On My Mac\Code\Sonar\UI\Sonar\obj\Release\Sonar.pdb

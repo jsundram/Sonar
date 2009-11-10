@@ -1,0 +1,10 @@
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\bin\Debug\WindowsApplication1.exe
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\bin\Debug\WindowsApplication1.pdb
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\WindowsApplication1.Sonar.resources
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\WindowsApplication1.Properties.Resources.resources
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\Sonar.csproj.GenerateResource.Cache
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\WindowsApplication1.exe
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\obj\Debug\WindowsApplication1.pdb
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\bin\Debug\Yedda.Twitter.dll
+C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\Sonar\bin\Debug\Yedda.Twitter.pdb

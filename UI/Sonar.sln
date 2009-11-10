@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C# Express 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar", "Sonar\Sonar.csproj", "{C1CE469D-F718-44CF-81A2-652AC5812FC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yedda.Twitter", "twitter.yedda\Yedda.Twitter.csproj", "{B5F9706D-F56D-41BA-A5D8-291C3FB76DF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1CE469D-F718-44CF-81A2-652AC5812FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1CE469D-F718-44CF-81A2-652AC5812FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1CE469D-F718-44CF-81A2-652AC5812FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1CE469D-F718-44CF-81A2-652AC5812FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5F9706D-F56D-41BA-A5D8-291C3FB76DF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5F9706D-F56D-41BA-A5D8-291C3FB76DF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5F9706D-F56D-41BA-A5D8-291C3FB76DF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5F9706D-F56D-41BA-A5D8-291C3FB76DF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Sonar.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="twitter_user" Type="System.String" Scope="User">
+      <Value Profile="(Default)">jsundram</Value>
+    </Setting>
+    <Setting Name="twitter_pass" Type="System.String" Scope="User">
+      <Value Profile="(Default)">jason482</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
