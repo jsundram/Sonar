@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="twitter_user" Type="System.String" Scope="User">
-      <Value Profile="(Default)">jsundram</Value>
+      <Value Profile="(Default)">TWITTER_USERNAME</Value>
     </Setting>
     <Setting Name="twitter_pass" Type="System.String" Scope="User">
-      <Value Profile="(Default)">jason482</Value>
+      <Value Profile="(Default)">TWITTER_PASSWORD</Value>
     </Setting>
   </Settings>
 </SettingsFile>

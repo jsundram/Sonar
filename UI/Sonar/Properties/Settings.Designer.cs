@@ -25,7 +25,7 @@ namespace Sonar.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("jsundram")]
+        [global::System.Configuration.DefaultSettingValueAttribute("TWITTER_USERNAME")]
         public string twitter_user {
             get {
                 return ((string)(this["twitter_user"]));
@@ -37,7 +37,7 @@ namespace Sonar.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("jason482")]
+        [global::System.Configuration.DefaultSettingValueAttribute("TWITTER_PASSWORD")]
         public string twitter_pass {
             get {
                 return ((string)(this["twitter_pass"]));
