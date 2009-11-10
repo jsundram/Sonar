@@ -1,9 +1,19 @@
 # ignore studio user options file
+
 *.suo
 
+
+
 # ignore build byproducts
+
 UI/twitter.yedda/obj/
+
 UI/twitter.yedda/bin/
+
 UI/Sonar/obj/
+
 UI/Sonar/bin/
 
+
+# ignore credentials file
+UI/Sonar/Sonar.Passwords.cs

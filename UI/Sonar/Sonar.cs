@@ -82,9 +82,7 @@ namespace SonarGUI
         {
             // Get Data
             Twitter t = new Twitter();
-            string user = ConfigurationSettings.AppSettings["twitter_user"]; // if these don't exist you need to setup your app settings.
-            string pass = ConfigurationSettings.AppSettings["twitter_pass"];
-            XmlDocument timeline = t.GetFriendsTimelineAsXML(user, pass);
+            XmlDocument timeline = t.GetFriendsTimelineAsXML(TwitterUser, TwitterPass);
             XmlNodeList statuses = timeline.GetElementsByTagName("text");
             XmlNodeList screen_names = timeline.GetElementsByTagName("screen_name");
             XmlNodeList clients = timeline.GetElementsByTagName("source");

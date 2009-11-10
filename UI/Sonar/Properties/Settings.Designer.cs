@@ -22,29 +22,5 @@ namespace Sonar.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("TWITTER_USERNAME")]
-        public string twitter_user {
-            get {
-                return ((string)(this["twitter_user"]));
-            }
-            set {
-                this["twitter_user"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("TWITTER_PASSWORD")]
-        public string twitter_pass {
-            get {
-                return ((string)(this["twitter_pass"]));
-            }
-            set {
-                this["twitter_pass"] = value;
-            }
-        }
     }
 }
