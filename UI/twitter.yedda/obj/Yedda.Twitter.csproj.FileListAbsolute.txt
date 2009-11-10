@@ -1,5 +1,0 @@
-C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\twitter.yedda\bin\Debug\Yedda.Twitter.dll
-C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\twitter.yedda\bin\Debug\Yedda.Twitter.pdb
-C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\twitter.yedda\obj\Debug\ResolveAssemblyReference.cache
-C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\twitter.yedda\obj\Debug\Yedda.Twitter.dll
-C:\Documents and Settings\lee.keyser-allen\My Documents\Visual Studio 2005\Projects\WindowsApplication1\twitter.yedda\obj\Debug\Yedda.Twitter.pdb
