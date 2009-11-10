@@ -7,6 +7,3 @@ UI/twitter.yedda/bin/
 UI/Sonar/obj/
 UI/Sonar/bin/
 
-# ignore settings file: this has passwords in it!
-UI/Sonar/app.config
-
