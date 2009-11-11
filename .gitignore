@@ -16,4 +16,4 @@ UI/Sonar/bin/
 
 
 # ignore credentials file
-UI/Sonar/Sonar.Passwords.cs
+UI/Sonar/Credentials.cs

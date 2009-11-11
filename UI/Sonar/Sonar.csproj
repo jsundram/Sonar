@@ -36,6 +36,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LastFmLibNet, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\LastFmLibNet.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -50,6 +54,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="SocialDataSource.cs" />
+    <Compile Include="SocialItem.cs" />
+    <Compile Include="SocialPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SocialPanel.Designer.cs">
+      <DependentUpon>SocialPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Sonar.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -58,6 +70,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="SocialPanel.resx">
+      <DependentUpon>SocialPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Sonar.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Sonar.cs</DependentUpon>
@@ -72,9 +87,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Sonar.Passwords.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Credentials.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
