@@ -51,6 +51,7 @@
             this.Controls.Add(this._Feed);
             this.Name = "SocialPanel";
             this.Size = new System.Drawing.Size(287, 445);
+            this.Leave += new System.EventHandler(this.SocialPanel_Leave);
             this.Enter += new System.EventHandler(this.SocialPanel_Enter);
             this.ResumeLayout(false);
 

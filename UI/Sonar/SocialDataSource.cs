@@ -17,29 +17,66 @@ namespace Sonar
         List<SocialItem> Update();
     }
 
-    public class LastFmFriendsLoved : ISocialDataSource
+    abstract public class RateLimitedSource : ISocialDataSource
     {
-        // TODO: is this repeated code disgusting?
-        AuthData make_credentials()
-        {
-            MD5Hash key = new MD5Hash(Credentials.LastFmKey, true, System.Text.Encoding.ASCII);
-            MD5Hash secret = new MD5Hash(Credentials.LastFmSecret, true, System.Text.Encoding.ASCII);
-
-            return new AuthData(key, secret);
-        }
+        DateTime _LastRun = DateTime.MinValue;
+        List<SocialItem> _Items = new List<SocialItem>();
 
         #region ISocialDataSource Members
 
         public List<SocialItem> Init()
         {
-            AuthData credentials = make_credentials();
-            LastFmLib.API20.Settings20.AuthData = credentials;
-            LastFmClient c = LastFmClient.Create(credentials);
+            Items = _Update();
+            _LastRun = DateTime.Now;
+            return Items;
+        }
 
-            List<SocialItem> items = new List<SocialItem>();
+        public bool CheckRateLimit()
+        {
+            return (DateTime.Now - _LastRun > TimeSpan.FromSeconds(30)); 
+        }
+
+        abstract protected List<SocialItem> _Update();
+        protected List<SocialItem> Items {get; set;}
+ 
+        public List<SocialItem> Update()
+        {
+            if (_LastRun == DateTime.MinValue)
+                return Init();
+
+            if (!CheckRateLimit())
+                return Items; // return what we already got.
+
+            return _Update();
+        }
+
+        #endregion
+    }
+
+
+    public abstract class LastFm : RateLimitedSource
+    {
+        protected static LastFmClient get_client()
+        {
+            MD5Hash key = new MD5Hash(Credentials.LastFmKey, true, System.Text.Encoding.ASCII);
+            MD5Hash secret = new MD5Hash(Credentials.LastFmSecret, true, System.Text.Encoding.ASCII);
+
+            AuthData credentials = new AuthData(key, secret);
+            LastFmLib.API20.Settings20.AuthData = credentials;
+            return LastFmClient.Create(credentials);
+        }
+
+    }
+
+    public class LastFmFriendsLoved : LastFm
+    {
+        protected override List<SocialItem> _Update()
+        {
+            LastFmClient c = get_client();
             List<FriendUser> friends = c.User.GetFriends(Credentials.LastFmUser, false, 50);// arbitrary number of friends
             friends.Add(new FriendUser(Credentials.LastFmUser, null)); // I want to see my own favorites, too.
-            string time_format = "d MMM yyyy, HH:mm";
+
+            Items = new List<SocialItem>();
             foreach (FriendUser f in friends)
             {
                 string name = f.Name;
@@ -59,47 +96,27 @@ namespace Sonar
                             if (i.Image == null)
                                 i.Image = image; // set this to user profile image.
 
-                            // Would be nice to go back and hack up LastFMLibNet to return an actual DateTime, but easier to do it in C# for now.                            
-                            i.PostTime = DateTime.ParseExact(track.Time, time_format, CultureInfo.InvariantCulture);// 30 Oct 2009, 21:13
+                            i.PostTime = track.Time;
                             
-                            items.Add(i);
+                            Items.Add(i);
                         }
-                        catch (Exception) { }
+                        catch (Exception) { Sonar.Trace(string.Format("LastFmFriendsLoved: Exception on item for user {0}", name)); }
                     }
                 }
-                catch (Exception) { }
+                catch (Exception) { Sonar.Trace("LastFmFriendsLoved: Error iterating over friends"); }
             }
 
-            return items;
+            return Items;
         }
-
-        public List<SocialItem> Update()
-        {
-            return Init();
-        }
-
-        #endregion
     }
 
-    public class LastFmFriends : ISocialDataSource
+    public class LastFmFriends : LastFm
     {
-        AuthData make_credentials()
+        protected override List<SocialItem> _Update()
         {
-            MD5Hash key = new MD5Hash(Credentials.LastFmKey, true, System.Text.Encoding.ASCII);
-            MD5Hash secret = new MD5Hash(Credentials.LastFmSecret, true, System.Text.Encoding.ASCII);
+            LastFmClient c = get_client();
 
-            return new AuthData(key, secret);
-        }
-
-        #region ISocialDataSource Members
-
-        public List<SocialItem> Init()
-        {
-            AuthData credentials = make_credentials();
-            LastFmLib.API20.Settings20.AuthData = credentials;
-            LastFmClient c = LastFmClient.Create(credentials);
-
-            List<SocialItem> items = new List<SocialItem>();
+            Items = new List<SocialItem>();
             List<FriendUser> friends = c.User.GetFriends(Credentials.LastFmUser, false, 50);// arbitrary number of friends
             foreach (FriendUser f in friends)
             {
@@ -122,52 +139,45 @@ namespace Sonar
 
                             i.PostTime = track.StartDate; // TODO: Deal with time zones?
 
-                            items.Add(i);
+                            Items.Add(i);
                         }
-                        catch (Exception) { }
+                        catch (Exception) { Sonar.Trace(string.Format("LastFmFriends: Exception on item for user {0}", name)); }
                     }
                 }
-                catch(Exception){}
+                catch (Exception) { Sonar.Trace("LastFmFriends: Error iterating over friends"); }
             }
 
-            return items;
+            return Items;
         }
-
-        public List<SocialItem> Update()
-        {
-            return Init();
-        }
-
-        #endregion
     }
 
-    public class TwitterSonos : ISocialDataSource
+    public class TwitterSonos : RateLimitedSource
     {
-        #region ISocialDataSource Members
-
-        // Result looks like:
-        /*
-        <entry>
-            <id>tag:search.twitter.com,2005:5570205072</id>
-            <published>2009-11-09T21:57:19Z</published>
-            <link type="text/html" href="http://twitter.com/Ricardo5599/statuses/5570205072" rel="alternate" />
-            <title>Enjoying Close To You by JLS all over the house on my #Sonos</title>
-            <content type="html">Enjoying Close To You &lt;b&gt;by&lt;/b&gt; JLS all over the house on my &lt;a href="http://search.twitter.com/search?q=%23Sonos"&gt;#Sonos&lt;/a&gt;</content>
-            <updated>2009-11-09T21:57:19Z</updated>
-            <link type="image/png" href="http://a1.twimg.com/profile_images/509073086/WeeMee_16002855_for_richard.suttonpgs_normal.jpg" rel="image"/>
-            <twitter:geo></twitter:geo>
-            <twitter:source>&lt;a href="http://www.sonos.com/tweetfeed" rel="nofollow"&gt;Sonos&lt;/a&gt;</twitter:source>
-            <twitter:lang>en</twitter:lang>
-            <author>
-                <name>Ricardo5599 (RichardSutton)</name>
-                <uri>http://twitter.com/Ricardo5599</uri>
-            </author>
-        </entry>*/         
-        public List<SocialItem> Init()
+        protected override List<SocialItem> _Update()
         {
             Twitter t = new Twitter();
-            List<SocialItem> items = new List<SocialItem>();
+            Items = new List<SocialItem>();
             XmlDocument timeline = t.Search("by+source:sonos");
+
+            // Result looks like:
+            /*
+            <entry>
+                <id>tag:search.twitter.com,2005:5570205072</id>
+                <published>2009-11-09T21:57:19Z</published>
+                <link type="text/html" href="http://twitter.com/Ricardo5599/statuses/5570205072" rel="alternate" />
+                <title>Enjoying Close To You by JLS all over the house on my #Sonos</title>
+                <content type="html">Enjoying Close To You &lt;b&gt;by&lt;/b&gt; JLS all over the house on my &lt;a href="http://search.twitter.com/search?q=%23Sonos"&gt;#Sonos&lt;/a&gt;</content>
+                <updated>2009-11-09T21:57:19Z</updated>
+                <link type="image/png" href="http://a1.twimg.com/profile_images/509073086/WeeMee_16002855_for_richard.suttonpgs_normal.jpg" rel="image"/>
+                <twitter:geo></twitter:geo>
+                <twitter:source>&lt;a href="http://www.sonos.com/tweetfeed" rel="nofollow"&gt;Sonos&lt;/a&gt;</twitter:source>
+                <twitter:lang>en</twitter:lang>
+                <author>
+                    <name>Ricardo5599 (RichardSutton)</name>
+                    <uri>http://twitter.com/Ricardo5599</uri>
+                </author>
+            </entry>*/
+
             XmlNodeList statuses = timeline.GetElementsByTagName("title");
             XmlNodeList screen_names = timeline.GetElementsByTagName("author");
             XmlNodeList images = timeline.GetElementsByTagName("link"); // this matches too much stuff!
@@ -197,31 +207,22 @@ namespace Sonar
                         item.Image = item.GetImage(images[6 + 2 * i].Attributes[1].Value);
                         item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture);
 
-                        items.Add(item);
+                        Items.Add(item);
                     }
                 }
-                catch (Exception) { }
+                catch (Exception) { Sonar.Trace(string.Format("TwitterSonos: Exception on item {0} of {1}", i, screen_names.Count)); }
             }
 
-            return items;
+            return Items;
         }
-
-        public List<SocialItem> Update()
-        {
-            return Init();
-        }
-
-        #endregion
     }
 
-    public class TwitterFriends : ISocialDataSource
+    public class TwitterFriends : RateLimitedSource
     {
-        #region ISocialDataSource Members
-
-        public List<SocialItem> Init()
+        protected override List<SocialItem> _Update()
         {            
             Twitter t = new Twitter();
-            List<SocialItem> items = new List<SocialItem>();
+            Items = new List<SocialItem>();
 
             // Get Data
             XmlDocument timeline = t.GetFriendsTimelineAsXML(Credentials.TwitterUser, Credentials.TwitterPass);
@@ -257,21 +258,14 @@ namespace Sonar
 
                         item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture); // e.g. Tue Nov 10 21:01:23 +0000 2009
 
-                        items.Add(item);
+                        Items.Add(item);
                     }
-                    catch (Exception) { }
+                    catch (Exception) { Sonar.Trace(string.Format("TwitterFriends: Exception on item {0} of {1}", i, statuses.Count)); }
                 }
             }
 
-            return items;
+            return Items;
         }
-
-        public List<SocialItem> Update()
-        {
-            return Init(); // TODO: Be smarter about updates
-        }
-
-        #endregion
     }
 
 }
