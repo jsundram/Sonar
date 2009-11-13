@@ -26,6 +26,7 @@ namespace Sonar
 
         public List<SocialItem> Init()
         {
+            _LastRun = DateTime.MaxValue; // Hack, don't want to get two inits in a row. should lock.
             Items = _Update();
             _LastRun = DateTime.Now;
             return Items;
@@ -33,7 +34,7 @@ namespace Sonar
 
         public bool CheckRateLimit()
         {
-            return (DateTime.Now - _LastRun > TimeSpan.FromSeconds(30)); 
+            return (DateTime.Now - _LastRun > TimeSpan.FromSeconds(90)); 
         }
 
         abstract protected List<SocialItem> _Update();
@@ -45,7 +46,10 @@ namespace Sonar
                 return Init();
 
             if (!CheckRateLimit())
-                return Items; // return what we already got.
+            {
+                Sonar.Trace("Ditched query due to rate limit");
+                return Items; 
+            }
 
             return _Update();
         }
@@ -103,7 +107,7 @@ namespace Sonar
                         catch (Exception) { Sonar.Trace(string.Format("LastFmFriendsLoved: Exception on item for user {0}", name)); }
                     }
                 }
-                catch (Exception) { Sonar.Trace("LastFmFriendsLoved: Error iterating over friends"); }
+                catch (Exception) { Sonar.Trace("LastFmFriendsLoved: Error getting loved tracks for " + name); }
             }
 
             return Items;
@@ -144,7 +148,7 @@ namespace Sonar
                         catch (Exception) { Sonar.Trace(string.Format("LastFmFriends: Exception on item for user {0}", name)); }
                     }
                 }
-                catch (Exception) { Sonar.Trace("LastFmFriends: Error iterating over friends"); }
+                catch (Exception) { Sonar.Trace("LastFmFriends: Error getting recent tracks for friend: " + name); }
             }
 
             return Items;

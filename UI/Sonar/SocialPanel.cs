@@ -12,7 +12,9 @@ namespace Sonar
 
     public partial class SocialPanel : UserControl
     {
+        static int RefreshDelayMs = 5 * 60 * 1000; // 5 minutes.
         private List<ISocialDataSource> _DataSources = new List<ISocialDataSource>();
+        DateTime _LastUpdate = DateTime.MinValue;
 
         System.Threading.Timer _timer = null;
 
@@ -22,7 +24,7 @@ namespace Sonar
             _Feed.View = View.List;
             _Feed.Scrollable = false; // "solves" the horizontal scroll problem. TODO: fix for real.
 
-            _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, 60 * 1000);
+            _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);            
         }
 
         public void AddDataSource(ISocialDataSource i)
@@ -33,10 +35,11 @@ namespace Sonar
         // Initial Population
         public void Populate()
         {
-            _timer.Change(0, 60 * 1000);
+            _timer.Change(0, RefreshDelayMs);
         }
 
         delegate void SocialItemListDelegate(List<SocialItem> value);
+        delegate void SocialItemDelegate(SocialItem value);
 
         void PopulateFeed(List<SocialItem> sorted_data)
         {
@@ -75,14 +78,25 @@ namespace Sonar
         }
 
         void Update(object state)
-        {            
+        {
+            if (DateTime.Now - _LastUpdate < TimeSpan.FromMilliseconds(RefreshDelayMs))
+                return;
+            _LastUpdate = DateTime.Now;
             List<ISocialDataSource> dataSources = (List<ISocialDataSource>)state;
             Sonar.Trace(string.Format("In Update(), have {0} data sources", dataSources.Count));
 
             List<SocialItem> data = new List<SocialItem>();
             foreach (ISocialDataSource i in dataSources)
             {
-                data.AddRange(i.Update());
+                List<SocialItem> l = i.Update();
+                if (l != null)
+                    data.AddRange(l);
+            }
+
+            if (data.Count == 0)
+            {
+                Sonar.Trace("Ditching, no data returned");
+                return;
             }
 
             data.Sort(delegate(SocialItem i1, SocialItem i2)
@@ -93,13 +107,14 @@ namespace Sonar
             //foreach (SocialItem i in data) Sonar.Trace("post time " + i.PostTime.ToString());
 
             Sonar.Trace(string.Format("Calling PopulateFeed() with {0} entries", data.Count));
+            _LastUpdate = DateTime.Now;
             PopulateFeed(data);
         }
 
         public void SocialPanel_Enter(object sender, EventArgs e)
         {
             Sonar.Trace("Entering SocialPanel()");
-            _timer.Change(0, 60 * 1000);
+            _timer.Change(0, RefreshDelayMs);
         }
 
         private void SocialPanel_Leave(object sender, EventArgs e)
@@ -121,9 +136,28 @@ namespace Sonar
 
         static void OnResolutionSuccess(object panel, SocialItem i)
         {
-            SocialPanel p = (SocialPanel)panel;
-            Sonar.Trace(string.Format("In Social Panel, have Social Item with url {0}", i.Url));
-            // here's the part where we figure out where that sucker is in the view, and update it's state.
+            SocialPanel p = panel as SocialPanel;
+            if (p == null)
+                return;
+
+            if (p.InvokeRequired)
+            {
+                // We're not in the UI thread, so we need to call BeginInvoke
+                p.BeginInvoke(new ResolveWorker.OnResolveCompleted(OnResolutionSuccess), new object[] { panel, i });
+                return;
+            }
+            ListViewItem item = p.find(i.Key);
+            if (item != null)
+                item.ForeColor = string.IsNullOrEmpty(i.Url) ? Color.Red : Color.Green;         
         }
+
+        ListViewItem find(string key)
+        {
+            foreach (ListViewItem item in _Feed.Items)
+                if (item.Text == key)
+                    return item;
+            return null;
+        }
+
     }
 }

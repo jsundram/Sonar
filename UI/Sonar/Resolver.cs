@@ -41,7 +41,7 @@ namespace Sonar
             public string track { get; set; }
         }
 
-        public class Result
+        public class Result : IComparable<Result>
         {
             public string sid { get; set; }         // 'sid':'C3EA5CA7-8683-4D6B-A963-DBB82DD0B837',
             public string artist { get; set; }      // 'artist':'The Beatles',
@@ -54,6 +54,19 @@ namespace Sonar
             public int size { get; set; }           // 'size':7223637,
             public string source { get; set; }      // 'source':'WIN-F1DNH76QUS3'
             public string get_play_url() { return "http://localhost:60210/sid/" + sid; }
+            public override string ToString()
+            {
+                return track + " by " + artist + " (" + album + ")";
+            }
+
+            #region IComparable<Result> Members
+
+            public int CompareTo(Result other)
+            {
+                return score.CompareTo(other.score);
+            }
+
+            #endregion
         }
         #endregion
 
@@ -68,11 +81,36 @@ namespace Sonar
             return HttpUtility.UrlPathEncode(s);
         }
 
+        public delegate void OnResolveProgress(List<Result> results, bool complete);
+
+        // TODO: rewrite this to use a background worker like ResolveWorker. That way the caller isn't hanging.
+        public static string Resolve(string artist, string track, OnResolveProgress callback)
+        {
+            string qid = _Resolve(artist, track);
+            Sonar.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
+            System.Threading.Thread.Sleep(1000);
+
+            QueryResult r = GetResults(qid);
+            callback(new List<Result>(r.results), r.solved);
+            int poll_count = 1;
+            while (!r.solved && poll_count < r.poll_limit)
+            {
+                System.Threading.Thread.Sleep(r.refresh_interval);
+                r = GetResults(qid);
+                callback(new List<Result>(r.results), r.solved);
+                poll_count += 1;
+            }
+
+            callback(new List<Result>(r.results), true);
+
+            return qid;
+        }
         // For use by ResolveWorker. Seemed to make more sense to have it here.
         // If we don't support cancellation, can probably use Resolve(artist, track) below.
         public static string Resolve(BackgroundWorker w, SocialItem i)
         {
             string qid = _Resolve(i.Artist, i.Track);
+            Sonar.Trace("Attempting to resolve " + i.Artist + " " + i.Track + " " + "qid=" + qid);
             System.Threading.Thread.Sleep(1000);
 
             QueryResult r = GetResults(qid);
@@ -97,6 +135,7 @@ namespace Sonar
         public static string Resolve(string artist, string track)
         {
             string qid = _Resolve(artist, track);
+            Sonar.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
             System.Threading.Thread.Sleep(1000);
 
             QueryResult r = GetResults(qid);
@@ -158,7 +197,7 @@ namespace Sonar
             }
             catch (Exception e)
             {
-                Sonar.Trace("Unexpected Exception during Resolution: " + e.Message);
+                Sonar.Trace("Unexpected Exception during Resolution of " + qid + ": " + e.Message);
                 return null;
             }
         }

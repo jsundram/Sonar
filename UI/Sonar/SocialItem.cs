@@ -17,13 +17,16 @@ namespace Sonar
         public string Track;
         public DateTime PostTime;
         public string Url; // playable url of track
+        public string Key { get { return User + ": " + Message; } }
+
+        public override string ToString() { return Track + " by " + Artist; }
 
         public ListViewItem ToListItem()
         {
             if (string.IsNullOrEmpty(Message)) // Assuming last.fm for now
                 Message = Track + " by " + Artist;
 
-            ListViewItem i = new ListViewItem(User + ": " + Message);
+            ListViewItem i = new ListViewItem(Key);
             i.ToolTipText = Message + " [" + PostTime.ToString() + "]";
             i.Tag = this;
 
