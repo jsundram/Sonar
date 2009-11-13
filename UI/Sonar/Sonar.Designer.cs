@@ -74,6 +74,7 @@ namespace Sonar
             this.discover_tabs.SelectedIndex = 0;
             this.discover_tabs.Size = new System.Drawing.Size(282, 436);
             this.discover_tabs.TabIndex = 0;
+            this.discover_tabs.Selected += new System.Windows.Forms.TabControlEventHandler(this.discover_tabs_Selected);
             // 
             // search
             // 
@@ -95,7 +96,6 @@ namespace Sonar
             this.twitter.TabIndex = 1;
             this.twitter.Text = "twitter";
             this.twitter.UseVisualStyleBackColor = true;
-            this.twitter.Enter += new System.EventHandler(this.twitter_Enter);
             // 
             // _social
             // 

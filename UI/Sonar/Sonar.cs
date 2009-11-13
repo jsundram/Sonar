@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.ComponentModel;
 using System.Data;
-
 using System.IO;
-
 using System.Text;
-
 using System.Windows.Forms;
 using System.Xml;
-using Yedda;
+using CookComputing.XmlRpc;
 
 
 namespace Sonar
@@ -20,6 +17,24 @@ namespace Sonar
         public Sonar()
         {
             InitializeComponent();
+            //PopulateSocial();
+            // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.
+
+            // Playing with XML-RPC
+            IStateName proxy = XmlRpcProxyGen.Create<IStateName>();
+            string stateName = proxy.GetStateName(41);
+        }
+
+        [XmlRpcUrl("http://betty.userland.com/RPC2")]
+        public interface IStateName : IXmlRpcProxy
+        {
+            [XmlRpcMethod("examples.getStateName")]
+            string GetStateName(int stateNumber);
+        }
+
+        string server = "http://192.168.2.7:8000";
+        private void PopulateSocial()
+        {
             _social.AddDataSource(new TwitterFriends());
             _social.AddDataSource(new LastFmFriendsLoved());
             _social.AddDataSource(new TwitterSonos());
@@ -27,18 +42,18 @@ namespace Sonar
             _social.Populate();
         }
 
-
-        private void twitter_Enter(object sender, EventArgs e)
+        public static void Trace(string msg)
         {
-            // populate_twitter_friends();
+            System.Diagnostics.Debug.WriteLine(msg);
         }
 
-
-        private void populate_sonos_twitter()
+        void discover_tabs_Selected(object sender, TabControlEventArgs e)
         {
-            Twitter t = new Twitter();
-            
-
+            if (e.TabPage == _social.Parent)
+                _social.SocialPanel_Enter(sender, e); // Hack...
         }
     }
+
+
+
 }

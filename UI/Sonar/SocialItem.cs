@@ -16,6 +16,7 @@ namespace Sonar
         public string Artist;
         public string Track;
         public DateTime PostTime;
+        public string Url; // playable url of track
 
         public ListViewItem ToListItem()
         {
@@ -23,7 +24,7 @@ namespace Sonar
                 Message = Track + " by " + Artist;
 
             ListViewItem i = new ListViewItem(User + ": " + Message);
-            i.ToolTipText = Message;
+            i.ToolTipText = Message + " [" + PostTime.ToString() + "]";
             i.Tag = this;
 
             // TODO: Figure out if this is actually playable, instead of just parseable.
