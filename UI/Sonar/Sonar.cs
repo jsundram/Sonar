@@ -20,8 +20,9 @@ namespace Sonar
         {
             InitializeComponent();
             // PopulateSocial();
-            EchoNest.Test();
-            
+            //List<Image> images = AmazonGateway.SearchAlbumArt("Please Please Me");
+            PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
+            PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
 
 
             // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.

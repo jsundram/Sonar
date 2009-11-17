@@ -63,7 +63,7 @@ namespace Sonar
                     if (!string.IsNullOrEmpty(i.Url)) 
                         Sonar.Trace(string.Format("Resolved {0} by {1} to {2}", i.Track, i.Artist, i.Url));
                     else 
-                       Sonar.Trace(string.Format("Unable to resolve {0} by {1}", i.Track, i.Artist);
+                       Sonar.Trace(string.Format("Unable to resolve {0} by {1}", i.Track, i.Artist));
                 }
                 this._OnComplete.DynamicInvoke(new object[]{_Caller, i});
             }
