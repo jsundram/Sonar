@@ -1,0 +1,45 @@
+
+
+
+dir=`pwd`
+
+cd /
+find /usr/lib/python2.5/site-packages/brisa -newer /usr/lib/python2.5/site-packages/brisa/__init__.py -name *.py >$dir/tmp.1
+cd $dir
+
+sed 's/\(\/usr\/lib\/python2.5\/site-packages\/brisa\/\)\(.*\)/cp \1\2 brisaupdates\/\2 /' <tmp.1 >tmp.sh
+
+sed 's/.*\(brisaupdates.*\)/mkdir \1/' <tmp.sh >tmp.2
+
+awk -F/ '{for (n=1; n<NF; n++) printf $n"/" ; printf "\n"}' <tmp.2 >tmp2.sh
+
+chmod 777 tmp2.sh
+./tmp2.sh
+
+chmod 777 tmp.sh
+./tmp.sh
+
+
+
+#cp /usr/lib/python2.5/site-packages/brisa/control_point/*.py brisa.control_point
+#cp /usr/lib/python2.5/site-packages/brisa/log/*.py           brisa.log
+
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+echo
+python control_point_gtk.py

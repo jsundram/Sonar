@@ -1,0 +1,14 @@
+get IP of Nokia
+
+    /sbin/ifconfig wlan0
+
+Run the following scripts to copy files across, replacing n with the last octet of the Nokia IP
+
+    ./copybrisa.sh n
+    ./copycp.sh n
+    
+ssh in to the Nokia:
+
+    ssh root@192.168.0.n
+
+

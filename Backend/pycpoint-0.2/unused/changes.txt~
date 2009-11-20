@@ -1,0 +1,37 @@
+Python changes:
+
+
+#### TODO: copy the code in site-packages back to source OTHERWISE a re-install will lose it
+
+
+1) Created Sonos dir and copied control_point_gtk.py and control_point_gtk.glade in.
+
+2) (Undid this change).
+
+3) control_point_gtk.py
+	Added code into on_new_device to walk through child devices as ZonePlayer has them.
+
+4) added some debug output to /usr/lib/python2.5/site-packages/brisa/control_point/control_point_av.py - browse method is failing to create a SOAPService. This is because it's attempting to access the root device rather than the child - added code in to ####
+
+5) Created chop.py and log.py. chop.py contains a function (chop) to chop a string into multiple lines (size passed as param), as well as a function (csplit) to split a string into multiple tokens. log.py overrides LogRecord.getMessage and calls chop and cstring so that DEBUG log messages are formatted better on screen. It also replaces BRisa.log - note that it calls set_level with DEBUG and stdout and doesn't get those values from the config file. Both control_point_av and control_point_gtk have been amended to import the new log instead of the BRisa one.
+
+
+........others to add........
+
+later) Compiled/installed glade 3.6 from source. Needed GTK+ 2.0 plus lots of other dependencies (xml2po was a bugger, is hidden in a docs-utils package).
+
+
+
+
+
+
+
+
+
+RenderingControl = configure characteristics e.g. volume
+AVTransport = enables control over the transport of audio and video streams
+    AVTransport also offers an action to retrieve any meta data embedded in the resource itself.
+
+ConnectionManager service type describes A/V connection setup procedures.
+ContentDirectory service offers meta-information about the resource stored on the media.
+

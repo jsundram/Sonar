@@ -1,0 +1,1 @@
+scp /usr/lib/python2.5/site-packages/brisa/control_point/*.py root@192.168.0.$1:/usr/lib/python2.5/site-packages/brisa/control_point

@@ -1,0 +1,67 @@
+DEBUG	control_point_av              @ 137  #### BROWSE browse_response: 
+
+
+{'NumberReturned': '1', 'UpdateID': '0', 'Result': '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><item id="SQ:0/x-sonos-mms%3atrack%253a19966123%3fsid%3d0:AFist%20Of%20Fury,Fist%20Of%20Fury,Son%20Of%20A%20Beat,330" parentID="SQ:0" restricted="true"><res protocolInfo="sonos.com-mms:*:audio/x-ms-wma:*" duration="0:05:30">x-sonos-mms:track%3a19966123?sid=0</res><upnp:albumArtURI>/getaa?s=1&amp;u=x-sonos-mms%3atrack%253a19966123%3fsid%3d0</upnp:albumArtURI><dc:title>Fist Of Fury</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><dc:creator>Fist Of Fury</dc:creator><upnp:album>Son Of A Beat</upnp:album></item></DIDL-Lite>', 'TotalMatches': '1'}
+                                             --->
+                                             BROWSE browse_response: 
+                                             'NumberReturned': '1'
+                                             'UpdateID': '0'
+                                             'Result': '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><item id="SQ:0/x-sonos-mms%3atrack%253a19966123%3fsid%3d0:AFist%20Of%20Fury
+                                             Fist%20Of%20Fury
+                                             Son%20Of%20A%20Beat
+                                             330" parentID="SQ:0" restricted="true"><res protocolInfo="sonos.com-mms:*:audio/x-ms-wma:*" duration="0:05:30">x-sonos-mms:track%3a19966123?sid=0</res><upnp:albumArtURI>/getaa?s=1&amp;u=x-sonos-mms%3atrack%253a19966123%3fsid%3d0</upnp:albumArtURI><dc:title>Fist Of Fury</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><dc:creator>Fist Of Fury</dc:creator><upnp:album>Son Of A Beat</upnp:album></item></DIDL-Lite>'
+                                             'TotalMatches': '1'
+DEBUG	control_point_av              @ 142  #### BROWSE browse_response[Result]: [<brisa.upnp.didl.didl_lite.MusicTrack object at 0x23d4bd0>]
+                                             --->
+                                             BROWSE browse_response
+                                             Result
+                                             : 
+                                             <brisa.upnp.didl.didl_lite.MusicTrack object at 0x23d4bd0>
+DEBUG	control_point_av              @ 269  #### PLAY item: {'NumberReturned': '1', 'UpdateID': '0', 'Result': [<brisa.upnp.didl.didl_lite.MusicTrack
+                                              object at 0x23d4bd0>], 'TotalMatches': '1'}
+                                             --->
+                                             PLAY item: 
+                                             'NumberReturned': '1'
+                                             'UpdateID': '0'
+                                             'Result': 
+                                             <brisa.upnp.didl.didl_lite.MusicTrack object at 0x23d4bd0>
+                                             'TotalMatches': '1'
+DEBUG	control_point_av              @ 273  #### PLAY uri: x-sonos-mms:track%3a19966123?sid=0
+
+
+
+
+
+
+
+
+{'NumberReturned': '1', 
+'UpdateID': '0', 
+'Result': '
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+<item id="SQ:0/x-sonos-mms%3atrack%253a19966123%3fsid%3d0:AFist%20Of%20Fury,Fist%20Of%20Fury,Son%20Of%20A%20Beat,330" parentID="SQ:0" restricted="true">
+<res protocolInfo="sonos.com-mms:*:audio/x-ms-wma:*" duration="0:05:30">x-sonos-mms:track%3a19966123?sid=0</res>
+<upnp:albumArtURI>/getaa?s=1&amp;u=x-sonos-mms%3atrack%253a19966123%3fsid%3d0</upnp:albumArtURI>
+<dc:title>Fist Of Fury</dc:title>
+<upnp:class>object.item.audioItem.musicTrack</upnp:class>
+<dc:creator>Fist Of Fury</dc:creator>
+<upnp:album>Son Of A Beat</upnp:album>
+</item>
+</DIDL-Lite>
+', 
+'TotalMatches': '1'}
+
+
+
+DEBUG	control_point_av              @ 137  #### BROWSE browse_response: {'NumberReturned': '1', 'UpdateID': '0', 'Result': '<DIDL-Lite xmlns:dc="htt
+                                             p://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:sch
+                                             emas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><item id
+                                             ="SQ:0/x-sonos-mms%3atrack%253a19966123%3fsid%3d0:AFist%20Of%20Fury,Fist%20Of%20Fury,Son%20Of%20A%20
+                                             Beat,330" parentID="SQ:0" restricted="true"><res protocolInfo="sonos.com-mms:*:audio/x-ms-wma:*" dur
+                                             ation="0:05:30">x-sonos-mms:track%3a19966123?sid=0</res><upnp:albumArtURI>/getaa?s=1&amp;u=x-sonos-m
+                                             ms%3atrack%253a19966123%3fsid%3d0</upnp:albumArtURI><dc:title>Fist Of Fury</dc:title><upnp:class>obj
+                                             ect.item.audioItem.musicTrack</upnp:class><dc:creator>Fist Of Fury</dc:creator><upnp:album>Son Of A 
+                                             Beat</upnp:album></item></DIDL-Lite>', 'TotalMatches': '1'}
+
+
+

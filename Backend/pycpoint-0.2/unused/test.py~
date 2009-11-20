@@ -1,0 +1,24 @@
+
+class Test:
+
+    pass
+
+
+
+class LogRec:
+    """
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return '<LogRecord: "%s">'%(self.msg)
+
+    def getMessage(self):
+        msg = self.msg
+        return msg
+
+
+test = LogRec("Test1")
+
+print test.getMessage()

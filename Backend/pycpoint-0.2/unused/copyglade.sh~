@@ -1,0 +1,1 @@
+scp -r /home/mark/UPnP/BRisa/Sonos/*.glade root@192.168.0.$1:/home/user/MyDocs/Sonos

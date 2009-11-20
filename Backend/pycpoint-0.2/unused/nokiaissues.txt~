@@ -1,0 +1,39 @@
+Unhandled exception in thread started by <bound method SSDPServer._datagram_received of <brisa.upnp.ssdp.SSDPServer object at 0x415dddb0>>
+Traceback (most recent call last):
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 201, in _datagram_received
+    self._discovery_request(headers, (host, port))
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 233, in _discovery_request
+    self._discovery_request(hcopy, (host, port))
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 260, in _discovery_request
+    host, port)
+  File "/usr/lib/python2.5/site-packages/brisa/core/network_senders.py", line 64, in send_delayed
+    t.start()
+  File "/usr/lib/python2.5/threading.py", line 440, in start
+    _start_new_thread(self.__bootstrap, ())
+thread.error: can't start new thread
+Unhandled exception in thread started by <bound method SSDPServer._datagram_received of <brisa.upnp.ssdp.SSDPServer object at 0x415dddb0>>
+Traceback (most recent call last):
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 201, in _datagram_received
+    self._discovery_request(headers, (host, port))
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 233, in _discovery_request
+    self._discovery_request(hcopy, (host, port))
+  File "/usr/lib/python2.5/site-packages/brisa/upnp/ssdp.py", line 260, in _discovery_request
+    host, port)
+  File "/usr/lib/python2.5/site-packages/brisa/core/network_senders.py", line 64, in send_delayed
+    t.start()
+  File "/usr/lib/python2.5/threading.py", line 440, in start
+    _start_new_thread(self.__bootstrap, ())
+thread.error: can't start new thread
+
+
+sonos.py:421: GtkWarning: gtk_widget_size_allocate(): attempt to allocate widget with width -24 and height 0
+  window.show_all()
+
+
+python[4811]: GLIB WARNING ** libglade - unknown property `orientation' for class `GtkVBox'
+python[4811]: GLIB WARNING ** libglade - unknown widget class 'GtkVolumeButton'
+sonos.py:407: Warning: gsignal.c:1617: signal `value_changed' is invalid for instance `0x5841e0'
+  self.glade_playing_xml.signal_autoconnect(signals)
+sonos.py:430: GtkWarning: gtk_widget_size_allocate(): attempt to allocate widget with width -24 and height 0
+  window.show_all()
+

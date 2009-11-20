@@ -1,0 +1,41 @@
+
+
+class ControlPointAV(ControlPoint):
+    cds_ns = ('u', 'urn:schemas-upnp-org:service:ContentDirectory:1')
+    avt_ns = ('u', 'urn:schemas-upnp-org:service:AVTransport:1')
+    version_media_server = 'urn:schemas-upnp-org:device:MediaServer:'
+    version_media_renderer = 'urn:schemas-upnp-org:device:MediaRenderer:'
+    encoding = 'UTF-8'
+    current_server = properties.gen_property_with_default("current_server", fset = _set_current_server_device)
+    current_renderer = properties.gen_property_with_default("current_renderer", fset = _set_current_renderer_device)
+
+    def _new_device_event_impl(self, cargo, device_object):
+        # MediaServer and MediaRenderer
+
+        if device_object.device.devices:
+            root_devices = device_object.device.devices
+        else:
+            root_devices = []
+            root_devices.append(device_object.device)
+
+        for root_device in root_devices:
+            url_info = parse_url(root_device.location)
+            service_name = None
+            namespace = None
+
+            if self.version_media_server in root_device.device_type:
+                namespace = self.cds_ns
+                service_name = 'urn:schemas-upnp-org:service:ContentDirectory'
+            elif self.version_media_renderer in root_device.device_type:
+                namespace = self.avt_ns
+                service_name = 'urn:schemas-upnp-org:service:AVTransport'
+
+            # Create device's SOAPService if the service name is fine
+            if service_name is not None and hasattr(root_device, "services"):
+                control_url = get_service_control_url(root_device.services, service_name)
+                control_url = "%s://%s%s" % (url_info[0], url_info[1], control_url)
+                root_device.SOAPService = SOAPProxy(control_url, namespace)
+
+            self.callback("new_device_event", root_device)
+
+

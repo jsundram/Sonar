@@ -1,0 +1,179 @@
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff3941830e0>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff3941830e0>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /ZoneGroupTopology/Event
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.8:1400', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.8', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff394241680>
+QQQ cargo: None
+QQQ msg: SID: uuid:RINCON_000E5830D2F001400_sub0000000053
+QQQ ver: 11
+QQQ status: 200
+QQQ reason: OK
+QQQ k: connection
+QQQ v: close
+QQQ k: sid
+QQQ v: uuid:RINCON_000E5830D2F001400_sub0000000053
+QQQ k: timeout
+QQQ v: Second-300
+QQQ k: server
+QQQ v: Linux UPnP/1.0 Sonos/11.7-19141
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241a28>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241a28>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /ZoneGroupTopology/Event
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.8:1400', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.8', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff3942417e8>
+QQQ cargo: None
+QQQ msg: SID: uuid:RINCON_000E5830D2F001400_sub0000000054
+QQQ ver: 11
+QQQ status: 200
+QQQ reason: OK
+QQQ k: connection
+QQQ v: close
+QQQ k: sid
+QQQ v: uuid:RINCON_000E5830D2F001400_sub0000000054
+QQQ k: timeout
+QQQ v: Second-300
+QQQ k: server
+QQQ v: Linux UPnP/1.0 Sonos/11.7-19141
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241680>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241680>
+QQQ method: SUBSCRIBEThirdPartyMediaServers:
+QQQ parsed_url[2]: /ZoneGroupTopology/Event
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.8:1400', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.8', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff394241170>
+QQQ cargo: None
+QQQ msg: SID: uuid:RINCON_000E5830D2F001400_sub0000000055
+QQQ ver: 11
+QQQ status: 200
+QQQ reason: OK
+QQQ k: connection
+QQQ v: close
+QQQ k: sid
+QQQ v: uuid:RINCON_000E5830D2F001400_sub0000000055
+QQQ k: timeout
+QQQ v: Second-300
+QQQ k: server
+QQQ v: Linux UPnP/1.0 Sonos/11.7-19141
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff3942410e0>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff3942410e0>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /AVTransport/eventSub
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.2:53145', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.2', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241a28>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241a28>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /RenderingControl/eventSub
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.2:53145', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.2', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff3942415a8>
+QQQ cargo: None
+QQQ msg: Server: circuits/1.1.1
+QQQ ver: 11
+QQQ status: 500
+QQQ reason: Internal Server Error
+QQQ k: date
+QQQ v: Sat, 29 Aug 2009 09:59:51 BST
+QQQ k: content-length
+QQQ v: 1633
+QQQ k: server
+QQQ v: circuits/1.1.1
+QQQ k: content-type
+QQQ v: text/html
+QQQ k: x-powered-by
+QQQ v: circuits/1.1.1
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff394241b00>
+QQQ cargo: None
+QQQ msg: Server: circuits/1.1.1
+QQQ ver: 11
+QQQ status: 500
+QQQ reason: Internal Server Error
+QQQ k: date
+QQQ v: Sat, 29 Aug 2009 09:59:51 BST
+QQQ k: content-length
+QQQ v: 1633
+QQQ k: server
+QQQ v: circuits/1.1.1
+QQQ k: content-type
+QQQ v: text/html
+QQQ k: x-powered-by
+QQQ v: circuits/1.1.1
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241830>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241830>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /MediaRenderer/AVTransport/Event
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.8:1400', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.8', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ #########
+QQQ http_call
+QQQ #########
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241830>
+QQQ con: <httplib.HTTPConnection instance at 0x7ff394241830>
+QQQ method: SUBSCRIBE
+QQQ parsed_url[2]: /MediaRenderer/RenderingControl/Event
+QQQ body: 
+QQQ headers: {'HOST': '192.168.0.8:1400', 'User-agent': 'BRisa UPnP Framework', 'CALLBACK': '<http://192.168.0.2:53823/eventSub>', 'Host': '192.168.0.8', 'TIMEOUT': 'Second-300', 'NT': 'upnp:event'}
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff39423e098>
+QQQ cargo: None
+QQQ msg: SID: uuid:RINCON_000E5830D2F001400_sub0000000056
+QQQ ver: 11
+QQQ status: 200
+QQQ reason: OK
+QQQ k: connection
+QQQ v: close
+QQQ k: sid
+QQQ v: uuid:RINCON_000E5830D2F001400_sub0000000056
+QQQ k: timeout
+QQQ v: Second-300
+QQQ k: server
+QQQ v: Linux UPnP/1.0 Sonos/11.7-19141
+QQQ ##########################################
+QQQ ##########################################
+QQQ http_response: <httplib.HTTPResponse instance at 0x7ff394235a28>
+QQQ cargo: None
+QQQ msg: SID: uuid:RINCON_000E5830D2F001400_sub0000000057
+QQQ ver: 11
+QQQ status: 200
+QQQ reason: OK
+QQQ k: connection
+QQQ v: close
+QQQ k: sid
+QQQ v: uuid:RINCON_000E5830D2F001400_sub0000000057
+QQQ k: timeout
+QQQ v: Second-300
+QQQ k: server
+QQQ v: Linux UPnP/1.0 Sonos/11.7-19141

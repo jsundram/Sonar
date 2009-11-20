@@ -1,0 +1,80 @@
+pycpoint
+========
+            
+Python Control Point is a UPnP control point for audio files and streams.
+
+It is built on top of the BRisa UPnP framework, with extensions added
+for Sonos ZonePlayers and the content they can serve/render.
+
+Dependencies:
+-------------
+Python 2.5 or later
+PyGTK, Python-gobject, PyGlade - http://www.pygtk.org/
+python-brisa - http://brisa.garage.maemo.org/installation.html
+    python-brisa Framework 0.10.0
+    python-brisa Qt Reactor 0.10.0
+(python-brisa requires one of the following:
+    * (Recommended)* Python-circuits - http://trac.softcircuit.com.au/circuits/
+    * Python-paste - http://pythonpaste.org
+    * Python-cherrypy 3.1.1 - www.cherrypy.org)
+
+To play files locally on the machine running pycpoint:
+    gstreamer 0.10+ - http://gstreamer.freedesktop.org/download
+    gmediarender-0.0.6 - 
+    (you can also use BRisa Media Renderer - http://brisa.garage.maemo.org/installation.html)
+
+
+Installation:
+-------------
+Untar the source into your directory of choice. Currently the source contains changes to the BRisa framework 
+that are held in a brisa directory within the pycpoint directory. These will be correctly picked up in 
+preference to BRisa code if pycpoint is run from the pycpoint directory.
+
+Run:
+----
+Run
+    python pycpoint.py or ./pycpoint.py
+    
+from the pycpoint directory - you should see a GUI that allows selection and browsing of UPnP servers 
+on the local network and selection of UPnP renderers on the same network to play content on.
+
+There are command line options for debug such as -d to get it all or -m<module> for distinct modules.
+Note that you may have to initially run brisa-conf to set the error level to debug to see debug output.
+
+New features in 0.2
+-------------------
+1) Next and Previous buttons enabled.
+2) Pause and Stop enabled for use with brisa-media-renderer. Now Playing also enabled for this.
+3) Music location moved from status bar to separate window accessed by info button (displays res tags
+for music, URI/URL(s) for RadioTime, also displays item XML). Info window updates are asynchronous.
+4) Music served from Sonos can now be rendered locally via BRisa renderer.
+5) Add to queue enabled for both container and media list entries.
+6) Playlist rename support.
+7) Twonky support.
+8) Context sensitive right click (more work to do here).
+
+Bugs fixed in 0.2
+-----------------
+1) now_playing window not destroyed correctly so unable to open a new one
+2) Doubleclick on medialist entry didn't always select track first time
+3) Out of sequence NOTIFY messages causing now playing to be out of date
+
+Known bugs/features:
+--------------------
+This is alpha software, it still crashes and may wipe you Sonos queue (so make sure you save it first).
+
+1) Currently when selecting a title in the media list, the location of that item is displayed in the
+status bar. When that item is a radio stream, 2 HTTP calls are needed to get the information. These
+calls take a little time so the GUI refresh takes time too. Double clicking to play such content does 
+not always work first time. **** FIXED in 0.2 (moved to separate async window).
+2) The "Add to queue" option when right clicking on a container is not yet activated. **** FIXED in 0.2.
+3) Deezer and Napster options are not yet activated.
+4) Reopening the "Now Playing" window by selecting a different renderer after manually closing that window 
+causes the app to hang. **** FIXED in 0.2.
+5) There is currently no persistence for browse - all browses use HTTP calls to get music data from the
+server they are querying. Calls are chunked to avoid flooding the network/server.
+6) Containers served by third party servers show in the Sonos queue as filenames (note that the metadata 
+is displayed if you select them).
+7) Volume control sends too many updates and consequently is hard to set.
+
+) .... more to add

@@ -1,0 +1,514 @@
+# Licensed under the MIT license
+# http://opensource.org/licenses/mit-license.php or see LICENSE file.
+# Copyright 2007-2008 Brisa Team <brisa-develop@garage.maemo.org>
+
+""" Extends the base control point and adds basic Audio/Video functionality.
+"""
+
+import log
+from brisa.upnp.control_point import ControlPoint
+#from brisa.upnp.control_point import get_service_control_url
+from brisa.upnp.didl.didl_lite import Element
+from brisa.upnp.soap import SOAPProxy
+from brisa.core.network import parse_url
+from brisa.utils import properties
+
+#transportStates = [ 'STOPPED', 'PLAYING', 'TRANSITIONING', 'PAUSED_PLAYBACK', 'PAUSED_RECORDING', 'RECORDING', 'NO_MEDIA_PRESENT' ]
+
+
+
+
+
+
+# TEMP TEMP TEMP
+
+def get_service_control_url(service_dict, service_type):
+    """ Returns the control URL for the service type in the given service
+    dictionary.
+
+    @param service_dict: dictionary of services
+    @param service_type: service type to match
+
+    @type service_dict: dictionary
+    @type service_type: string
+    """
+    for k, service in service_dict.items():
+        service = service_dict[k]
+        if service.service_type.startswith(service_type):
+            return service.control_url
+
+
+
+
+
+
+
+class ControlPointAV(ControlPoint):
+    """This class extends ControlPoint and add basic AV functionality.
+    """
+    # namespaces
+    cds_ns = ('u', 'urn:schemas-upnp-org:service:ContentDirectory:1')
+    avt_ns = ('u', 'urn:schemas-upnp-org:service:AVTransport:1')
+    rc_ns = ('u', 'urn:schemas-upnp-org:service:RenderingControl:1')
+    dp_ns = ('u', 'urn:schemas-upnp-org:service:DeviceProperties:1')
+
+# device - ZonePlayer
+# fn - 192.168.0.10 - Sonos ZonePlayer
+# service list:
+#   DeviceProperties
+#   SystemProperties
+#   ZoneGroupTopology
+# device list:
+#   MediaServer
+#   192.168.0.10 - Sonos ZonePlayer Media Server
+#   MediaRenderer
+#   192.168.0.10 - Sonos ZonePlayer Media Renderer
+
+
+#WE SHOULD BE USING DEVICEPROPERTIES.GETZONEattributes ------------------------------
+
+
+    # services names    
+    cds_sn = 'urn:schemas-upnp-org:service:ContentDirectory'
+    avt_sn = 'urn:schemas-upnp-org:service:AVTransport'
+    rc_sn = 'urn:schemas-upnp-org:service:RenderingControl'
+    dp_sn = 'urn:schemas-upnp-org:service:DeviceProperties'
+    # services
+    sv = ':1'    
+    cds_s = cds_sn + sv
+    avt_s = avt_sn + sv
+    rc_s = rc_sn + sv
+    dp_s = dp_sn + sv
+    # device types    
+    version_zone_player = 'urn:schemas-upnp-org:device:ZonePlayer:'
+    version_media_server = 'urn:schemas-upnp-org:device:MediaServer:'
+    version_media_renderer = 'urn:schemas-upnp-org:device:MediaRenderer:'
+    # encoding
+    encoding = 'UTF-8'
+
+    # Start of Properties Methods
+
+    def _set_current_server_device(self, device):
+        self._prop_current_server = device
+    current_server = properties.\
+                     gen_property_with_default("current_server", fset =
+                                               _set_current_server_device)
+
+    def _set_current_renderer_device(self, device):
+        self._prop_current_renderer = device
+    current_renderer = properties.\
+                       gen_property_with_default("current_renderer", fset =
+                                                 _set_current_renderer_device)
+
+    def _set_current_zoneplayer_device(self, device):
+        self._prop_current_zoneplayer = device
+    current_zoneplayer = properties.\
+                       gen_property_with_default("current_zoneplayer", fset =
+                                                 _set_current_zoneplayer_device)
+
+    # End of Properties Methods
+
+    def _new_device_event_impl(self, cargo, device_object):
+        # MediaServer and MediaRenderer
+
+# TODO: amend code to cater for any (appropriate) depth of children
+
+#        log.debug('METHOD _new_device_event_impl(self cargo device_object)')
+#        log.debug('self: %s' % self)
+#        log.debug('cargo: %s' % cargo)
+#        log.debug('device_object: %s' % device_object)
+
+        if device_object.device.devices:
+#            log.debug('HAS child devices')
+            device_list = device_object.device.devices
+            # need to save the root device too, but remove its children first
+            device_object.device.devices = []
+            device_list.append(device_object.device)
+        else:
+#            log.debug('NO child devices')
+            device_list = []
+            device_list.append(device_object.device)
+
+        for device_item in device_list:
+            url_info = parse_url(device_item.location)
+            service_name = None
+            namespace = None
+
+#            log.debug('device_item.location %s' % device_item.location)
+#            log.debug('url_info %s' % str(url_info))
+#            log.debug('device_item.device_type: %s' % device_item.device_type)
+
+            # Create device's SOAPService(s)
+
+# TODO: need to get device capabilities before assuming what it can do
+#       services are in list so can be checked
+
+            if self.version_zone_player in device_item.device_type and hasattr(device_item, "services"):
+
+                control_url = get_service_control_url(device_item.services, self.dp_sn)
+                control_url = "%s://%s%s" % (url_info[0], url_info[1], control_url)
+                device_item.dp_SOAPService = SOAPProxy(control_url, self.dp_ns)
+
+            elif self.version_media_server in device_item.device_type and hasattr(device_item, "services"):
+
+                control_url = get_service_control_url(device_item.services, self.cds_sn)
+                control_url = "%s://%s%s" % (url_info[0], url_info[1], control_url)
+                device_item.cds_SOAPService = SOAPProxy(control_url, self.cds_ns)
+
+            elif self.version_media_renderer in device_item.device_type and hasattr(device_item, "services"):
+
+                control_url = get_service_control_url(device_item.services, self.avt_sn)
+                control_url = "%s://%s%s" % (url_info[0], url_info[1], control_url)
+                device_item.avt_SOAPService = SOAPProxy(control_url, self.avt_ns)
+
+                control_url = get_service_control_url(device_item.services, self.rc_sn)
+                control_url = "%s://%s%s" % (url_info[0], url_info[1], control_url)
+                device_item.rc_SOAPService = SOAPProxy(control_url, self.rc_ns)
+
+            self.callback("new_device_event", device_item)
+
+    # Start of Media Server Methods
+
+    def browse(self, object_id, browse_flag, filter, starting_index,
+               requested_count, sort_criteria="dc:title"):
+        """Make browses in Media Server.
+
+        This method browser the media server with udn id. The browse_flag
+        must be BrowseDirectChildren or BrowseMetadata"""
+
+#        log.debug('METHOD browse(self object_id browse_flag filter starting_index requested_count sort_criteria=dc:title)')
+#        log.debug('BROWSE self: %s' % self)
+#        log.debug('BROWSE object_id: %s' % object_id)
+#        log.debug('BROWSE browse_flag: %s' % browse_flag)
+#        log.debug('BROWSE filter: %s' % filter)
+#        log.debug('BROWSE starting_index: %s' % starting_index)
+#        log.debug('BROWSE requested_count: %s' % requested_count)
+#        log.debug('BROWSE sort_criteria: %s' % sort_criteria)
+        
+        object_id = str(object_id)
+#        log.debug('BROWSE object_id %s' % object_id)
+
+        try:
+
+#            log.debug('BROWSE current_server: %s', self.current_server)
+            ss = self.current_server.cds_SOAPService
+#            log.debug('BROWSE current_server.cds_SOAPService: %s', ss)
+            ss.soapaction = '%s#Browse' % self.cds_ns[1]
+#            log.debug('BROWSE ss action: %s', ss.soapaction)
+            browse_response = ss.Browse(ObjectID=object_id,
+                                        BrowseFlag=browse_flag,
+                                        Filter=filter,
+                                        StartingIndex=starting_index,
+                                        RequestedCount=requested_count,
+                                        SortCriteria=sort_criteria)
+#            log.debug('BROWSE browse_response: %s' % browse_response)
+#            log.debug('BROWSE browse_response[Result] before: %s' % str(browse_response['Result']))
+            elt = Element.from_string(browse_response['Result'])
+#            log.debug('BROWSE elt: %s' % str(elt))
+            browse_response['Result'] = elt.get_items()
+#            log.debug('BROWSE browse_response[Result] after: %s' % str(browse_response['Result']))
+
+            return browse_response
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Server not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during remote browse call: %s" % \
+                                e.message)
+
+    def search(self, container_id, search_criteria, filter, starting_index,
+               requested_count, sort_criteria):
+        """Search items in Media Server.
+
+        This method search items with search_criteria key in the container_id
+        of current media server."""
+        ss = self.current_server.cds_SOAPService
+        ss.soapaction = '%s#Search' % self.cds_ns[1]
+
+        try:
+            search_response = ss.Search(ContainerID=container_id,
+                                    SearchCriteria=search_criteria,
+                                    Filter=filter,
+                                    StartingIndex=starting_index,
+                                    RequestedCount=requested_count,
+                                    SortCriteria=sort_criteria)
+
+            elt = Element.from_string(search_response['Result'])
+#            log.debug('search response %s' % str(search_response['Result']))
+            return elt.get_items()
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Server not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during search: %s" % e.message)
+
+    def get_search_capabilites(self):
+        """Return the fields which the server support search.
+
+SearchCapabilities is a CSV list of property names that can be used in search queries. An empty string
+indicates that the CDS does not support any kind of searching. A wildcard ('*') indicates that the device
+supports search queries using all tags present in the CDS.
+
+
+        This method returns the fields which the server support searching."""
+        try:
+            ss = self.current_server.cds_SOAPService
+            ss.soapaction = '%s#GetSearchCapabilities' % self.cds_ns[1]
+            return ss.GetSearchCapabilities()
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Server not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during get_search_capabilities: %s" % \
+                                e.message)
+
+    def get_sort_capabilities(self):
+        """Returns a list of fields which the server supports sorting.
+
+        This method returns the fields which the server support sort."""
+        try:
+            ss = self.current_server.cds_SOAPService
+            ss.soapaction = '%s#GetSortCapabilities' % self.cds_ns[1]
+            return ss.GetSortCapabilities()
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Server not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during get_sort_capabilities: %s" % \
+                                e.message)
+
+    # End of Media Server Methods
+
+    # Start of Zone Player Methods
+
+    def get_zone_attributes(self):
+        """
+
+        """
+        try:
+            ss = self.current_zoneplayer.dp_SOAPService
+            ss.soapaction = '%s#GetZoneAttributes' % self.rc_ns[1]
+            zoneAttributes = ss.GetZoneAttributes()
+#            log.debug('gza: %s' % str(zoneAttributes))
+            return zoneAttributes
+        except:
+            if not self.current_zoneplayer:
+                raise Exception("Zone Player not selected. Select it " \
+                                "setting current_zoneplayer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote get zone attributes call")
+
+    # End of Zone Player Methods
+
+    # Start of Media Renderer Methods
+
+    def get_position_info(self):
+        """Returns the current position info for the current transport.
+
+        This method returns the current position info."""
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#GetPositionInfo' % self.avt_ns[1]
+            positionInfo = ss.GetPositionInfo(InstanceID=0)
+            log.debug('#### GPI current_renderer.avt_SOAPService.soapaction.GetPositionInfo result: %s', positionInfo)
+            return positionInfo
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during get_position_info: %s" % \
+                                e.message)
+
+    def get_transport_state(self):
+        """Returns the current transport state.
+
+        This method returns the current transport state (only)."""
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#GetTransportInfo' % self.avt_ns[1]
+            transportInfo = ss.GetTransportInfo(InstanceID=0)
+#            log.debug('#### GTS current_renderer.avt_SOAPService.soapaction.GetTransportInfo result: %s', transportInfo)
+#GetTransportInfo result: {'CurrentTransportState': 'STOPPED', 'CurrentTransportStatus': 'OK', 'CurrentSpeed': '1'}
+            state = transportInfo['CurrentTransportState']
+#            log.debug('GTS state: %s' % str(state))
+            return state
+        except Exception, e:
+            if not self.current_server:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_server to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during get_transport_state: %s" % \
+                                e.message)
+
+    def play(self, uri, xml):
+        """Play item.
+
+        Render media_url in the Renderer which udn is stored in
+        self.renderer_udn."""
+#        log.debug('METHOD play(self id)')
+#        log.debug('self: %s' % self)  
+#        log.debug('id: %s' % id)  
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#SetAVTransportURI' % self.avt_ns[1]
+
+#            item = self.browse(id, 'BrowseMetadata', '*', 0, 1, '')
+#            uri = item['Result'][0].resources[0].value
+#            item = id
+
+            log.debug('PLAY uri: %s', uri)
+            log.debug('PLAY xml: %s', xml)
+
+            # HACK: need to send either DIDL-Lite or item
+            if xml.startswith('<DIDL-Lite'):
+                metadata = xml
+            else:
+                metadata = '<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">' + xml + '</DIDL-Lite>'
+
+            log.debug('PLAY metadata: %s', metadata)
+
+#            uri = item.resources[0].value
+#            ss.SetAVTransportURI(InstanceID=0, CurrentURI=uri, CurrentURIMetaData='')   # does not return result
+
+            ss.SetAVTransportURI(InstanceID=0, CurrentURI=uri, CurrentURIMetaData=metadata)   # does not return result
+            ss.soapaction = '%s#Play' % self.avt_ns[1]
+            ssresult = ss.Play(InstanceID=0, Speed=1)
+            log.debug('PLAY current_renderer.avt_SOAPService.soapaction.Play result: %s', ssresult)
+#            log.debug('PLAY after')
+        except Exception, e:
+            if not self.current_renderer:
+                raise Exception("Media renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during remote play call: %s. Maybe " \
+                                "the selected renderer is not online " \
+                                "anymore." % e.message)
+
+    def pause(self):
+        """Pause item.
+
+        """
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#Pause' % self.avt_ns[1]
+            ss.Pause(InstanceID=0)
+        except:
+            if not self.current_renderer:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote pause call")
+
+    def unpause(self):
+        """Unpause item.
+
+        """
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#Play' % self.avt_ns[1]
+            ssresult = ss.Play(InstanceID=0, Speed=1)
+        except Exception, e:
+            if not self.current_renderer:
+                raise Exception("Media renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error during remote unpause call: %s. Maybe " \
+                                "the selected renderer is not online " \
+                                "anymore." % e.message)
+
+    def stop(self):
+        """Stop render.
+
+        Stop the rendering according to the current selected renderer udn."""
+        try:
+            ss = self.current_renderer.avt_SOAPService
+            ss.soapaction = '%s#Stop' % self.avt_ns[1]
+            ss.Stop(InstanceID=0)
+        except:
+            if not self.current_renderer:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote stop call")
+
+    def next(self):
+        """Switch play next track
+        """
+        pass
+
+    def previous(self):
+        """Switch play to previous track
+        """
+        pass
+
+    def get_volume(self):
+        """
+
+        """
+        try:
+            ss = self.current_renderer.rc_SOAPService
+            ss.soapaction = '%s#GetVolume' % self.rc_ns[1]
+            ssresult = ss.GetVolume(InstanceID=0, Channel='Master')
+            current_volume = ssresult['CurrentVolume']
+#            log.debug('GET_VOLUME current_renderer.rc_SOAPService.soapaction.GetVolume volume: %s', current_volume)
+            return current_volume
+        except:
+            if not self.current_renderer:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote get volume call")
+
+    def set_volume(self, volume):
+        """
+
+        """
+        try:
+            ss = self.current_renderer.rc_SOAPService
+            ss.soapaction = '%s#SetVolume' % self.rc_ns[1]
+            ss.SetVolume(InstanceID=0, Channel='Master', DesiredVolume=volume)
+#            log.debug('SET_VOLUME current_renderer.rc_SOAPService.soapaction.SetVolume volume: %s', volume)
+            return
+        except:
+            if not self.current_renderer:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote set volume call.")
+
+    def mute(self, value):
+        """
+
+        """
+        try:
+            ss = self.current_renderer.rc_SOAPService
+            ss.soapaction = '%s#SetMute' % self.rc_ns[1]
+            ss.SetMute(InstanceID=0, Channel='Master', DesiredMute=value)
+            return
+        except:
+            if not self.current_renderer:
+                raise Exception("Media Renderer not selected. Select it " \
+                                "setting current_renderer to the device " \
+                                "you want.")
+            else:
+                raise Exception("Error occured during remote set mute call.")
+
+    # End of Media Renderer Methods

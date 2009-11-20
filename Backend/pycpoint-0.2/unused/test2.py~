@@ -1,0 +1,12 @@
+
+from test import LogRec
+
+def getMessage(self):
+    msg = "##" + self.msg
+    return msg
+
+#LogRec.getMessage = getMessage
+
+test2 = LogRec("Test2")
+
+print test2.getMessage()

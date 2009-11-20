@@ -1,0 +1,1074 @@
+#!/usr/bin/env python
+# Licensed under the MIT license
+# http://opensource.org/licenses/mit-license.php or see LICENSE file.
+# Copyright 2007-2008 Brisa Team <brisa-develop@garage.maemo.org>
+
+# Implementation of the UPnP Control Point Gui
+
+import brisa
+
+
+#print sys.path
+#print sys.modules
+#sys.path.insert(0,'/home/mark/UPnP/Sonos2/site-packages')
+#print sys.path
+
+
+from brisa.core.reactors import Gtk2Reactor
+reactor = Gtk2Reactor()
+
+from brisa.upnp.control_point.service import Service, SubscribeRequest
+
+
+import gtk
+import gtk.glade
+#import gobject
+
+#from threading import Thread
+
+import xml.dom
+from xml.dom import minidom
+from xml.dom.minidom import parseString
+
+import log
+from xml.etree.ElementTree import Element, SubElement, dump 
+#from brisa.upnp.control_point import ControlPointAV
+from control_point_sonos import ControlPointSonos
+#from brisa.threading import ThreadManager, ThreadObject
+from brisa.upnp.didl.didl_lite import Container, Element
+#from brisa.core.network import parse_url
+#from brisa.upnp.control_point.control_point import get_service_control_url
+from brisa.core.network import parse_xml
+
+from brisa.upnp.control_point.service import Service, SubscribeRequest
+
+from brisa.utils.looping_call import LoopingCall
+
+from music_items import music_item, dump_element, getAlbumArt
+
+try:
+    import hildon
+    is_hildon = True
+    print "is_hildon"
+except:
+    is_hildon = False
+    print "isnt_hildon"
+
+import sys
+print sys.path
+print sys.modules
+
+# TODO:
+# TODO:
+# TODO:
+#DEBUG	didl_lite                     @2711  element from string critical bug: 'NoneType' object is not iterable
+################################################################################
+# Deactivate stop button when already stopped etc
+# Currently not processing responses like "stop"
+# When stopping a track that has been paused, if it's the last track in a queue the Sonos returns to the first track in the queue - but we haven't set the metadata for that. ACTUALLY seems to be related to the return of a playlist class.
+# Need to subscribe to zone player events (e.g. if the zone name is changed)
+# Need to add code that decides whether Sonos devices are in use and add appropriate conditionality
+# Need to tidy up new classes
+
+class ControlPointGUI(object):
+
+    comboBox_server_devices = None
+    comboBox_renderer_devices = None
+    container_treestore = None
+    container_tree_view = None
+
+#    current_server_device = None
+#    current_renderer_device = None
+
+    current_media_id = None
+    current_media_xml = ''
+    current_renderer_events_avt = {}
+    current_renderer_events_rc = {}
+
+    playing_window = None
+    now_playing = ''
+
+    current_position = {}
+    current_track = '-1'
+    current_track_duration = ''
+    current_track_URI = ''
+    current_track_metadata = ''
+    current_track_relative_time_position = ''
+    
+    current_music_item = music_item()
+
+    muted = 0
+    play_state = ''
+    current_renderer_output_fixed = '1'
+
+#    control_point_manager = None
+
+#    kill_app = False
+    media_list = []
+
+    known_zone_players = {}
+    known_zone_names = {}
+    known_media_servers = {}
+    known_media_renderers = {}
+
+#    idle_count = 0
+
+
+    def __init__(self):
+        signals={"gtk_main_quit": self._main_quit,
+                 "on_quit_activate": self._main_quit}
+
+        log.debug("__init__")
+
+        self.control_point = ControlPointSonos()
+        self.control_point.subscribe("new_device_event", self.on_new_device)
+        self.control_point.subscribe("removed_device_event", self.on_del_device)
+        self.control_point.subscribe('device_event', self.on_device_event)
+
+        self.glade_xml = gtk.glade.XML('control_point_gtk.glade')
+        self.create_all_screen_objects()
+        self.glade_xml.signal_autoconnect(signals)
+        self.adjust_main_to_hildon()
+
+        self.control_point.start()
+        self.control_point.start_search(600.0, "ssdp:all")
+
+#        self.idle_id = gobject.idle_add(self.idle_callback)
+
+
+#    def idle_callback(self):
+#        self.idle_count += 1
+#        print "<<<< IDLE>>>>" + str(self.idle_count)
+#        if self.idle_count == 50000:
+#            gobject.source_remove(self.idle_id)
+#        return True
+
+
+    def create_all_screen_objects(self):
+        self.create_server_combo_box()
+        self.create_renderer_combo_box()
+        self.create_container_tree_view()
+        self.create_item_media_list()
+
+    def create_server_combo_box(self):
+        hbox = self.glade_xml.get_widget("hbox_servers")
+        liststore = gtk.ListStore(str, str)
+        self.comboBox_server_devices = gtk.ComboBox(liststore)
+        self.comboBox_server_devices.connect('changed', self._changed_server_devices)
+        cell = gtk.CellRendererText()
+        self.comboBox_server_devices.pack_start(cell, True)
+        self.comboBox_server_devices.add_attribute(cell, 'text', 0)
+        hbox.add(self.comboBox_server_devices)
+        self.comboBox_server_devices.show()
+
+    def create_renderer_combo_box(self):
+        hbox = self.glade_xml.get_widget("hbox_renders")
+        liststore = gtk.ListStore(str, str)
+        self.comboBox_renderer_devices = gtk.ComboBox(liststore)
+        self.comboBox_renderer_devices.connect('changed', self._changed_renderer_devices)
+        cell = gtk.CellRendererText()
+        self.comboBox_renderer_devices.pack_start(cell, True)
+        self.comboBox_renderer_devices.add_attribute(cell, 'text', 0)
+        hbox.add(self.comboBox_renderer_devices)
+        self.comboBox_renderer_devices.show()
+
+    def create_container_tree_view(self):
+        self.container_treestore = gtk.TreeStore(str, str)
+        self.container_treeview = gtk.TreeView(self.container_treestore)
+        self.container_treeview.connect("row_activated", self._on_container_treeview_activated, '')
+        tvcolumn = gtk.TreeViewColumn('Containers')
+        self.container_treeview.append_column(tvcolumn)
+        cell = gtk.CellRendererText()
+        tvcolumn.pack_start(cell, True)
+        tvcolumn.add_attribute(cell, 'text', 0)
+        tree_hbox = self.glade_xml.get_widget('tree_hbox')
+        tree_hbox.add(self.container_treeview)
+        self.container_treeview.show()
+
+    def create_item_media_list(self):
+        self.item_media_list_liststore = gtk.ListStore(str, str, str)
+        self.item_media_list_treeview = gtk.TreeView(self.item_media_list_liststore)
+        self.item_media_list_treeview.connect("cursor-changed", self._on_media_item_listview_changed)
+        self.item_media_list_treeview.connect("row_activated", self._on_media_item_selected)
+        tvcolumn = gtk.TreeViewColumn('Title')
+        self.item_media_list_treeview.append_column(tvcolumn)
+        cell = gtk.CellRendererText()
+        tvcolumn.pack_start(cell, True)
+        tvcolumn.add_attribute(cell, 'text', 0)
+        tree_hbox = self.glade_xml.get_widget('list_viewport')
+        tree_hbox.add(self.item_media_list_treeview)
+        self.item_media_list_treeview.show()
+
+    def show_playing_window(self):
+        if self.playing_window == None:
+            signals={"gtk_playing_quit": self._playing_quit,
+                     "on_playing_quit_activate": self._playing_quit,
+                     "on_refresh_clicked": self._on_refresh_clicked,
+                     "on_play_clicked": self._on_play_clicked,
+                     "on_stop_clicked": self._on_stop_clicked,
+                     "on_next_clicked": self._on_next_clicked,
+                     "on_previous_clicked": self._on_previous_clicked,
+                     "on_mute_clicked": self._on_mute_clicked,
+                     "on_volume_value_changed": self._on_volume_changed}
+            self.glade_playing_xml = gtk.glade.XML('now_playing_gtk.glade')
+            self.glade_playing_xml.signal_autoconnect(signals)
+            self.playing_window = self.glade_playing_xml.get_widget('now_playing_window')
+            # trap when top level widget is destroyed within window (won't get window destroy event)
+            gtk_playing_vbox=self.glade_playing_xml.get_widget('playing_vbox')
+            gtk_playing_vbox.connect("destroy", self._playing_destroy)
+            self.playing_window.show_all()
+            self.adjust_playing_to_hildon()
+
+    def create_main_window(self):
+        window = hildon.Window()
+        window.set_title("Control Point")
+        window.connect("destroy", self._main_quit)
+        main_menu = self._create_main_menu()
+        window.set_menu(main_menu)
+        window.show_all()
+        return window
+
+    def create_playing_window(self):
+        window = hildon.Window()
+        window.set_title("Now Playing")
+        window.connect("destroy", self._playing_quit)
+        playing_menu = self._create_playing_menu()
+        window.set_menu(playing_menu)
+        window.show_all()
+        return window
+
+    def _create_main_menu(self):
+        about_item = gtk.MenuItem("About")
+        about_item.connect("activate", self._on_about_activated)
+        quit_item = gtk.MenuItem("Quit")
+        quit_item.connect("activate", self._main_quit)
+        help_menu = gtk.Menu()
+        help_menu.append(about_item)
+        help_item = gtk.MenuItem("Help")
+        help_item.set_submenu(help_menu)
+        menu = gtk.Menu()
+        menu.append(quit_item)
+        menu.show()
+        return menu
+
+    def _create_playing_menu(self):
+        about_item = gtk.MenuItem("About")
+        about_item.connect("activate", self._on_about_activated)
+        quit_item = gtk.MenuItem("Quit")
+        quit_item.connect("activate", self._playing_quit)
+        help_menu = gtk.Menu()
+        help_menu.append(about_item)
+        help_item = gtk.MenuItem("Help")
+        help_item.set_submenu(help_menu)
+        menu = gtk.Menu()
+        menu.append(quit_item)
+        menu.show()
+        return menu
+
+    def adjust_main_to_hildon(self):
+        """Adjust the GUI to be usable in maemo platform."""
+        if is_hildon:
+            self.app = hildon.Program()
+            hildon_main_window = self.create_main_window()
+            self.app.add_window(hildon_main_window)
+            gtk_main_vbox=self.glade_xml.get_widget('main_vbox')
+            gtk_main_vbox.reparent(hildon_main_window)
+            main_menu=self.glade_xml.get_widget('main_menu')
+            main_menu.destroy()
+            gtk_main_window=self.glade_xml.get_widget('main_window')
+            gtk_main_window.destroy()
+
+    def adjust_playing_to_hildon(self):
+        """Adjust the GUI to be usable in maemo platform."""
+        if is_hildon:
+            self.app = hildon.Program()
+            hildon_playing_window = self.create_playing_window()
+            self.app.add_window(hildon_playing_window)
+            gtk_playing_vbox=self.glade_xml.get_widget('playing_vbox')
+            gtk_playing_vbox.reparent(hildon_playing_window)
+            playing_menu=self.glade_playing_xml.get_widget('main_menu')
+            playing_menu.destroy()
+            gtk_playing_window=self.glade_xml.get_widget('playing_window')
+            gtk_playing_window.destroy()
+
+    def refresh(self):
+        log.info('search device refresh event...')
+        self.generate_server_list()
+        self.generate_render_list()
+
+    def generate_server_list(self):
+        self._generate_combo('server')
+
+    def generate_render_list(self):
+        self._generate_combo('render')
+
+    def _generate_combo(self, type):
+        if type=='server':
+            combo_box = self.comboBox_server_devices
+            devices = self.known_media_servers
+        else:
+            combo_box = self.comboBox_renderer_devices
+            devices = self.known_media_renderers
+
+        list_store = combo_box.get_model()
+        list_store.clear()
+        list_store.append(["", "None"])
+
+        append = list_store.append
+        for device_object in devices.values():
+            if device_object.udn in self.known_zone_names:
+                device_name = self.known_zone_names[device_object.udn]
+            else:
+                device_name = device_object.friendly_name
+            append([device_name, device_object.udn])
+
+    def subscribe_to_device(self, device, service):
+        try:
+#            log.debug("#### SUBSCRIBE_TO_DEVICE BEFORE")
+#            device.services[service].event_subscribe(self.control_point.event_host, self._event_subscribe_callback, None)
+            service.event_subscribe(self.control_point.event_host, self._event_subscribe_callback, None, True, self._event_renewal_callback)
+#            log.debug("#### SUBSCRIBE_TO_DEVICE AFTER")
+        except:
+            raise Exception("Error occured during subscribe to device")
+
+
+
+    def subscribe_for_variable(self, device, service, variable):
+        try:
+            log.debug("#### SUBSCRIBE_FOR_VARIABLE BEFORE")
+            print variable
+            print service.get_state_variable(variable)
+            service.subscribe_for_variable(variable, self._event_variable_callback)
+            log.debug("#### SUBSCRIBE_FOR_VARIABLE AFTER")
+        except:
+            raise Exception("Error occured during subscribe for variable")
+
+    def _event_variable_callback(self, name, value):
+        print "Event message!"
+        print 'State variable:', name
+        print 'Variable value:', value
+
+
+
+#    def renew_device_subscription(self, device, service):
+#        try:
+#            log.debug("#### RENEW_DEVICE_SUBSCRIPTION BEFORE")
+#            device.services[service].event_renew(self.control_point.event_host, self._event_renewal_callback, None)
+#            log.debug("#### RENEW_DEVICE_SUBSCRIPTION AFTER")
+#        except:
+#            raise Exception("Error occured during device subscription renewal")
+
+    def unsubscribe_from_device(self, device, service):
+        try:
+            log.debug("#### UNSUBSCRIBE_FROM_DEVICE BEFORE")
+            service.event_unsubscribe(self.control_point.event_host, self._event_unsubscribe_callback, None)
+            log.debug("#### UNSUBSCRIBE_FROM_DEVICE AFTER")
+        except:
+            raise Exception("Error occured during unsubscribe from device")
+
+    def get_zone_details(self):
+        return self.control_point.get_zone_attributes()
+
+    def browse_media_server(self, id, iter=None):
+        search_capabilities = self.control_point.get_search_capabilites()
+        log.debug("#### browse_media_server search capabilities: %s", search_capabilities)
+#{'SearchCaps': 'upnp:class,dc:title,dc:creator,res@protocolInfo'}
+
+# TODO: need to decide how to cater for multiple server types - maybe we stick to audio for now
+
+#        browse_result = self.control_point.browse(id, 'BrowseDirectChildren', '*', 0, 20, 'dc:title')
+        browse_result = self.control_point.browse(id, 'BrowseDirectChildren', '*', 0, 20, '')
+        log.debug("browse_media_server result: %s", browse_result['Result'])
+        items = browse_result['Result']
+        total = int(browse_result['TotalMatches'])
+        returned = int(browse_result['NumberReturned'])
+#        log.debug("browse_media_server: %s items, %s total, %s returned", items, total, returned)
+
+        if total > 20:
+            while returned < total:
+                b = self.control_point.browse(id, 'BrowseDirectChildren', '*', returned, 20, '')
+                items = items + b['Result']
+                returned += int(b['NumberReturned'])
+        container_append = self.container_treestore.append
+        liststore_append = self.item_media_list_liststore.append
+
+        for item in items:
+            if isinstance(item, Container):
+                if [item.title, item.id] not in self.container_treestore:
+                    container_append(iter, [item.title, item.id])
+            else:
+
+                print item.to_string()
+
+# this is where the item details get added to the media list
+# item.id is ok for a NAS track, but not for the other types 
+#                liststore_append([item.title, item.id])
+
+                xml = item.to_string()
+                xml = xml.replace('xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"','')
+                xml = xml.replace('ns0:','')
+
+                liststore_append([item.title, item.resources[0].value, xml])
+
+    def check_play(self):
+        # check if already playing:
+        #     if playing, pause
+        #     if paused, unpause (play)
+        # else
+        #     unpause (i.e. play without setting AVTransport
+#            state = self.control_point.get_transport_state()
+#            log.debug("play state: %s", state)
+#transportStates = [ 'STOPPED', 'PLAYING', 'TRANSITIONING', 'PAUSED_PLAYBACK', 'PAUSED_RECORDING', 'RECORDING', 'NO_MEDIA_PRESENT' ]
+        if self.play_state == 'PLAYING' or self.play_state == 'TRANSITIONING':
+            self.pause()
+        elif self.play_state == 'PAUSED_PLAYBACK':
+            self.unpause()
+        else:
+            # we want to play without setting AVTransport, which is what unpause does
+            self.unpause()
+
+    def pause(self):
+        try:
+            self.control_point.pause()
+            self.set_play_label_only('Resume')
+        except Exception, e:
+            log.info('Choose a Renderer to pause Music. Specific problem: %s' % \
+                     str(e))
+
+    def unpause(self):
+        try:
+            self.control_point.unpause()
+            self.set_play_label_only('Pause')
+        except Exception, e:
+            log.info('Choose a Renderer to unpause Music. Specific problem: %s' % \
+                     str(e))
+
+    def play(self):
+        if self.current_media_id != None:
+            try:
+#                log.debug('#### GTK PLAY current_media_id: %s', self.current_media_id)
+#                log.debug('#### GTK PLAY current_media_xml: %s', self.current_media_xml)
+                self.control_point.play(self.current_media_id, self.current_media_xml)
+                self.set_play_label_only('Pause')
+            except Exception, e:
+                log.info('Choose a Renderer to play Music. Specific problem: %s' % \
+                         str(e))
+
+
+# play process:
+#
+#   if media item selected
+#       set AVTransport
+#       play
+#   if play clicked
+#       if there is a current track from get_position_info
+#           unpause
+#       else
+#           do nothing
+
+
+    def stop(self):
+        if self.play_state != '' and self.play_state != 'STOPPED':
+            try:
+                self.control_point.stop()
+                self.set_play_label_only('Play')
+                self.play_state == 'STOPPED'
+            except Exception, e:
+                log.info('Choose a Renderer to stop Music. Specific problem: %s' % \
+                         str(e))
+
+    def toggle_mute(self):
+        if self.muted == 1:
+            self.muted = 0
+            self.set_mute_label_only('Mute')
+        else:
+            self.muted = 1
+            self.set_mute_label_only('UnMute')
+
+    def set_mute_label_only(self, label):
+        bv = self.glade_playing_xml.get_widget("button_mute")
+        bv.set_label(label)
+
+
+#self.Button = gtk.Button('Name')
+# image,label =  self.Button.get_children()[0].get_children()[0].get_children()
+# label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFFFFF'))
+
+
+
+    def set_mute(self, mute_value):
+        if isinstance(mute_value, str):
+            mute_value = int(mute_value)
+        bv = self.glade_playing_xml.get_widget("button_mute")
+        self.muted = mute_value
+        if mute_value == 0:
+            mute_after = 'Mute'
+        else:
+            mute_after = 'UnMute'
+        bv.set_label(mute_after)
+
+    def set_play_label_only(self, label):
+        bv = self.glade_playing_xml.get_widget("button_play")
+        bv.set_label(label)
+
+    def set_play(self, state):
+        print ">>>>>>>>>>>>> TRANSPORT STATE " + state
+        bv = self.glade_playing_xml.get_widget("button_play")
+        self.play_state = state
+#transportStates = [ 'STOPPED', 'PLAYING', 'TRANSITIONING', 'PAUSED_PLAYBACK', 'PAUSED_RECORDING', 'RECORDING', 'NO_MEDIA_PRESENT' ]
+        if state == 'PLAYING' or state == 'TRANSITIONING':
+            state_label = 'Pause'
+        elif state == 'PAUSED_PLAYBACK':
+            state_label = 'Resume'
+        elif state == 'STOPPED':
+            state_label = 'Play'
+        bv.set_label(state_label)
+
+    def mute(self):
+        try:
+            self.control_point.mute(self.muted)
+        except Exception, e:
+            log.info('Choose a Renderer to mute Music. Specific problem: %s' % \
+                     str(e))
+
+    def next(self):
+        self.control_point.next()
+
+    def previous(self):
+        self.control_point.previous()
+
+    def volume(self, volume):
+        try:
+            self.control_point.set_volume(volume)
+        except Exception, e:
+            log.info('Choose a Renderer to change volume. Specific problem: %s' % \
+                     str(e))
+
+#    def _main_quit(self, window):
+#        self.control_point.stop_search()
+#        ThreadManager().stop_all()
+#        gtk.gdk.threads_leave()
+#        gtk.main_quit()
+#        quit()
+    def _main_quit(self, window=None):
+        if window:
+            window.destroy()
+        reactor.main_quit()
+
+    def _playing_quit(self, window):
+        print "_playing_quit"
+        self.playing_window.destroy()
+        self.playing_window = None
+
+    def _playing_destroy(self, window):
+        print "_playing_destroy"
+        self.playing_window = None
+
+    def _changed_server_devices(self, combobox):
+        model = combobox.get_model()
+        index = combobox.get_active()
+        if type(index) == int and index >= 0:
+            self.container_treestore.clear()
+            try:
+                self.control_point.set_current_server(self.known_media_servers[model[index][1]])
+                self.browse_media_server(0)
+                self.item_media_list_liststore.clear()
+#                log.debug("Media server controlled: %s UDN: %s", model[index][0], model[index][1])
+            except KeyError, k:
+                pass
+
+    def _changed_renderer_devices(self, combobox):
+        model = combobox.get_model()
+        index = combobox.get_active()
+        if type(index) == int and index >= 0:
+            try:
+                # unsubscribe from events from previous renderer
+                current_renderer = self.control_point.get_current_renderer()
+                if current_renderer != None:
+#                    self.renew_loop.stop()
+                    self.unsubscribe_from_device(current_renderer, self.control_point.get_avt_service())
+                    self.unsubscribe_from_device(current_renderer, self.control_point.get_rc_service())
+                    self.current_renderer_events_avt = {}
+                    self.current_renderer_events_rc = {}
+                    self.now_playing = ''
+                    self.clear_position_info()
+                self.show_playing_window()
+                # set new renderer
+                self.control_point.set_current_renderer(self.known_media_renderers[model[index][1]])
+                current_renderer = self.control_point.get_current_renderer()
+                # subscribe to events from this device
+                self.subscribe_to_device(current_renderer, self.control_point.get_avt_service())
+                self.subscribe_to_device(current_renderer, self.control_point.get_rc_service())
+
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#                self.subscribe_for_variable(current_renderer, self.control_point.get_avt_service(), "TransportState")
+#                self.subscribe_for_variable(current_renderer, self.control_point.get_rc_service(), "Volume")
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+#                # set up for subscription renewals
+#                # TODO: parameterise TIMEOUT
+#                refresh_time = 0.97 * 1800
+#                self.renew_loop = LoopingCall(self._renew_subscriptions)
+#                self.renew_loop.start(refresh_time, now=False)
+#                log.debug("Media renderer controlled: %s", model[index][0])
+                self.get_position_info()
+            except:
+                pass
+
+
+#    def _renew_subscriptions(self):
+#        """ Renew subscriptions
+#        """
+#        self.renew_device_subscription(self.control_point.current_renderer, self.control_point.avt_s)
+#        self.renew_device_subscription(self.control_point.current_renderer, self.control_point.rc_s)
+
+
+    def on_new_device(self, device_object):
+#        log.debug('got new device: %s' % str(device_object))
+#        log.debug('new device type: %s' % str(device_object.device_type))
+
+#        log.debug('fn: %s' % str(device_object.friendly_name))
+#        log.debug('m : %s' % str(device_object.manufacturer))
+#        log.debug('mu: %s' % str(device_object.manufacturer_url))
+#        log.debug('md: %s' % str(device_object.model_description))
+#        log.debug('mn: %s' % str(device_object.model_name))
+#        log.debug('mn: %s' % str(device_object.model_number))
+#        log.debug('mu: %s' % str(device_object.model_url))
+#        log.debug('sn: %s' % str(device_object.serial_number))
+#        log.debug('ud: %s' % str(device_object.udn))
+#        log.debug('up: %s' % str(device_object.upc))
+#        log.debug('pu: %s' % str(device_object.presentation_url))
+
+#        log.debug('new device udn: %s' % str(device_object.udn))
+#        log.debug('new device services: %s' % str(device_object.services))
+
+# TODO: need to check whether we need to cater for multiple child levels
+# TODO: DO WE NEED TO CHECK FOR CHILD DEVICES ANY MORE?
+        device_list = []
+        if device_object.devices:
+            log.debug('HAS child devices')
+            root_device = device_object
+            root_device.devices = []
+            device_list.append(root_device)
+            device_list.extend(device_object.devices)
+        else:
+            log.debug('NO child devices')
+            device_list.append(device_object)
+
+        for device_item in device_list:
+            log.debug('new device: %s' % str(device_item))
+            log.debug('new device type: %s' % str(device_item.device_type))
+            log.debug('new device udn: %s' % str(device_item.udn))                                    
+            log.debug('new device services: %s' % str(device_item.services))
+            # assumes root device is processed first so that zone name is known
+            t = device_item.device_type
+            if 'ZonePlayer' in t:
+                self.on_new_zone_player(device_item)
+            elif 'MediaServer' in t:
+                self.on_new_media_server(device_item)
+            elif 'MediaRenderer' in t:
+                self.on_new_media_renderer(device_item)
+
+    def on_new_zone_player(self, device_object):
+        self.known_zone_players[device_object.udn] = device_object
+        
+#        self.control_point.current_zoneplayer = device_object
+        self.control_point.set_current_zoneplayer(device_object)
+        self.zoneattributes = self.get_zone_details()
+        log.debug('new zone player - %s' % self.zoneattributes['CurrentZoneName'])
+#        # HACK: assuming udn's of children are as below
+#        self.known_zone_names[device_object.udn + '_MS'] = self.zoneattributes['CurrentZoneName']
+#        self.known_zone_names[device_object.udn + '_MR'] = self.zoneattributes['CurrentZoneName']
+        self.known_zone_names[device_object.udn] = self.zoneattributes['CurrentZoneName']
+#        log.debug('<###### KNOWN_ZONE_PLAYERS ######>')
+#        log.debug('known_zone_players: %s' % self.known_zone_players)
+#        log.debug('<###### KNOWN_ZONE_PLAYERS ######>')
+        # now register zoneplayer as server and renderer
+        # TODO: check whether they have these capabilities first
+        self.on_new_media_server(device_object)
+        self.on_new_media_renderer(device_object)
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#THE ZONEPLAYER IS BEING FOUND, BUT NOT ITS CHILD DEVICES
+# it appears that 0.10 brings all services back via the root device - so the zoneplayer has avt, rc etc
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+    def on_new_media_server(self, device_object):
+#        log.debug('new media server')
+        self.known_media_servers[device_object.udn] = device_object
+#        log.debug('<###### KNOWN_MEDIA_SERVERS ######>')
+#        log.debug('known_media_servers: %s' % self.known_media_servers)
+#        log.debug('<###### KNOWN_MEDIA_SERVERS ######>')
+        self.refresh()
+
+    def on_new_media_renderer(self, device_object):
+#        log.debug('new media renderer')
+        self.known_media_renderers[device_object.udn] = device_object
+#        log.debug('<###### KNOWN_MEDIA_RENDERERS ######>')
+#        log.debug('known_media_renderers: %s' % self.known_media_renderers)
+#        log.debug('<###### KNOWN_MEDIA_RENDERERS ######>')
+        self.refresh()
+
+    def on_del_device(self, udn):
+#        log.debug('deleted media server')
+        if udn in self.known_zone_players:
+            del self.known_zone_players[udn]
+            del self.known_media_servers[udn]
+            del self.known_media_renderers[udn]
+        elif udn in self.known_media_servers:
+            del self.known_media_servers[udn]
+        elif udn in self.known_media_renderers:
+            del self.known_media_renderers[udn]
+        self.refresh()
+
+    def on_device_event(self, sid, changed_vars):
+
+#        if is_hildon == True:
+#            aafilename = '/home/user/MyDocs/Sonos/albumart.jpeg'                    
+#        else:
+#            aafilename = '/home/mark/UPnP/BRisa/Sonos/albumart.jpeg'                    
+
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+        log.debug('device_event sid: %s' % sid)
+        log.debug('device_event c_v: %s' % str(changed_vars))
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+        log.debug('<<<<<<<<<<<<< device_event >>>>>>>>>>>>>')
+
+        # check it is a LastChange event
+        if changed_vars['LastChange']:
+#TODO: keep record of lastchange id and check it
+            if self.control_point.get_rc_service().event_sid == sid:
+#            if self.control_point.get_current_renderer().get_rc_service().event_sid == sid:
+                # event from RenderingControl
+                ns = "{urn:schemas-upnp-org:metadata-1-0/RCS/}"
+                elt = self.from_string(changed_vars['LastChange'])
+                self.remove_namespace(elt, ns)
+                # check if it is initial event message
+                if self.current_renderer_events_rc == {}:
+                    # save all tags
+                    self.process_event_tags_rc(elt, self.current_renderer_events_rc)
+#                    log.debug('cre_rc: %s' % self.current_renderer_events_rc)
+                    # set GUI as appropriate
+                    # set volume control
+                    if 'OutputFixed' in self.current_renderer_events_rc:
+                        self.current_renderer_output_fixed = self.current_renderer_events_rc['OutputFixed']
+                    else:
+                        self.current_renderer_output_fixed = '0'
+                    bv = self.glade_playing_xml.get_widget("button_volume")
+                    if self.current_renderer_output_fixed == '1':
+                        bv.set_sensitive(False)
+                    else:
+                        bv.set_sensitive(True)
+                    bv.set_value(float(self.current_renderer_events_rc['Volume_Master']))
+                    # set mute status
+                    self.set_mute(self.current_renderer_events_rc['Mute_Master'])
+                else:
+                    # not initial message, update vars
+                    tag_list = {}                    
+                    self.process_event_tags_rc(elt, tag_list)
+                    # process changed tags                    
+#                    log.debug('tl: %s' % tag_list)
+                    for key, value in tag_list.iteritems():
+                        self.current_renderer_events_rc[key] = value
+                        # set GUI as appropriate
+                        if key == 'Volume_Master':
+                            bv = self.glade_playing_xml.get_widget("button_volume")
+                            bv.set_value(float(value))
+                        elif key == 'Mute_Master':
+#                            log.debug('MUTE is: %s' % value)
+                            self.set_mute(value)
+                        elif key == 'OutputFixed':
+                            self.current_renderer_output_fixed = value
+                            bv = self.glade_playing_xml.get_widget("button_volume")
+                            if self.current_renderer_output_fixed == '1':
+                                bv.set_sensitive(False)
+                            else:
+                                bv.set_sensitive(True)
+                return
+            elif self.control_point.get_avt_service().event_sid == sid:
+                # event from AVTransport
+                ns = "{urn:schemas-upnp-org:metadata-1-0/AVT/}"
+                elt = self.from_string(changed_vars['LastChange'])
+                self.remove_namespace(elt, ns)
+                # check if it is initial event message
+                if self.current_renderer_events_avt == {}:
+                    # save all tags
+                    self.process_event_tags_avt(elt, self.current_renderer_events_avt)
+                    # set GUI as appropriate
+                    old_playing = self.now_playing
+                    old_albumart = self.current_music_item.music_item_albumartURI
+                    self.now_playing = self.current_music_item.unwrap_metadata(self.current_renderer_events_avt)
+                    if self.now_playing != old_playing:
+                        bv = self.glade_playing_xml.get_widget("now_playing")
+                        bv.set_text(self.now_playing)
+                    if self.current_music_item.music_item_albumartURI != old_albumart:
+                        im = self.glade_playing_xml.get_widget("albumart")
+                        # HACK: sending avt service of current renderer in case current_server is not selected - uses same URL...
+                        # TODO: can we get this from zone player instead?
+                        pbuf = getAlbumArt(self.control_point.get_avt_service(), self.current_music_item.music_item_albumartURI)
+                        im.set_from_pixbuf(pbuf)
+                    # transport state
+                    self.set_play(self.current_renderer_events_avt['TransportState'])
+                else:
+                    # not initial message, update vars
+                    tag_list = {}
+                    self.process_event_tags_avt(elt, tag_list)
+#                    log.debug('tl: %s' % tag_list)
+                    # save changed tags                    
+                    for key, value in tag_list.iteritems():
+                        self.current_renderer_events_avt[key] = value
+                    # process changed tags (after saving them as need all related ones to be updated too)
+                    for key, value in tag_list.iteritems():
+                        # set GUI as appropriate
+                        if key == 'CurrentTrackMetaData':
+                            old_playing = self.now_playing
+                            old_albumart = self.current_music_item.music_item_albumartURI
+                            self.now_playing = self.current_music_item.unwrap_metadata(self.current_renderer_events_avt)
+                            if self.now_playing != old_playing:
+                                bv = self.glade_playing_xml.get_widget("now_playing")
+                                bv.set_text(self.now_playing)
+                            if self.current_music_item.music_item_albumartURI != old_albumart:
+                                im = self.glade_playing_xml.get_widget("albumart")
+                                # HACK: sending current_renderer in case current_server is not selected - uses same URL...
+                                # TODO: can we get this from zone player instead?
+                                pbuf = getAlbumArt(self.control_point.get_avt_service(), self.current_music_item.music_item_albumartURI)
+                                im.set_from_pixbuf(pbuf)
+                        elif key == 'TransportState':
+                            self.set_play(value)
+                return
+
+
+    def process_event_tags_rc(self, elt, event_list):
+        # save values
+        InstanceID = elt.find('InstanceID')
+        event_list['InstanceID'] = InstanceID.get('val')    # not checking this at present, assuming zero
+        for child in elt.findall('InstanceID/*'):
+            nodename = child.tag                
+            nodechannel = child.get('channel')
+            if nodechannel != None:
+                nodename += '_' + nodechannel
+            val = child.get('val')
+            event_list[nodename] = val
+
+    def process_event_tags_avt(self, elt, event_list):
+        # save values
+        InstanceID = elt.find('InstanceID')
+        event_list['InstanceID'] = InstanceID.get('val')    # not checking this at present, assuming zero
+        for child in elt.findall('InstanceID/*'):
+            nodename = child.tag
+            val = child.get('val')
+            event_list[nodename] = val
+            # check for metadata associated with tag
+            if nodename.endswith('MetaData'):
+                if val != '' and val != 'NOT_IMPLEMENTED':
+#                    log.debug('PROCESS EVENT TAGS AVT val: %s' % val)
+                    elt = Element.from_string(val)
+                    event_list[nodename] = elt
+                # save the full data in a pseudo tag - Element.from_string() only saves those
+                # items that it knows about for its various classes.
+                # TODO: really ought to extend MusicTrack as SonosMusicTrack
+                event_list[nodename + "_Sonos"] = val
+    '''
+    def get_current_item_xml(self, avt):
+        # find item and parent IDs from appropriate metadata
+        # and return xml string containing them
+        # assumes metadata is a string (so is a _Sonos)
+        # HACK: assume we get uri/metadata pair
+        ct_uri = ''
+        ct_item = ''
+        av_uri = ''
+        av_item = ''
+        et_uri = ''
+        et_item = ''
+        metadata = ''
+        if 'CurrentTrackURI' in avt:
+            metadata = avt['CurrentTrackMetaData_Sonos']
+            ct_uri = avt['CurrentTrackURI']
+            ct_item = self.get_current_item_node(avt['CurrentTrackMetaData_Sonos'])
+            ct_id = ct_item['id']
+            ct_parentid = ct_item['parentid']
+        if 'AVTransportURI' in avt:
+            av_uri = avt['AVTransportURI']
+            av_item = self.get_current_item_node(avt['AVTransportURIMetaData_Sonos'])
+            av_id = av_item['id']
+            av_parentid = av_item['parentid']
+        if '{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI' in avt:
+            et_uri = avt['{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI']
+            et_item = self.get_current_item_node(avt['{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData_Sonos'])
+            et_id = et_item['id']
+            et_parentid = et_item['parentid']
+
+        if ct_uri == av_uri:
+            if av_id != "-1" and ct_id == "-1":
+                metadata = self.set_current_item_node(metadata, av_id, av_parentid)
+        if ct_uri == et_uri:
+            if et_id != "-1" and ct_id == "-1":
+                metadata = self.set_current_item_node(metadata, et_id, et_parentid)
+        return metadata            
+
+    def get_current_item_node(self, xml):
+        item = {}
+        if xml == '' or xml == 'NOT_IMPLEMENTED':
+            item['id'] = ''
+            item['parentid'] = ''
+            return item
+        dom = minidom.parseString(xml)
+        id = dom.getElementsByTagName("item")[0].getAttribute("id")
+        parentid = dom.getElementsByTagName("item")[0].getAttribute("parentID")
+        item['id'] = id
+        item['parentid'] = parentid
+        print "ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID "
+        print id
+        print parentid
+        print "ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID "
+        dom.unlink()
+        return item
+        
+    def set_current_item_node(self, xml, id, parentid):
+        dom = minidom.parseString(xml)
+        print "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
+        print dom.getElementsByTagName("item")[0].toxml()
+        dom.getElementsByTagName("item")[0].setAttribute("id", id)
+        dom.getElementsByTagName("item")[0].setAttribute("parentID", parentid)
+        print dom.getElementsByTagName("item")[0].toxml()
+        print "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
+        newxml = dom.toxml()
+        newxml = newxml.replace('<?xml version="1.0" ?>','')
+        dom.unlink()
+        return newxml
+    '''
+
+    def get_position_info(self):
+        self.current_position = self.control_point.get_position_info()
+        self.current_track = self.current_position['Track']
+        self.current_track_duration = self.current_position['TrackDuration']
+        self.current_track_URI = self.current_position['TrackURI']
+        self.current_track_metadata = self.current_position['TrackMetaData']
+        self.current_track_relative_time_position = self.current_position['RelTime']
+
+    def clear_position_info(self):
+        self.current_position = {}
+        self.current_track = '-1'
+        self.current_track_duration = ''
+        self.current_track_URI = ''
+        self.current_track_metadata = ''
+        self.current_track_relative_time_position = ''
+
+    def _event_subscribe_callback(self, cargo, subscription_id, timeout):
+        log.debug('Event subscribe done cargo=%s sid=%s timeout=%s', cargo, subscription_id, timeout)
+
+    def _event_renewal_callback(self, cargo, subscription_id, timeout):
+# TODO: add error processing for if renewal fails - basically resubscribe. NEW - check if this is catered for in 0.10.0
+        log.debug('Event renew done cargo=%s sid=%s timeout=%s', cargo, subscription_id, timeout)
+
+    def _event_unsubscribe_callback(self, cargo, subscription_id):
+        log.debug('Event unsubscribe done cargo=%s sid=%s', cargo, subscription_id)
+
+    def from_string(self, aString):
+        elt = parse_xml(aString)
+        elt = elt.getroot()
+        return elt
+
+    def remove_namespace(self, doc, ns):
+        """Remove namespace in the passed document in place."""
+        nsl = len(ns)
+        for elem in doc.getiterator():
+            if elem.tag.startswith(ns):
+                elem.tag = elem.tag[nsl:]
+
+    def _on_refresh_clicked(self, button):
+        pass
+#        rt = RefreshThread(self.control_point.force_discovery)
+#        rt.start()
+
+    def _on_container_treeview_activated(self, treeview, path, row, data):
+        (model, iter) = treeview.get_selection().get_selected()
+        if not treeview.row_expanded(path):
+            self.item_media_list_liststore.clear()
+            self.browse_media_server(model.get_value(iter, 1), iter)
+            treeview.expand_to_path(path)
+
+    def _on_media_item_listview_changed(self, listview):
+        (model, iter) = listview.get_selection().get_selected()
+        self.current_media_id = model.get_value(iter, 1)
+        self.current_media_xml = model.get_value(iter, 2)
+
+    def _on_media_item_selected(self, play_button, *args, **kwargs):
+        self.play()
+
+    def _on_play_clicked(self, play_button, *args, **kwargs):
+        self.check_play()
+
+    def _on_stop_clicked(self, stop_button, *args, **kwargs):
+        self.stop()
+
+    def _on_next_clicked(self, next_button, *args, **kwargs):
+        self.next()
+
+    def _on_previous_clicked(self, previous_button, *args, **kwargs):
+        self.previous()
+
+    def _on_mute_clicked(self, mute_button, *args, **kwargs):
+        self.toggle_mute()
+        self.mute()
+
+    def _on_volume_changed(self, volume_button, *args, **kwargs):
+        if self.current_renderer_output_fixed == '1':
+            return
+# TODO: must be a cleaner way to get this
+        volume = args[0]    
+#        log.debug('VOLUME: %s' % volume)
+        self.volume(volume=volume)
+
+    def _on_about_activated(self, widget):
+        pass # TODO
+
+    def destroy_server_combo_box(self):
+        self.comboBox_server_devices.destroy()
+
+    def destroy_renderer_combo_box(self):
+        self.comboBox_renderer_devices.destroy()
+
+
+#class RefreshThread(ThreadObject):
+#    handle = None
+#
+#    def __init__(self, handle):
+#        Thread.__init__(self)
+#        self.handle = handle
+#
+#    def run(self):
+#        self.handle()
+
+
+#def main():
+#    try:
+#        gui = ControlPointGUI()
+#        gtk.gdk.threads_init()
+#        gtk.main()
+#    except KeyboardInterrupt, e:
+#        quit()
+def main():
+    gui = ControlPointGUI()
+    gtk.gdk.threads_init()
+    reactor.main()
+    gui.control_point.destroy()
+
+
+#def quit():
+## TODO: need to unsubscribe from events etc before quitting
+#    from sys import exit
+#    log.debug('Exiting ControlPoint!')
+#    exit(0)
+
+
+if __name__ == "__main__":
+    main()

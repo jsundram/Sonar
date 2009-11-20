@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/brisa/!svn/ver/1332/trunk/python-brisa/examples
+END
+control_point.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/brisa/!svn/ver/1332/trunk/python-brisa/examples/control_point.py
+END
+control_point_gtk.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/brisa/!svn/ver/1279/trunk/python-brisa/examples/control_point_gtk.py
+END
+udp_server.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/brisa/!svn/ver/1307/trunk/python-brisa/examples/udp_server.py
+END
+control_point_av.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/brisa/!svn/ver/1306/trunk/python-brisa/examples/control_point_av.py
+END
+thread_manager.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/brisa/!svn/ver/1240/trunk/python-brisa/examples/thread_manager.py
+END
+control_point_gtk.glade
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/brisa/!svn/ver/1279/trunk/python-brisa/examples/control_point_gtk.glade
+END
+udp_client.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/brisa/!svn/ver/1307/trunk/python-brisa/examples/udp_client.py
+END

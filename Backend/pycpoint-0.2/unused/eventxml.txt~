@@ -1,0 +1,178 @@
+Event Messages:
+
+RC
+
+ INITIAL MESSAGE - event key has been stripped
+<Event xmlns="urn:schemas-upnp-org:metadata-1-0/RCS/">
+    <InstanceID val="0">
+        <Volume channel="Master" val="48"/>
+        <Volume channel="LF" val="100"/>
+        <Volume channel="RF" val="100"/>
+        <Mute channel="Master" val="0"/>
+        <Mute channel="LF" val="0"/>
+        <Mute channel="RF" val="0"/>
+        <Bass val="0"/>
+        <Treble val="0"/>
+        <Loudness channel="Master" val="0"/>
+        <OutputFixed val="0"/>
+        <PresetNameList>FactoryDefaults</PresetNameList>
+    </InstanceID>
+</Event>'
+
+ MUTE MESSAGE
+<Event xmlns="urn:schemas-upnp-org:metadata-1-0/RCS/">
+    <InstanceID val="0">
+        <Mute channel="Master" val="0"/>
+        <Mute channel="LF" val="0"/>
+        <Mute channel="RF" val="0"/>
+    </InstanceID>
+</Event>'}
+
+AVT
+
+MUSICTRACK
+
+
+
+
+Radio 1
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : <Element DIDL-Lite at 7f3cf76642d8>
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 7f3cf76643b0>
+TransportStatus : OK
+CurrentTrackDuration : 0:00:00
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : <Element DIDL-Lite at 7f3cf73c5ea8>
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : rtsp://wmlive-acl.bbc.co.uk/wms/bbc_ami/radio1/radio1_bb_live_eq1_sl0?BBC-UID=c4598dbf46d4eac71f638e45c1f603ca38f069319020e1a4047fb9f734a3b3c4&amp;SSO2-UID=
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-sonosapi-stream:s24939?sid=254
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 16
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 7f3cf73c5c20>
+AVTransportURI : x-sonosapi-stream:s24939?sid=254
+CurrentTrackURI : mms://wmlive-acl.bbc.co.uk/wms/bbc_ami/radio1/radio1_bb_live_eq1_sl0?BBC-UID=c4598dbf46d4eac71f638e45c1f603ca38f069319020e1a4047fb9f734a3b3c4&amp;SSO2-UID=
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+
+Punk Rocker
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 2d73440>
+TransportStatus : OK
+CurrentTrackDuration : 0:02:30
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : 
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 1
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : 
+AVTransportURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+CurrentTrackURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+
+Napster
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 2d68878>
+TransportStatus : OK
+CurrentTrackDuration : 0:05:44
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : 
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-sonos-mms:track%3a16796145?sid=0
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 32
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 32
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 2d6eab8>
+AVTransportURI : x-rincon-queue:RINCON_000E5830D2F001400#0
+CurrentTrackURI : x-sonos-mms:track%3a16796145?sid=0
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+
+Revelry
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 26afc68>
+  <ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>Revelry</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res duration="0:03:23" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/Kings%20of%20Leon/Only%20By%20The%20Night/Kings%20of%20Leon%20-%20Revelry.mp3</res><upnp:album>Only By The Night</upnp:album></ns0:item>
+TransportStatus : OK
+CurrentTrackDuration : 0:03:23
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : 
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-file-cifs://NAS/Music/Kings%20of%20Leon/Only%20By%20The%20Night/Kings%20of%20Leon%20-%20Revelry.mp3
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 1
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : 
+AVTransportURI : x-file-cifs://NAS/Music/Kings%20of%20Leon/Only%20By%20The%20Night/Kings%20of%20Leon%20-%20Revelry.mp3
+CurrentTrackURI : x-file-cifs://NAS/Music/Kings%20of%20Leon/Only%20By%20The%20Night/Kings%20of%20Leon%20-%20Revelry.mp3
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+

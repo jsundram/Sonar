@@ -1,0 +1,307 @@
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 7f5c517582d8>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>The Bones Of You</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res duration="0:04:50" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3</res><upnp:album>The Seldom Seen Kid [UK Standard Version]/UK Standard Version</upnp:album></ns0:item>
+TransportStatus : OK
+CurrentTrackDuration : 0:04:50
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : <Element DIDL-Lite at 7f5c517583b0>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>Dunya Salam</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res duration="0:02:55" protocolInfo="sonos.com-mms:*:audio/x-ms-wma:*">x-sonos-mms:track%3a18502142?sid=0</res><upnp:album>1 Giant Leap</upnp:album></ns0:item>
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : x-sonos-mms:track%3a18502142?sid=0
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : STOPPED
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 20
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 7f5c51758440>
+  ----><ns0:item id="S://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3" parentID="A:ALBUMARTIST/Elbow/" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>The Bones Of You</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus></ns0:item>
+AVTransportURI : x-rincon-queue:RINCON_000E5830D2F001400#0
+CurrentTrackURI : x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+
+
+
+
+CurrentTrackMetaData : <Element DIDL-Lite at 7f9abe91e4d0>
+  ---->
+<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+<dc:title>The Bones Of You</dc:title>
+<upnp:class>object.item.audioItem.musicTrack</upnp:class>
+<upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus>
+<res duration="0:04:50" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3</res>
+<upnp:album>The Seldom Seen Kid [UK Standard Version]/UK Standard Version</upnp:album>
+</ns0:item>
+
+
+
+
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+CurrentTrackMetaData : <Element DIDL-Lite at 1dc5440>
+
+<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+    <dc:title>The Bones Of You</dc:title>
+    <upnp:class>object.item.audioItem.musicTrack</upnp:class>
+    <upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus>
+    <res duration="0:04:50" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3</res>
+    <upnp:album>The Seldom Seen Kid [UK Standard Version]/UK Standard Version</upnp:album>
+</ns0:item>
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 1dc5680>
+
+<ns0:item id="S://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3" parentID="A:ALBUMARTIST/Elbow/" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+    <dc:title>The Bones Of You</dc:title>
+    <upnp:class>object.item.audioItem.musicTrack</upnp:class>
+    <upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus>
+</ns0:item>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ END @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+    <ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+        <dc:title>The Bones Of You</dc:title>
+        <upnp:class>object.item.audioItem.musicTrack</upnp:class>
+        <upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus>
+        <res duration="0:04:50" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/Elbow/The%20Seldom%20Seen%20Kid%20%5bUK%20Standard%20Version%5d/Elbow%20-%20The%20Bones%20Of%20You.mp3</res>
+        <upnp:album>The Seldom Seen Kid [UK Standard Version]/UK Standard Version</upnp:album>
+    </ns0:item>
+</DIDL-Lite>
+
+
+
+
+
+
+
+
+AVTransportURI : x-rincon-queue:RINCON_000E5830D2F001400#0
+AVTransportURIMetaData : 
+
+CurrentTrackURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/2%20Unlimited%20(Get%20Ready%20For%20This).mp3
+CurrentTrackMetaData : <Element DIDL-Lite at 1a798c0>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>Get Ready for This</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res duration="0:03:43" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/2%20Unlimited%20(Get%20Ready%20For%20This).mp3</res><upnp:album>Get Ready</upnp:album></ns0:item>
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-rincon-playlist:RINCON_000E5830D2F001400#A:ALBUMARTIST
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 1a79a28>
+  ----><ns0:item childCount="0" id="A:ALBUMARTIST" parentID="@MusicLibrary" restricted="true" searchable="false" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>Artists</dc:title><upnp:class>object.container</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus></ns0:item>
+
+
+
+
+
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 26d6128>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>I Wish I Was a Punk Rocker (With Flowers In My Hair)</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res duration="0:02:30" protocolInfo="x-file-cifs:*:audio/mpeg:*">x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3</res><upnp:album>I Wish I Was A Punk Rocker (With Flowers In My Hair)</upnp:album></ns0:item>
+TransportStatus : OK
+CurrentTrackDuration : 0:02:30
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : 
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : 
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 1
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : 
+AVTransportURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+CurrentTrackURI : x-file-cifs://NAS/Music/123%20ABC/Random%20Songs/I%20Wish%20I%20W.mp3
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ END @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+MUSICTRACK ******************************** START ********************************************
+id                     :-1
+parent_id              :-1
+title                  :I Wish I Was a Punk Rocker (With Flowers In My Hair)
+restricted             :True
+creator                :
+write_status           :NOT_WRITABLE
+ref_id                 :
+genres                 :[]
+description            :
+long_description       :
+publishers             :[]
+language               :
+relations              :[]
+rights                 :[]
+artists                :[]
+albums                 :['I Wish I Was A Punk Rocker (With Flowers In My Hair)']
+original_track_number  :
+playlists              :[]
+storage_medium         :
+contributors           :[]
+date                   :
+MUSICTRACK ********************************* END *********************************************
+
+
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+AVTransportURI : x-sonosapi-stream:s24939?sid=254
+AVTransportURIMetaData : <Element DIDL-Lite at 26d6cf8>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>BBC Radio 1 (London, United Kingdom)</dc:title><upnp:class>object.item.audioItem.audioBroadcast</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus></ns0:item>
+
+CurrentTrackURI : mms://wmlive-acl.bbc.co.uk/wms/bbc_ami/radio1/radio1_bb_live_eq1_sl0?BBC-UID=9459be407549b1e3d2df7f2651ae72c6e2cc6dcd4050c154e49f9446d3daf98a&amp;SSO2-UID=
+CurrentTrackMetaData : <Element DIDL-Lite at 26d6128>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>x-sonosapi-stream:s24939?sid=254</dc:title><upnp:class>object.item</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus><res protocolInfo="sonos.com-http-get:*:*:*">x-sonosapi-stream:s24939?sid=254</res></ns0:item>
+
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-sonosapi-stream:s24939?sid=254
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 237a488>
+  ----><ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><dc:title>BBC Radio 1 (London, United Kingdom)</dc:title><upnp:class>object.item.audioItem.audioBroadcast</upnp:class><upnp:writeStatus>NOT_WRITABLE</upnp:writeStatus></ns0:item>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ END @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+
+
+
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+{urn:schemas-rinconnetworks-com:metadata-1-0/}RestartPending : 0
+CurrentTransportActions : Play, Stop, Pause, Seek, Next, Previous
+PossibleRecordQualityModes : NOT_IMPLEMENTED
+PlaybackStorageMedium : NETWORK
+InstanceID : 0
+CurrentMediaDuration : NOT_IMPLEMENTED
+CurrentSection : 0
+AVTransportURIMetaData : <Element DIDL-Lite at 1c6f5a8>
+<?xml version="1.0" ?>
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+	<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+		<dc:title>
+			Classic FM (London, United Kingdom)
+		</dc:title>
+		<upnp:class>
+			object.item.audioItem.audioBroadcast
+		</upnp:class>
+		<upnp:writeStatus>
+			NOT_WRITABLE
+		</upnp:writeStatus>
+	</ns0:item>
+</DIDL-Lite>
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}AlarmRunning : 0
+CurrentTrackMetaData : <Element DIDL-Lite at 1c6f2d8>
+<?xml version="1.0" ?>
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+	<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+		<dc:title>
+			x-sonosapi-stream:s8439?sid=254
+		</dc:title>
+		<upnp:class>
+			object.item
+		</upnp:class>
+		<upnp:writeStatus>
+			NOT_WRITABLE
+		</upnp:writeStatus>
+		<res protocolInfo="sonos.com-http-get:*:*:*">
+			x-sonosapi-stream:s8439?sid=254
+		</res>
+	</ns0:item>
+</DIDL-Lite>
+
+TransportStatus : OK
+CurrentTrackDuration : 0:00:00
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackMetaData : <Element DIDL-Lite at 1c6f200>
+DEBUG	event                         @  49  Received render (('/eventSub', <cherrypy._ThreadLocalProxy object at 0x1b42610>, <cherrypy._ThreadLocalProxy object at 0x1b42650>))
+DEBUG	event                         @  52  Ok, got notify!
+DEBUG	event                         @  57  Returning from render
+INFO	_cplogging                    @ 103  192.168.0.7 - - [11/Apr/2009:14:10:19] "NOTIFY /eventSub HTTP/1.1" 200 - "" ""
+<?xml version="1.0" ?>
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+	<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+		<dc:title>
+			ClassicFM
+		</dc:title>
+		<upnp:class>
+			object.item
+		</upnp:class>
+		<upnp:writeStatus>
+			NOT_WRITABLE
+		</upnp:writeStatus>
+		<res protocolInfo="rtsp:*:*:*">
+			rtsp://mediasrv-the.musicradio.com/ClassicFM
+		</res>
+	</ns0:item>
+</DIDL-Lite>
+
+{urn:schemas-rinconnetworks-com:metadata-1-0/}NextTrackURI : rtsp://mediasrv-the.musicradio.com/ClassicFM
+RecordMediumWriteStatus : NOT_IMPLEMENTED
+TransportState : PLAYING
+PossibleRecordStorageMedia : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURI : x-sonosapi-stream:s8439?sid=254
+NextAVTransportURI : NOT_IMPLEMENTED
+NextAVTransportURIMetaData : NOT_IMPLEMENTED
+RecordStorageMedium : NOT_IMPLEMENTED
+CurrentPlayMode : NORMAL
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SnoozeRunning : 0
+CurrentRecordQualityMode : NOT_IMPLEMENTED
+NumberOfTracks : 7
+PossiblePlaybackStorageMedia : NONE, NETWORK
+CurrentTrack : 1
+{urn:schemas-rinconnetworks-com:metadata-1-0/}EnqueuedTransportURIMetaData : <Element DIDL-Lite at 1c6f488>
+<?xml version="1.0" ?>
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+	<ns0:item id="-1" parentID="-1" refID="" restricted="true" xmlns:ns0="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+		<dc:title>
+			Classic FM (London, United Kingdom)
+		</dc:title>
+		<upnp:class>
+			object.item.audioItem.audioBroadcast
+		</upnp:class>
+		<upnp:writeStatus>
+			NOT_WRITABLE
+		</upnp:writeStatus>
+	</ns0:item>
+</DIDL-Lite>
+
+AVTransportURI : x-sonosapi-stream:s8439?sid=254
+CurrentTrackURI : mms://mediasrv-the.musicradio.com/ClassicFM
+TransportPlaySpeed : NOT_IMPLEMENTED
+{urn:schemas-rinconnetworks-com:metadata-1-0/}SleepTimerGeneration : 0
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ END @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+

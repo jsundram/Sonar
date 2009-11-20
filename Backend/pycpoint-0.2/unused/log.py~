@@ -1,0 +1,206 @@
+# Licensed under the MIT license
+# http://opensource.org/licenses/mit-license.php or see LICENSE file.
+# Copyright 2007-2008 Brisa Team <brisa-develop@garage.maemo.org>
+
+"""
+BRisa logging API provides to the developer logging levels for messages.
+
+
+Basic usage
+===========
+After setting the log level, it's almost transparent the way you use the
+logging API. If you want to have some message as a debug message, just
+use log.debug(msg) and the log module will print your message as a debug.
+
+>>> from brisa import log
+>>> log.debug('This is my debug message')
+>>> log.info('This is my info message')
+
+"""
+
+import os
+import logging
+import traceback
+import types, string
+
+from logging import getLogger, debug, info, warning, error
+from logging import LogRecord, Filter, StreamHandler
+
+from brisa.core import config
+
+import chop
+
+try:
+    import hildon
+    is_hildon = True
+except:
+    is_hildon = False
+
+# Logger levels
+log_dict = {'CRITICAL': logging.CRITICAL, 'ERROR': logging.ERROR,
+            'WARNING': logging.WARNING, 'DEBUG': logging.DEBUG,
+            'NOTSET': logging.NOTSET, 'INFO': logging.INFO}
+
+
+def show_exception(message, e, haltSignal=None):
+    """ Shows the exception with a custom message with a specific given
+    halt signal.
+
+    @param message: custom message
+    @param e: exception to be raised
+    @param haltSignal: halt signal
+
+    @type message: string
+    @type e: Exception
+    @type haltSignal: integer
+    """
+    print message
+    print ("%s%s%s%s") % ("Exception type / message: ", str(type(e)), " / ",
+                          e.message)
+    traceback.print_exc()
+    if isinstance(haltSignal, int):
+        print ("%s%s%s") % ("System will be halted with signal ",
+                            str(haltSignal), " due to exception.")
+        os._exit(haltSignal)
+
+logging.show_exception = show_exception
+
+
+class consoleFilter(Filter):
+
+    def filter(self, record):
+    
+        r = filtercheck(record)
+        print "filtercheck = " + str(r)
+        return 1
+        return filtercheck(record)
+
+
+class NullDevice:
+    def write(self, s):
+        pass
+
+
+def set_logging(level, filename):
+    log_level = log_dict.get(level)
+    if not log_level:
+        log_level = log_dict.get('NOTSET')
+
+    print 'log_level=' + str(log_level)
+
+    # HACK! - otherwise get 2 sets of logging to stdout/stderr
+    dnul = NullDevice()
+
+    # set up logging to stdout - dummy as we want to filter
+    logging.basicConfig(level=log_level, filename=None, format=' ', stream=dnul)
+
+    # define a Handler which writes to the file
+    console = logging.StreamHandler()
+    console.setLevel(log_level)
+    # set a format
+    formatter = logging.Formatter('%(levelname)s\t%(module)-30s@%(lineno)4d  %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    clogger = logging.getLogger('')
+    clogger.addHandler(console)
+    # add a filter
+    filt = consoleFilter('####')
+    console.addFilter(filt)
+
+#    logging.filename = filename
+    
+    if filename != '':
+        # define a Handler which writes to the file
+        fh = logging.FileHandler(filename=filename, mode='w')
+        fh.setLevel(log_level)
+        # set a format
+        formatter = logging.Formatter('%(levelname)s\t%(module)-30s@%(lineno)4d  %(message)s')
+        # tell the handler to use this format
+        fh.setFormatter(formatter)
+        # add the handler to the root logger
+        flogger = logging.getLogger('')
+        flogger.addHandler(fh)
+        # add a filter
+        filt = logging.Filter('####')
+        fh.addFilter(filt)
+
+if is_hildon:
+    set_logging('INFO','')
+    print "logging=INFO"
+#    set_logging('DEBUG','/home/user/MyDocs/Sonos/cp.log')
+else:
+    set_logging('DEBUG','/home/mark/UPnP/Sonos2/cp.log')
+    print "logging=DEBUG"
+
+
+def filter(self, record):
+    """
+    Determine if the specified record is to be logged.
+
+    Is the specified record to be logged? Returns 0 for no, nonzero for
+    yes. If deemed appropriate, the record may be modified in-place.
+    """
+    return filtercheck(record)
+
+
+Filter.filter = filter
+
+# will only log if module is in this list and set to True
+modcheck = {'soap': False,
+            'http': False}
+
+def filtercheck(record):
+    """
+    CHEAT: - USING FILTER TO FILTER OUT MESSAGES I DON'T WANT, INCORRECT USE OF FILTER
+            SHOULD PROBABLY BE LOGGING TO DIFFERENT LOGGERS AND THEN FILTERING THAT WAY
+    TODO: FIX THIS
+    """
+#    msg = record.getMessage()
+    mod = record.module
+    func = record.funcName
+
+    print "...." + mod + " - " + func #+ " - " + msg
+
+    if mod in modcheck:
+        if modcheck[mod]:
+            return 1
+    
+    return 0
+
+    # are ignoring filter atm
+    if msg.find(self.name) != -1:
+        return 1
+    else:
+        return 0
+
+
+chopmods = ['log', 'control_point_gtk', 'control_point_av', 'logging' ]
+
+def getMessage(self):
+    if not hasattr(types, "UnicodeType"): #if no unicode support...
+        msg = str(self.msg)
+    else:
+        msg = self.msg
+        if type(msg) not in (types.UnicodeType, types.StringType):
+            try:
+                msg = str(self.msg)
+            except UnicodeError:
+                msg = self.msg      #Defer encoding till later
+    if self.args:
+        msg = msg % self.args
+
+#    msg = LogRecord.getMessage(self) ## can't do this as causes recursive calls
+
+    if self.levelno == logging.DEBUG and self.module in chopmods:
+        chopmsg = "#### " + chop.chop(msg, 100)
+        splitmsg = chop.csplit(msg)
+        if splitmsg == "":
+            return chopmsg
+        else:
+            return chopmsg + splitmsg
+    else:
+        return msg
+
+LogRecord.getMessage = getMessage
+
