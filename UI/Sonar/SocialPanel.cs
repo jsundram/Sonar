@@ -21,8 +21,6 @@ namespace Sonar
         public SocialPanel()
         {
             InitializeComponent();
-            _Feed.View = View.List;
-            _Feed.Scrollable = false; // "solves" the horizontal scroll problem. TODO: fix for real.
 
             _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);            
         }
@@ -53,28 +51,12 @@ namespace Sonar
             Resolve(sorted_data); // kick off the resolvers
 
             // Must be on the UI thread if we've got this far
-            // Stuff data into the listview:
+            _Feed.Items.Clear(); // TODO: Could add instead of killing and repopulating.
 
-            _Feed.Clear(); // TODO: Could add instead of killing and repopulating.
-
-            ImageList images = new ImageList();
-            int counter = 0;
             foreach (SocialItem i in sorted_data)
             {
-                ListViewItem item = i.ToListItem();
-
-                if (i.Image != null)
-                {
-                    images.Images.Add(i.Image);
-                    item.ImageIndex = counter;
-                    counter += 1;
-                }
-
-                _Feed.Items.Add(item);
+                _Feed.Items.Add(i);
             }
-
-            _Feed.LargeImageList = images;
-            _Feed.SmallImageList = images;
         }
 
         void Update(object state)
@@ -83,7 +65,7 @@ namespace Sonar
                 return;
             _LastUpdate = DateTime.Now;
             List<ISocialDataSource> dataSources = (List<ISocialDataSource>)state;
-            Sonar.Trace(string.Format("In Update(), have {0} data sources", dataSources.Count));
+            MainForm.Trace(string.Format("In Update(), have {0} data sources", dataSources.Count));
 
             List<SocialItem> data = new List<SocialItem>();
             foreach (ISocialDataSource i in dataSources)
@@ -95,7 +77,7 @@ namespace Sonar
 
             if (data.Count == 0)
             {
-                Sonar.Trace("Ditching, no data returned");
+                MainForm.Trace("Ditching, no data returned");
                 return;
             }
 
@@ -104,22 +86,22 @@ namespace Sonar
                 return i2.PostTime.CompareTo(i1.PostTime); // descending post time.
             });
 
-            //foreach (SocialItem i in data) Sonar.Trace("post time " + i.PostTime.ToString());
+            //foreach (SocialItem i in data) MainForm.Trace("post time " + i.PostTime.ToString());
 
-            Sonar.Trace(string.Format("Calling PopulateFeed() with {0} entries", data.Count));
+            MainForm.Trace(string.Format("Calling PopulateFeed() with {0} entries", data.Count));
             _LastUpdate = DateTime.Now;
             PopulateFeed(data);
         }
 
         public void SocialPanel_Enter(object sender, EventArgs e)
         {
-            Sonar.Trace("Entering SocialPanel()");
+            MainForm.Trace("Entering SocialPanel()");
             _timer.Change(0, RefreshDelayMs);
         }
 
         private void SocialPanel_Leave(object sender, EventArgs e)
         {
-            Sonar.Trace("Leaving SocialPanel()");
+            MainForm.Trace("Leaving SocialPanel()");
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
@@ -146,18 +128,9 @@ namespace Sonar
                 p.BeginInvoke(new ResolveWorker.OnResolveCompleted(OnResolutionSuccess), new object[] { panel, i });
                 return;
             }
-            ListViewItem item = p.find(i.Key);
-            if (item != null)
-                item.ForeColor = string.IsNullOrEmpty(i.Url) ? Color.Red : Color.Green;         
+            
+            // TODO: Update item corresponding to i with status
+            
         }
-
-        ListViewItem find(string key)
-        {
-            foreach (ListViewItem item in _Feed.Items)
-                if (item.Text == key)
-                    return item;
-            return null;
-        }
-
     }
 }
