@@ -9,34 +9,39 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Drawing;
 
-using CookComputing.XmlRpc;
-
-
 namespace Sonar
 {
-    public partial class Sonar : Form
+    public partial class MainForm : Form
     {
-        public Sonar()
+        List<Image> _Images = null;
+        int _Index = 0;
+        SonosClient _Sonos = new SonosClient("");
+        public MainForm()
         {
             InitializeComponent();
-            // PopulateSocial();
-            //List<Image> images = AmazonGateway.SearchAlbumArt("Please Please Me");
-            PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
-            PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
-
-
-            // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.
-
-            // Playing with XML-RPC
-            //IStateName proxy = XmlRpcProxyGen.Create<IStateName>();
-            //string stateName = proxy.GetStateName(41);S
+            
             /*
-            IQueueTrack proxy = XmlRpcProxyGen.Create<IQueueTrack>();
-            XmlRpcStruct metadata = new XmlRpcStruct();
-            metadata.Add("Artist", "The Beatles");
-            metadata.Add("Track", "Anna");
-            string result = proxy.EnqueueTrack("http://192.168.2.12:60210/sid/430FB444-DBC8-4BBE-8160-48CB491B6063", metadata);
-            Sonar.Trace(result);*/
+            PopulateSocial();
+            _Images = AmazonGateway.SearchAlbumArt("Please Please Me");
+            // PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
+            // PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
+            _AlbumArt.Image = _Images[_Index];
+            _AlbumArt.MouseDoubleClick += new MouseEventHandler(_AlbumArt_MouseDoubleClick);
+            EchoNest.Response r = EchoNest.SearchArtist("The Beatles");
+            EchoNest.Artist a = r.GetArtist();
+            float familiarity = EchoNest.GetFamiliarity(a.id).GetArtist().familiarity;
+            float hotttnesss = EchoNest.GetHotttnesss(a.id).GetArtist().hotttness;
+            _Familiarity.Value = (int)(familiarity * 100.0);
+            _Hotness.Value = (int)(hotttnesss * 100.0);
+            
+            // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.
+             */
+        }
+
+        void _AlbumArt_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            _Index = (_Index + 1) % _Images.Count;
+            _AlbumArt.Image = _Images[_Index];
         }
 
         public static void WriteToFile(string filename, object data)
@@ -46,12 +51,6 @@ namespace Sonar
             tw.Close();
         }
 
-        [XmlRpcUrl("http://192.168.2.7:8000/RPC2")]
-        public interface IQueueTrack : IXmlRpcProxy
-        {
-            [XmlRpcMethod("EnqueueTrack")]
-            string EnqueueTrack(string url, XmlRpcStruct metadata);
-        }
 
         private void PopulateSocial()
         {
@@ -128,6 +127,11 @@ namespace Sonar
             _SearchResults.Items.Clear();
             //else, we are good to go. 
             Resolver.Resolve(artist, track, OnResolveProgress);
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _Sonos.StopListening();
         }
     }
 

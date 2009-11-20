@@ -87,7 +87,7 @@ namespace Sonar
         public static string Resolve(string artist, string track, OnResolveProgress callback)
         {
             string qid = _Resolve(artist, track);
-            Sonar.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
+            MainForm.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
             System.Threading.Thread.Sleep(1000);
 
             QueryResult r = GetResults(qid);
@@ -110,7 +110,7 @@ namespace Sonar
         public static string Resolve(BackgroundWorker w, SocialItem i)
         {
             string qid = _Resolve(i.Artist, i.Track);
-            Sonar.Trace("Attempting to resolve " + i.Artist + " " + i.Track + " " + "qid=" + qid);
+            MainForm.Trace("Attempting to resolve " + i.Artist + " " + i.Track + " " + "qid=" + qid);
             System.Threading.Thread.Sleep(1000);
 
             QueryResult r = GetResults(qid);
@@ -135,7 +135,7 @@ namespace Sonar
         public static string Resolve(string artist, string track)
         {
             string qid = _Resolve(artist, track);
-            Sonar.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
+            MainForm.Trace("Attempting to resolve " + artist + " " + track + " " + "qid=" + qid);
             System.Threading.Thread.Sleep(1000);
 
             QueryResult r = GetResults(qid);
@@ -197,7 +197,7 @@ namespace Sonar
             }
             catch (Exception e)
             {
-                Sonar.Trace("Unexpected Exception during Resolution of " + qid + ": " + e.Message);
+                MainForm.Trace("Unexpected Exception during Resolution of " + qid + ": " + e.Message);
                 return null;
             }
         }

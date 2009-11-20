@@ -14,7 +14,7 @@ namespace Sonar
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Sonar());
+            Application.Run(new MainForm());
         }
     }
 }

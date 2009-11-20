@@ -51,9 +51,9 @@ namespace Sonar
         void WorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
-                Sonar.Trace("ResolveWorker thread was cancelled");
+                MainForm.Trace("ResolveWorker thread was cancelled");
             else if (e.Error != null)
-                Sonar.Trace(e.Error.Message);
+                MainForm.Trace(e.Error.Message);
             else
             {
                 // do something with e.Result
@@ -61,9 +61,9 @@ namespace Sonar
                 if (i != null)
                 {
                     if (!string.IsNullOrEmpty(i.Url)) 
-                        Sonar.Trace(string.Format("Resolved {0} by {1} to {2}", i.Track, i.Artist, i.Url));
+                        MainForm.Trace(string.Format("Resolved {0} by {1} to {2}", i.Track, i.Artist, i.Url));
                     else 
-                       Sonar.Trace(string.Format("Unable to resolve {0} by {1}", i.Track, i.Artist));
+                       MainForm.Trace(string.Format("Unable to resolve {0} by {1}", i.Track, i.Artist));
                 }
                 this._OnComplete.DynamicInvoke(new object[]{_Caller, i});
             }
