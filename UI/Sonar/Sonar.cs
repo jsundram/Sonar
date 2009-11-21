@@ -13,8 +13,6 @@ namespace Sonar
 {
     public partial class MainForm : Form
     {
-        List<Image> _Images = null;
-        int _Index = 0;
         SonosClient _Sonos = new SonosClient("");
         public MainForm()
         {
@@ -38,12 +36,12 @@ namespace Sonar
              */
         }
 
-        void _AlbumArt_MouseDoubleClick(object sender, MouseEventArgs e)
+        public void UpdateNowPlaying()
         {
-            _Index = (_Index + 1) % _Images.Count;
-            _AlbumArt.Image = _Images[_Index];
-        }
+            List<string> zones = _Sonos.GetZoneGroups();
+            //this.now_playing_tabs; // remove and then add them all .
 
+        }
         public static void WriteToFile(string filename, object data)
         {
             TextWriter tw = new StreamWriter(filename);

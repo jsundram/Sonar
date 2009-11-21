@@ -105,6 +105,23 @@ namespace Sonar
         }
         #endregion
 
+
+        // returns, e.g. "mp3"
+        public static string MimeTypeToExt(string mime)
+        {
+            switch (mime)
+            {
+                case "audio/mpeg": return "mp3";
+                case "audio/wav": return "wav";
+                case "audio/x-ms-wma": return "wma";
+                case "audio/mp4": return "m4a"; // mp4?
+                case "audio/aiff": return "aiff";
+                case "audio/flac": return "flac";
+                case "application/ogg": return "ogg";
+                default:
+                    return "mp3"; // as good a guess as any.
+            }
+        }
         // If you subscribe to these events and do stuff with the UI, be sure to do it via Invoke.
         public delegate void ZoneChange(string zgid);
         public delegate void Tick(string zgid, int n);
@@ -183,6 +200,22 @@ namespace Sonar
             return new Metadata(_Proxy.GetTrackMetadata(zgid));
         }
 
+        public bool Next(string zgid) { return _Proxy.Next(zgid); }
+
+        public bool Back(string zgid) { return _Proxy.Back(zgid); }
+
+        public bool Play(string zgid, int index) { return _Proxy.Play(zgid, index); }
+
+        public bool IsPlaying(string zgid) { return _Proxy.IsPlaying(zgid); }
+
+        public void SetVolume(string zgid, int volume) { _Proxy.SetVolume(zgid, volume); } // volume [0,100]
+
+        public int GetVolume(string zgid) { return _Proxy.GetVolume(zgid); }
+
+        public bool SetMute(string zgid, bool mute) { return _Proxy.SetMute(zgid, mute); }
+
+        public bool IsMuted(string zgid) { return _Proxy.IsMuted(zgid); }
+
         List<Event> _PollForEvents(int timeout)
         {
             XmlRpcStruct[] xmlEvents = _Proxy.PollForEvents(timeout);
@@ -249,12 +282,14 @@ namespace Sonar
             [XmlRpcMethod("GetVolume")]
             int GetVolume(string zgid);//0-100
 
+            [XmlRpcMethod("SetMute")]
+            bool SetMute(string zgid, bool mute);
+
             [XmlRpcMethod("IsMuted")]
             bool IsMuted(string zgid);
 
             [XmlRpcMethod("PollForEvents")]
             XmlRpcStruct[] PollForEvents(int timeout);
-
         }
 
     }
