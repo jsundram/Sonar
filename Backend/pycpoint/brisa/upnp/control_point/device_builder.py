@@ -132,7 +132,8 @@ class DeviceAssembler(object):
                 return
             data = filecontent.read()
             data = data[data.find("<"):data.rfind(">")+1]
-            tree = ElementTree(data).getroot()
+            from xml.etree.ElementTree import fromstring
+            tree = fromstring(data)
         else:
             from xml.etree.ElementTree import parse
             tree = parse(self.filename)
