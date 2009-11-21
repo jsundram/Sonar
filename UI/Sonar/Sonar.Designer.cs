@@ -42,9 +42,6 @@ namespace Sonar
             this.now_playing_tabs = new System.Windows.Forms.TabControl();
             this.now_playing = new System.Windows.Forms.TabPage();
             this.now_playing_panel = new System.Windows.Forms.Panel();
-            this._Familiarity = new Sonar.VerticalProgressBar();
-            this._Hotness = new Sonar.VerticalProgressBar();
-            this._AlbumArt = new System.Windows.Forms.PictureBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -54,8 +51,6 @@ namespace Sonar
             this.twitter.SuspendLayout();
             this.now_playing_tabs.SuspendLayout();
             this.now_playing.SuspendLayout();
-            this.now_playing_panel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._AlbumArt)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -208,49 +203,11 @@ namespace Sonar
             // 
             // now_playing_panel
             // 
-            this.now_playing_panel.Controls.Add(this._Familiarity);
-            this.now_playing_panel.Controls.Add(this._Hotness);
-            this.now_playing_panel.Controls.Add(this._AlbumArt);
             this.now_playing_panel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.now_playing_panel.Location = new System.Drawing.Point(3, 3);
             this.now_playing_panel.Name = "now_playing_panel";
             this.now_playing_panel.Size = new System.Drawing.Size(548, 404);
             this.now_playing_panel.TabIndex = 0;
-            // 
-            // _Familiarity
-            // 
-            this._Familiarity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this._Familiarity.ForeColor = System.Drawing.Color.MediumBlue;
-            this._Familiarity.Location = new System.Drawing.Point(292, 3);
-            this._Familiarity.Name = "_Familiarity";
-            this._Familiarity.Size = new System.Drawing.Size(10, 235);
-            this._Familiarity.TabIndex = 3;
-            // 
-            // _Hotness
-            // 
-            this._Hotness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this._Hotness.ForeColor = System.Drawing.Color.OrangeRed;
-            this._Hotness.Location = new System.Drawing.Point(275, 3);
-            this._Hotness.Name = "_Hotness";
-            this._Hotness.Size = new System.Drawing.Size(10, 235);
-            this._Hotness.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this._Hotness.TabIndex = 2;
-            // 
-            // _AlbumArt
-            // 
-            this._AlbumArt.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this._AlbumArt.BackColor = System.Drawing.Color.Black;
-            this._AlbumArt.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this._AlbumArt.Location = new System.Drawing.Point(3, 3);
-            this._AlbumArt.Name = "_AlbumArt";
-            this._AlbumArt.Size = new System.Drawing.Size(265, 235);
-            this._AlbumArt.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this._AlbumArt.TabIndex = 0;
-            this._AlbumArt.TabStop = false;
             // 
             // MainForm
             // 
@@ -272,8 +229,6 @@ namespace Sonar
             this.twitter.ResumeLayout(false);
             this.now_playing_tabs.ResumeLayout(false);
             this.now_playing.ResumeLayout(false);
-            this.now_playing_panel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this._AlbumArt)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -294,9 +249,6 @@ namespace Sonar
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListBox _SearchResults;
-        private System.Windows.Forms.PictureBox _AlbumArt;
-        private VerticalProgressBar _Hotness;
-        private VerticalProgressBar _Familiarity;
     }
 }
 

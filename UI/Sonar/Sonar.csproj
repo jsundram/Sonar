@@ -74,6 +74,12 @@
   <ItemGroup>
     <Compile Include="Amazon.cs" />
     <Compile Include="EchoNest.cs" />
+    <Compile Include="NowPlayingPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NowPlayingPanel.Designer.cs">
+      <DependentUpon>NowPlayingPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="PlayMe.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -104,6 +110,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="NowPlayingPanel.resx">
+      <DependentUpon>NowPlayingPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SocialPanel.resx">
       <DependentUpon>SocialPanel.cs</DependentUpon>
     </EmbeddedResource>
