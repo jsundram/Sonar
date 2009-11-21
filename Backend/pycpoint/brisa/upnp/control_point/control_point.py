@@ -55,7 +55,7 @@ class ControlPoint(object):
         self._ssdp_server.subscribe("removed_device_event",
                                    self._removed_device_event)
 #DO WE NEED THIS? WIRESHARK...
-#        self._ssdp_server.subscribe("device_event", self._on_event)
+        self._ssdp_server.subscribe("device_event", self._on_event)
 
         self._msearch = MSearch(self._ssdp_server, start=False)
         self._event_listener = EventListenerServer(self)
