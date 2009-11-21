@@ -34,6 +34,7 @@ namespace Sonar
             _Sonos.OnTrackProgress += this.OnTrackProgress;
             _Sonos.OnPlayStateChanged += this.OnPlayStateChanged;
             _Sonos.OnMuteChanged += this.OnMuteChanged;
+            _Sonos.OnVolumeChanged += this.OnVolumeChanged;
 
             PopulateQueue();
             PopulateNowPlaying();
@@ -48,6 +49,7 @@ namespace Sonar
             _Sonos.OnTrackProgress -= this.OnTrackProgress;
             _Sonos.OnPlayStateChanged -= this.OnPlayStateChanged;
             _Sonos.OnMuteChanged -= this.OnMuteChanged;
+            _Sonos.OnVolumeChanged -= this.OnVolumeChanged;
         }
 
         void PopulateQueue()
@@ -55,6 +57,8 @@ namespace Sonar
             List<SonosClient.Metadata> q = _Sonos.GetQueue(_ZoneGroup);
             _Queue.Items.AddRange(q.ToArray()); // Probably want something else.
         }
+
+
 
         void PopulateNowPlaying()
         {
@@ -68,7 +72,11 @@ namespace Sonar
 
             // Update Scrubber:
             int seconds = _Sonos.GetTrackTime(_ZoneGroup);
-            _TrackProgress.Value = (int)((float)seconds / (float)_TotalSeconds);
+            if (_TotalSeconds != 0)
+                _TrackProgress.Value = (int)(100 * (float)seconds / (float)_TotalSeconds);
+
+            // Start up album art threads
+
         }
 
         void UpdateControls()
@@ -84,27 +92,49 @@ namespace Sonar
             _Volume.Value = volume;
         }
 
+        delegate void ActionDelegate();
         public void OnQueueChanged(string zgid)
         {
             if (zgid != _ZoneGroup)
                 return;
 
-            PopulateQueue(); // TODO: Invoke...
+            if (InvokeRequired)
+                BeginInvoke(new ActionDelegate(PopulateQueue));
+            else
+                PopulateQueue(); 
         }
+
         public void OnTrackChanged(string zgid)
         {
             if (zgid != _ZoneGroup)
                 return;
-            PopulateNowPlaying();// TODO: Invoke...
+
+            if (InvokeRequired)
+                BeginInvoke(new ActionDelegate(PopulateNowPlaying));
+            else
+                PopulateQueue(); 
         }
 
+        public void UpdateTrackProgress(int seconds)
+        {
+            if (_TotalSeconds != 0)
+                _TrackProgress.Value = (int)(100.0 * (float)seconds / (float)_TotalSeconds);
+
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            TimeSpan total = TimeSpan.FromSeconds(_TotalSeconds);    
+            _TrackTime.Text = string.Format("{0:D2}:{1:D2} / {2:D2}:{3:D2}", t.Minutes, t.Seconds, total.Minutes, total.Seconds);
+        }
+
+        delegate void TrackProgressDelegate(int seconds);
         public void OnTrackProgress(string zgid, int seconds)
         {
             if (zgid != _ZoneGroup)
                 return;
 
-            // TODO: If InvokeRequired ...
-            _TrackProgress.Value = (int)((float)seconds / (float)_TotalSeconds);
+            if (InvokeRequired)
+                BeginInvoke(new TrackProgressDelegate(UpdateTrackProgress), new object[]{seconds}); //BeginInvoke();
+            else
+                UpdateTrackProgress(seconds); 
         }
 
         public void OnVolumeChanged(string zgid, int level)
@@ -112,7 +142,10 @@ namespace Sonar
             if (zgid != _ZoneGroup)
                 return;
 
-            UpdateControls();
+            if (InvokeRequired)
+                BeginInvoke(new ActionDelegate(UpdateControls));
+            else
+                UpdateControls(); 
         }
 
         public void OnPlayStateChanged(string zgid, bool playing)
@@ -120,8 +153,10 @@ namespace Sonar
             if (zgid != _ZoneGroup)
                 return;
 
-            _Play.Text = playing ? "Pause" : "Play";
-
+            if (InvokeRequired)
+                BeginInvoke(new ActionDelegate(delegate { _Play.Text = playing ? "Pause" : "Play"; }));
+            else
+                _Play.Text = playing ? "Pause" : "Play"; 
         }
 
         public void OnMuteChanged(string zgid, bool muted)
@@ -129,7 +164,10 @@ namespace Sonar
             if (zgid != _ZoneGroup)
                 return;
 
-            UpdateControls();
+            if (InvokeRequired)
+                BeginInvoke(new ActionDelegate(UpdateControls));
+            else
+                UpdateControls();
         }
 
         private void _Artist_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -141,6 +179,42 @@ namespace Sonar
         {
             _Index = (_Index + 1) % _Images.Count;
             _AlbumArt.Image = _Images[_Index];
+        }
+
+        void _Play_Click(object sender, EventArgs e)
+        {
+            bool play = (_Play.Text == "Play");
+
+            if (play)
+                _Sonos.Play(_ZoneGroup, -1);
+            else
+                _Sonos.Pause(_ZoneGroup);
+            
+            _Play.Text = play ? "Pause" : "Play";
+        }
+
+        void _Back_Click(object sender, EventArgs e)
+        {
+            _Sonos.Back(_ZoneGroup);
+        }
+
+        void _Next_Click(object sender, EventArgs e)
+        {
+            _Sonos.Next(_ZoneGroup);
+        }
+
+        void _Mute_Click(object sender, EventArgs e)
+        {
+            bool muted = !_Volume.Enabled;
+            _Sonos.SetMute(_ZoneGroup, !muted);
+
+            _Volume.Enabled = !muted;
+        }
+
+        void _Volume_MouseUp(object sender, MouseEventArgs e)
+        {
+            _Sonos.SetVolume(_ZoneGroup, _Volume.Value);
+            MainForm.Trace("Setting Volume to " + _Volume.Value.ToString());
         }
     }
 }
