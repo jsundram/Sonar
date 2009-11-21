@@ -6,7 +6,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 # Create server
-server = SimpleXMLRPCServer(("192.168.2.7", 8000),
+server = SimpleXMLRPCServer(("192.168.0.108", 8000),
                             requestHandler=RequestHandler)
 server.register_introspection_functions()
 
@@ -56,8 +56,11 @@ def OnQueueChanged(szZGID):
 def OnTrackChanged(szZGID):
     PostEvent("OnTrackChanged", [szZGID])
 
-def OnVolumeChanged(szZGID, nVol, bMute):
-    PostEvent("OnVolumeChanged", [szZGID, nVol, bMute])
+def OnVolumeChanged(szZGID, nVol):
+    PostEvent("OnVolumeChanged", [szZGID, nVol])
+
+def OnMuteChanged(szZGID, bMute):
+    PostEvent("OnMuteChanged", [szZGID, bMute])
 
 def OnPlayStateChanged(szZGID, bPlaying):
     PostEvent("OnPlayStateChanged", [szZGID, bPlaying])    
@@ -175,8 +178,9 @@ def SetVolume(szZGID, nVol):
     try:
         ix = g_lstFakeZGIDs.index(szZGID)
         if (0 <= nVol <= 100):
-            g_anVolume[ix] = nVol
-            OnVolumeChanged(szZGID, nVol, g_abMute[ix])
+            if (g_anVolume[ix] != nVol):
+                g_anVolume[ix] = nVol
+                OnVolumeChanged(szZGID, nVol)
             return True
     except:
         pass
@@ -188,23 +192,34 @@ def SetMute(szZGID, bMute):
     global g_lstFakeZGIDs, g_abMute
     try:
         ix = g_lstFakeZGIDs.index(szZGID)
-        g_abMute[ix] = bMute
-        OnVolumeChanged(szZGID, g_anVolume[ix], bMute)
+        if (g_abMute[ix] != bMute):
+            g_abMute[ix] = bMute
+            OnMuteChanged(szZGID, bMute)
         return True
     except:
         return False
 
 server.register_function(SetMute)
 
-def GetVolumeAndMute(szZGID):
-    global g_lstFakeZGIDs, g_anVolume, g_abMute
+def GetVolume(szZGID):
+    global g_lstFakeZGIDs, g_anVolume
     try:
         ix = g_lstFakeZGIDs.index(szZGID)
-        return (g_anVolume[ix], g_abMute[ix])
+        return g_anVolume[ix]
     except:
-        return (-1, False)
+        return -1
+    
+server.register_function(GetVolume)
 
-server.register_function(GetVolumeAndMute)
+def IsMuted(szZGID):
+    global g_lstFakeZGIDs, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return g_abMute[ix]
+    except:
+        return False
+
+server.register_function(IsMuted)
 
 def nextTrack(n, bWrap):
     global g_nCurrentlyPlayingTrackNums, g_lstFakeZGIDs, g_lstCurrentQs
