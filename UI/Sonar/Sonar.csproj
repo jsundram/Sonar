@@ -122,6 +122,10 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Credentials.cs" />
+    <Compile Include="SonosClient.cs" />
+    <Compile Include="VerticalProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

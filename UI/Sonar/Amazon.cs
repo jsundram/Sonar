@@ -1,17 +1,16 @@
-﻿using Sonar.Amazon;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.ServiceModel; // Requires .NET 3.0
-using System.ServiceModel.Description;
-using System.Net;
 using System.IO;
-using System.Text.RegularExpressions;
-using System;
+using System.Net;
 using System.Security.Cryptography;
-using System.Text;
-using System.ServiceModel.Dispatcher;
+using System.ServiceModel; // Requires .NET 3.0
 using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
+using System.ServiceModel.Dispatcher;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
+using Sonar.Amazon;
 
 // Mostly lifted from http://www.seesharpdot.net/?p=157
 // Requires .NET 3.0
@@ -31,46 +30,50 @@ namespace Sonar
         }
 
         public static List<System.Drawing.Image> SearchAlbumArt(string keywords)
-        {            
-            keywords = CleanString(keywords);
-            
-            ItemSearchRequest itemRequest = new ItemSearchRequest();
-            itemRequest.Keywords = keywords;
-            // http://docs.amazonwebservices.com/AWSECommerceService/2009-02-01/DG/index.html?ItemLookup.html
-            itemRequest.SearchIndex = "DVD"; // Why not Classical, DigitalMusic, Mp3Downloads, Music, MusicTracks, 
-            itemRequest.ResponseGroup = new string[] { "Images" }; // images only
-
-            ItemSearch request = new ItemSearch();
-            request.AWSAccessKeyId = Credentials.AmazonAccessKeyId;
-            request.Request = new ItemSearchRequest[] { itemRequest };
-
-            BasicHttpBinding binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
-            binding.MaxReceivedMessageSize = int.MaxValue;
-
-            AWSECommerceServicePortTypeClient client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress("https://webservices.amazon.com/onca/soap?Service=AWSECommerceService"));
-            client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(Credentials.AmazonAccessKeyId, Credentials.AmazonSecretKey));
-            ItemSearchResponse response = client.ItemSearch(request);
-
-            // Determine if book was found
-            bool itemFound = ((response.Items[0].Item != null) && (response.Items[0].Item.Length > 0));
-
-            if (itemFound)
+        {
+            try
             {
-                List<System.Drawing.Image> images = new List<System.Drawing.Image>();
+                keywords = CleanString(keywords);
 
-                foreach (Item currItem in response.Items[0].Item)
+                ItemSearchRequest itemRequest = new ItemSearchRequest();
+                itemRequest.Keywords = keywords;
+                // http://docs.amazonwebservices.com/AWSECommerceService/2009-02-01/DG/index.html?ItemLookup.html
+                itemRequest.SearchIndex = "Music"; // Other possibly valid choices:Classical, DigitalMusic, Mp3Downloads, Music, MusicTracks, 
+                itemRequest.ResponseGroup = new string[] { "Images" }; // images only
+
+                ItemSearch request = new ItemSearch();
+                request.AWSAccessKeyId = Credentials.AmazonAccessKeyId;
+                request.Request = new ItemSearchRequest[] { itemRequest };
+
+                BasicHttpBinding binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
+                binding.MaxReceivedMessageSize = int.MaxValue;
+
+                AWSECommerceServicePortTypeClient client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress("https://webservices.amazon.com/onca/soap?Service=AWSECommerceService"));
+                client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(Credentials.AmazonAccessKeyId, Credentials.AmazonSecretKey));
+                ItemSearchResponse response = client.ItemSearch(request);
+
+                // Determine if book was found
+                bool itemFound = ((response.Items[0].Item != null) && (response.Items[0].Item.Length > 0));
+
+                if (itemFound)
                 {
-                    try
-                    {
-                        if (currItem != null && currItem.LargeImage != null)
-                            images.Add(ConvertByteArrayToImage(GetBytesFromUrl(currItem.LargeImage.URL)));
-                    }
-                    catch { }
-                }
+                    List<System.Drawing.Image> images = new List<System.Drawing.Image>();
 
-                return images;
+                    foreach (Item currItem in response.Items[0].Item)
+                    {
+                        try
+                        {
+                            if (currItem != null && currItem.LargeImage != null)
+                                images.Add(ConvertByteArrayToImage(GetBytesFromUrl(currItem.LargeImage.URL)));
+                        }
+                        catch { }
+                    }
+
+                    return images;
+                }
             }
-                
+            catch (Exception) {}
+
             return null;
         }
 

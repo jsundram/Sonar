@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Net;
 using System.Xml;
-using System.Web;
-using System.ComponentModel;
 
 namespace Sonar
 {
@@ -70,7 +67,7 @@ namespace Sonar
                         case "rank":
                             rank = Convert.ToInt32(value); break; 
                         default:
-                            Sonar.Trace("Don't know what to do with field: " + varname);
+                            MainForm.Trace("Don't know what to do with field: " + varname);
                             break; // pass
                     }
                 }

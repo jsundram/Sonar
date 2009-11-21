@@ -47,7 +47,7 @@ namespace Sonar
 
             if (!CheckRateLimit())
             {
-                Sonar.Trace("Ditched query due to rate limit");
+                MainForm.Trace("Ditched query due to rate limit");
                 return Items; 
             }
 
@@ -104,10 +104,10 @@ namespace Sonar
                             
                             Items.Add(i);
                         }
-                        catch (Exception) { Sonar.Trace(string.Format("LastFmFriendsLoved: Exception on item for user {0}", name)); }
+                        catch (Exception) { MainForm.Trace(string.Format("LastFmFriendsLoved: Exception on item for user {0}", name)); }
                     }
                 }
-                catch (Exception) { Sonar.Trace("LastFmFriendsLoved: Error getting loved tracks for " + name); }
+                catch (Exception) { MainForm.Trace("LastFmFriendsLoved: Error getting loved tracks for " + name); }
             }
 
             return Items;
@@ -145,10 +145,10 @@ namespace Sonar
 
                             Items.Add(i);
                         }
-                        catch (Exception) { Sonar.Trace(string.Format("LastFmFriends: Exception on item for user {0}", name)); }
+                        catch (Exception) { MainForm.Trace(string.Format("LastFmFriends: Exception on item for user {0}", name)); }
                     }
                 }
-                catch (Exception) { Sonar.Trace("LastFmFriends: Error getting recent tracks for friend: " + name); }
+                catch (Exception) { MainForm.Trace("LastFmFriends: Error getting recent tracks for friend: " + name); }
             }
 
             return Items;
@@ -214,7 +214,7 @@ namespace Sonar
                         Items.Add(item);
                     }
                 }
-                catch (Exception) { Sonar.Trace(string.Format("TwitterSonos: Exception on item {0} of {1}", i, screen_names.Count)); }
+                catch (Exception) { MainForm.Trace(string.Format("TwitterSonos: Exception on item {0} of {1}", i, screen_names.Count)); }
             }
 
             return Items;
@@ -264,7 +264,7 @@ namespace Sonar
 
                         Items.Add(item);
                     }
-                    catch (Exception) { Sonar.Trace(string.Format("TwitterFriends: Exception on item {0} of {1}", i, statuses.Count)); }
+                    catch (Exception) { MainForm.Trace(string.Format("TwitterFriends: Exception on item {0} of {1}", i, statuses.Count)); }
                 }
             }
 
