@@ -33,6 +33,9 @@ g_lstCurrentQs = [[g_dictMyFakeTrackMD],[]]
 g_qEvents = Queue(10)
 g_qSignals = Queue(1)
 g_aePlayState = [PS_STOPPED, PS_STOPPED]
+g_anVolume = [30,30]
+g_abMute = [False, False]
+
 
 def PostEvent(szName, lstArgs):
     global g_qEvents
@@ -52,6 +55,12 @@ def OnQueueChanged(szZGID):
 
 def OnTrackChanged(szZGID):
     PostEvent("OnTrackChanged", [szZGID])
+
+def OnVolumeChanged(szZGID, nVol, bMute):
+    PostEvent("OnVolumeChanged", [szZGID, nVol, bMute])
+
+def OnPlayStateChanged(szZGID, bPlaying):
+    PostEvent("OnPlayStateChanged", [szZGID, bPlaying])    
 
 def EnqueueTrack(szZGID, dictMD):
     global g_lstFakeZGIDs, g_lstCurrentQs
@@ -122,6 +131,7 @@ def Pause(szZGID):
         ix = g_lstFakeZGIDs.index(szZGID)
         if (g_aePlayState[ix] == PS_PLAYING):
             g_aePlayState[ix] = PS_PAUSED
+            OnPlayStateChanged(szZGID, False)
     except:
         return -1
 
@@ -140,13 +150,61 @@ def Play(szZGID, nIx):
             else:
                 return False
 
-        g_aePlayState[ix] = PS_PLAYING
+        if (g_aePlayState[ix] != PS_PLAYING):
+            g_aePlayState[ix] = PS_PLAYING
+            OnPlayStateChanged(szZGID, True)
         return True
 
     except:
         return False
 
 server.register_function(Play)
+
+def IsPlaying(szZGID):
+    global g_lstFakeZGIDs, g_aePlayState
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return (g_aePlayState[ix] == PS_PLAYING)
+    except:
+        return False
+
+server.register_function(IsPlaying)
+
+def SetVolume(szZGID, nVol):
+    global g_lstFakeZGIDs, g_anVolume, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        if (0 <= nVol <= 100):
+            g_anVolume[ix] = nVol
+            OnVolumeChanged(szZGID, nVol, g_abMute[ix])
+            return True
+    except:
+        pass
+    return False
+
+server.register_function(SetVolume)
+
+def SetMute(szZGID, bMute):
+    global g_lstFakeZGIDs, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        g_abMute[ix] = bMute
+        OnVolumeChanged(szZGID, g_anVolume[ix], bMute)
+        return True
+    except:
+        return False
+
+server.register_function(SetMute)
+
+def GetVolumeAndMute(szZGID):
+    global g_lstFakeZGIDs, g_anVolume, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return (g_anVolume[ix], g_abMute[ix])
+    except:
+        return (-1, False)
+
+server.register_function(GetVolumeAndMute)
 
 def nextTrack(n, bWrap):
     global g_nCurrentlyPlayingTrackNums, g_lstFakeZGIDs, g_lstCurrentQs
