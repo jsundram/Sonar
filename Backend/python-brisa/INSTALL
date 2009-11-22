@@ -1,0 +1,28 @@
+BRisa UPnP Framework v0.10.0
+
+This document contains the minimum information for installing BRisa.
+
+For extended installing tips and system specific instructions please consult our
+documentation on the project page (http://brisa.garage.maemo.org).
+
+
+Dependencies
+============
+
+BRisa requires the following third-party packages:
+
+    Python 2.5, Python 2.5-setuptools (or 2.6)- http://www.python.org">www.python.org
+
+    Only one of the following:
+    - (Recommended*) Python-circuits - http://trac.softcircuit.com.au/circuits/
+    - Python-paste - http://pythonpaste.org">http://pythonpaste.org
+    - Python-cherrypy 3.1.1 - http://www.cherrypy.org">www.cherrypy.org
+
+* We have python-circuits dependency packaged by us, available for download at https://garage.maemo.org/frs/?group_id=138.
+
+Installing
+==========
+
+You can install by simply running the following command:
+
+    # python setup.py install

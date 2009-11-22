@@ -1,0 +1,10 @@
+[install]
+repo_name = maemo
+repo_deb = deb http://repository.maemo.org/ gregale free non-free
+repo_deb_3 = deb http://repository.maemo.org/ bora free non-free
+catalogues = maemo
+
+[maemo]
+name = maemo
+uri = http://repository.maemo.org/
+components = free non-free

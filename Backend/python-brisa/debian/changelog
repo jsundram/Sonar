@@ -1,0 +1,84 @@
+python-brisa (0.10.1maemo0) unstable; urgency=low
+
+  * Fix bug where query strings were being ignored on URLs
+  * Make MSearch send from and listen on a random free port
+  * Make action template methods also work without "soap_" in the name (e.g. def
+    SetTarget() instead of def Soap_SetTarget())
+  * Fixed select reactor shutdown
+  * Fix unhandled exception when handling embedded devices
+  * Added more examples, refactoring on old ones
+  * Fixed embedded devices's services build
+  * Fixed embedded devices XML generation
+  * Fixed embedded devices announcement on ssdp:alive
+  * MSearch now uses provided search_type
+  * Removed DLNA attributes from devices built with BRisa, which are only part of
+    DLNA-specific devices
+  * Implemented force_event_reload method for forcing event messages when state
+    variables are updated
+  * Finished eventing API
+  * Fixed ecore-reactor fd event handler
+  * Changed default value for sendEvents to 'yes'
+  * Implemented multicast eventing
+  * Added Qt-based reactor
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Tue, 20 Oct 2009 18:03:14 -0300
+
+python-brisa (0.10.0maemo4) unstable; urgency=low
+
+  * Fix glib2 reactor main loop being created before use
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Sat, 13 Jun 2009 12:12:54 -0300
+
+python-brisa (0.10.0maemo3) unstable; urgency=low
+
+  * Fix version name on config package.
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Fri, 09 Jun 2009 21:45:00 -0300
+
+python-brisa (0.10.0maemo2) unstable; urgency=low
+
+  * Fix render-control xml description.
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Fri, 05 Jun 2009 22:13:00 -0300
+
+python-brisa (0.10.0maemo1) unstable; urgency=low
+
+  * New release
+
+ -- Leandro Melo de Sales <leandroal@gmail.com>  Fri, 5 Jun 2009 00:35:00 -0300
+
+python-brisa (0.10.0) unstable; urgency=low
+
+  * New release
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Sat, 30 May 2009 15:50:00 -0300
+
+python-brisa (0.9.0-0maemo1) unstable; urgency=low
+
+  * New release
+
+ -- Andre Dieb Martins <andre.dieb@gmail.com>  Sun, 15 Mar 2009 17:41:00 -0300
+
+python-brisa (0.8.0-0maemo2) unstable; urgency=low
+
+  * Control point splitted to another subpackage
+
+ -- Elvis Pfutzenreuter <elvis.pfutzenreuter@openbossa.org>  Tue, 20 Jan 2008 19:25:00 -0200 
+
+python-brisa (0.8.0-0maemo1) unstable; urgency=low
+
+  * New release
+
+ -- Elvis Pfutzenreuter <elvis.pfutzenreuter@openbossa.org>  Mon, 19 Jan 2008 10:25:00 -0200
+
+python-brisa (0.7.1-0maemo1) unstable; urgency=low
+
+  * New release
+
+ -- Leandro Melo de Sales <leandroal@gmail.com>  Sat, 8 Nov 2008 16:45:11 -0300
+
+python-brisa (0.7.0-0maemo1) unstable; urgency=low
+
+  * Added debian package support
+
+ -- Leandro Melo de Sales <leandroal@gmail.com>  Thu, 2 Oct 2008 16:06:12 -0300

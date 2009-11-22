@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+
+PYVER=2.5
+PYTHON=python$(PYVER)
+
+p_base=$(PYTHON)-brisa
+d_base=debian/tmp
+package=brisa
+
+build: build-stamp
+
+build-stamp:
+	dh_testdir
+	$(PYTHON) setup.py build
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	$(PYTHON) setup.py clean
+	-rm -f build-stamp
+	-rm -rf build
+	-rm -f *.py[co]
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+
+	$(PYTHON) setup.py install --root=$(d_base)
+	mkdir -p debian/$(p_base)/usr/lib/$(PYTHON)/site-packages/
+	mkdir -p debian/$(p_base)/usr/bin
+	mv debian/tmp/usr/lib/$(PYTHON)/site-packages/$(package) debian/$(p_base)/usr/lib/$(PYTHON)/site-packages/
+	mv debian/tmp/usr/bin/* debian/$(p_base)/usr/bin/
+
+binary-indep: build install
+
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_fixperms
+	dh_python
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+.PHONY: build install clean binary binary-indep binary-arch

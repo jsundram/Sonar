@@ -1,0 +1,13 @@
+Source: python-brisa
+Section: user/multimedia
+Priority: optional
+Maintainer: Leandro Melo de Sales <leandroal@gmail.com>
+Build-Depends: debhelper (>= 5.0.38), python2.5-dev, python-setuptools | python2.5-setuptools
+Standards-Version: 3.6.1
+
+Package: python2.5-brisa
+Section: user/multimedia
+Architecture: all
+Depends: python2.5, python2.5-xml | python-xml, python-cherrypy3 | python-paste | python-circuits
+Provides: ${python:Provides}
+Description: UPnP framework for building devices, services and control points.
