@@ -6,7 +6,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 # Create server
-server = SimpleXMLRPCServer(("192.168.0.108", 8000),
+server = SimpleXMLRPCServer(("localhost", 8000),
                             requestHandler=RequestHandler)
 server.register_introspection_functions()
 
@@ -137,8 +137,9 @@ def Pause(szZGID):
         if (g_aePlayState[ix] == PS_PLAYING):
             g_aePlayState[ix] = PS_PAUSED
             OnPlayStateChanged(szZGID, False)
+	return True
     except:
-        return -1
+        return False
 
 server.register_function(Pause)
 

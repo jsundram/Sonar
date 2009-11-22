@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlbumArtWorker.cs" />
     <Compile Include="Amazon.cs" />
     <Compile Include="EchoNest.cs" />
     <Compile Include="NowPlayingPanel.cs">

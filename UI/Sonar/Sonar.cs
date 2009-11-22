@@ -17,9 +17,12 @@ namespace Sonar
         public MainForm()
         {
             InitializeComponent();
-            
-            /*
+            UpdateNowPlaying();
+            _Sonos.OnZoneGroupsChanged += UpdateNowPlaying;
+
             PopulateSocial();
+            /*
+            
             _Images = AmazonGateway.SearchAlbumArt("Please Please Me");
             // PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
             // PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
@@ -36,12 +39,28 @@ namespace Sonar
              */
         }
 
+        TabPage MakeZoneTab(string zgid)
+        {
+            TabPage t = new TabPage(zgid);
+            NowPlayingPanel p = new NowPlayingPanel(_Sonos, zgid);
+            p.Dock = DockStyle.Fill;
+            t.Controls.Add(p);
+            return t;
+        }
+
         public void UpdateNowPlaying()
         {
-            List<string> zones = _Sonos.GetZoneGroups();
-            //this.now_playing_tabs; // remove and then add them all .
+            List<string> zgids = _Sonos.GetZoneGroups();
+            
+            foreach (string zgid in zgids)
+                if (!now_playing_tabs.TabPages.ContainsKey(zgid))
+                    now_playing_tabs.TabPages.Add(MakeZoneTab(zgid));
 
+            foreach (TabPage t in now_playing_tabs.TabPages)
+                if (!zgids.Contains(t.Text))
+                    now_playing_tabs.TabPages.Remove(t);
         }
+
         public static void WriteToFile(string filename, object data)
         {
             TextWriter tw = new StreamWriter(filename);
@@ -53,9 +72,9 @@ namespace Sonar
         private void PopulateSocial()
         {
             // _social.AddDataSource(new TwitterFriends());
-            _social.AddDataSource(new LastFmFriendsLoved());
-            // _social.AddDataSource(new TwitterSonos());
-            // _social.AddDataSource(new LastFmFriends());
+            //_social.AddDataSource(new LastFmFriendsLoved());
+            _social.AddDataSource(new TwitterSonos());
+            //_social.AddDataSource(new LastFmFriends());
             _social.Populate();
         }
 

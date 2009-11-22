@@ -75,6 +75,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(24, 428);
             this.label1.Name = "label1";
@@ -84,6 +85,7 @@
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(18, 460);
             this.label2.Name = "label2";
@@ -93,6 +95,7 @@
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(19, 492);
             this.label3.Name = "label3";
@@ -102,7 +105,7 @@
             // 
             // _TrackProgress
             // 
-            this._TrackProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this._TrackProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this._TrackProgress.Location = new System.Drawing.Point(3, 320);
             this._TrackProgress.Name = "_TrackProgress";
@@ -111,8 +114,7 @@
             // 
             // _TrackTime
             // 
-            this._TrackTime.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._TrackTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._TrackTime.AutoSize = true;
             this._TrackTime.Location = new System.Drawing.Point(334, 337);
             this._TrackTime.Name = "_TrackTime";
@@ -122,7 +124,7 @@
             // 
             // _Volume
             // 
-            this._Volume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._Volume.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._Volume.Location = new System.Drawing.Point(361, 369);
             this._Volume.Maximum = 100;
             this._Volume.Name = "_Volume";
@@ -130,6 +132,7 @@
             this._Volume.Size = new System.Drawing.Size(45, 121);
             this._Volume.TabIndex = 8;
             this._Volume.TickStyle = System.Windows.Forms.TickStyle.None;
+            this._Volume.MouseUp += new System.Windows.Forms.MouseEventHandler(this._Volume_MouseUp);
             // 
             // _Mute
             // 
@@ -141,9 +144,11 @@
             this._Mute.TabIndex = 9;
             this._Mute.Text = "Mute";
             this._Mute.UseVisualStyleBackColor = false;
+            this._Mute.Click += new System.EventHandler(this._Mute_Click);
             // 
             // _Play
             // 
+            this._Play.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Play.BackColor = System.Drawing.Color.DimGray;
             this._Play.Location = new System.Drawing.Point(95, 337);
             this._Play.Name = "_Play";
@@ -151,9 +156,11 @@
             this._Play.TabIndex = 10;
             this._Play.Text = "Play";
             this._Play.UseVisualStyleBackColor = false;
+            this._Play.Click += new System.EventHandler(this._Play_Click);
             // 
             // _Back
             // 
+            this._Back.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Back.BackColor = System.Drawing.Color.DimGray;
             this._Back.Location = new System.Drawing.Point(14, 337);
             this._Back.Name = "_Back";
@@ -161,9 +168,11 @@
             this._Back.TabIndex = 11;
             this._Back.Text = "Back";
             this._Back.UseVisualStyleBackColor = false;
+            this._Back.Click += new System.EventHandler(this._Back_Click);
             // 
             // _Next
             // 
+            this._Next.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Next.BackColor = System.Drawing.Color.DimGray;
             this._Next.Location = new System.Drawing.Point(176, 337);
             this._Next.Name = "_Next";
@@ -171,11 +180,11 @@
             this._Next.TabIndex = 12;
             this._Next.Text = "Next";
             this._Next.UseVisualStyleBackColor = false;
+            this._Next.Click += new System.EventHandler(this._Next_Click);
             // 
             // _Artist
             // 
-            this._Artist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._Artist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Artist.AutoSize = true;
             this._Artist.LinkColor = System.Drawing.Color.White;
             this._Artist.Location = new System.Drawing.Point(64, 428);
@@ -189,6 +198,7 @@
             // 
             // _Album
             // 
+            this._Album.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Album.AutoSize = true;
             this._Album.Location = new System.Drawing.Point(64, 460);
             this._Album.Name = "_Album";
@@ -197,6 +207,7 @@
             // 
             // _Track
             // 
+            this._Track.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._Track.AutoSize = true;
             this._Track.Location = new System.Drawing.Point(64, 492);
             this._Track.Name = "_Track";
