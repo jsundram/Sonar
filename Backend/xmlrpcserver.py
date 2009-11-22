@@ -171,13 +171,14 @@ def Play(szZGID, nIx):
             else:
                 return False
 
-        if (g_aePlayState[ix] != PS_PLAYING):
-            g_aePlayState[ix] = PS_PLAYING
+        if (g_aePlayState[0] != PS_PLAYING):
+            g_aePlayState[0] = PS_PLAYING
             sonos.play(g_currentHHID, szZGID)
             OnPlayStateChanged(szZGID, True)
         return True
 
-    except:
+    except Exception, e:
+        print e
         return False
 
 server.register_function(Play)

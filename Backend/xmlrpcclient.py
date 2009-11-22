@@ -2,12 +2,15 @@ import xmlrpclib
 
 s = xmlrpclib.ServerProxy('http://localhost:8000')
 
+from time import sleep
+
 # Print list of available methods
 print s.system.listMethods()
 
 hhids = s.SearchForHHIDs()
 print hhids
 print s.SubscribeToHH(hhids[0])
+sleep(1)
 zgids = s.GetAllZoneGroups()
 print zgids
 print s.EnqueueTrack(zgids[0],
@@ -16,3 +19,4 @@ print s.EnqueueTrack(zgids[0],
                       "Title": "Another Brick In The Wall (Part 2)",
                       "PlayTime": "242"})
 
+s.Play(zgids[0], -1)
