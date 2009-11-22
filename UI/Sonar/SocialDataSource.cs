@@ -272,4 +272,92 @@ namespace Sonar
         }
     }
 
+    public class TwitterSearch : RateLimitedSource
+    {
+        private string query;
+        private string regex;
+
+        public TwitterSearch(string query, string regex)
+        {
+            this.query = query;
+            this.regex = regex;
+        }
+
+        protected override List<SocialItem> _Update()
+        {
+            Twitter t = new Twitter();
+            Items = new List<SocialItem>();
+            XmlDocument timeline = t.Search(query);
+
+            // Result looks like:
+            /*
+            <entry>
+                <id>tag:search.twitter.com,2005:5570205072</id>
+                <published>2009-11-09T21:57:19Z</published>
+                <link type="text/html" href="http://twitter.com/Ricardo5599/statuses/5570205072" rel="alternate" />
+                <title>Enjoying Close To You by JLS all over the house on my #Sonos</title>
+                <content type="html">Enjoying Close To You &lt;b&gt;by&lt;/b&gt; JLS all over the house on my &lt;a href="http://search.twitter.com/search?q=%23Sonos"&gt;#Sonos&lt;/a&gt;</content>
+                <updated>2009-11-09T21:57:19Z</updated>
+                <link type="image/png" href="http://a1.twimg.com/profile_images/509073086/WeeMee_16002855_for_richard.suttonpgs_normal.jpg" rel="image"/>
+                <twitter:geo></twitter:geo>
+                <twitter:source>&lt;a href="http://www.sonos.com/tweetfeed" rel="nofollow"&gt;Sonos&lt;/a&gt;</twitter:source>
+                <twitter:lang>en</twitter:lang>
+                <author>
+                    <name>Ricardo5599 (RichardSutton)</name>
+                    <uri>http://twitter.com/Ricardo5599</uri>
+                </author>
+            </entry>*/
+
+            XmlNodeList statuses = timeline.GetElementsByTagName("title");
+            XmlNodeList screen_names = timeline.GetElementsByTagName("author");
+            //XmlNodeList images = timeline.GetElementsByTagName("link"); // this matches too much stuff!
+            XmlNodeList post_times = timeline.GetElementsByTagName("published");
+
+            // Since there are actually link elements, enumerate all the entry elements to get the links
+            List<XmlNode> links = new List<XmlNode>();
+            XmlNodeList entries = timeline.GetElementsByTagName("entry");
+            foreach (XmlNode enode in entries)
+            {
+                foreach (XmlNode cnode in enode.ChildNodes)
+                {
+                    if (cnode.Name == "link")
+                        links.Add(cnode);
+                }
+            }
+
+            int s = statuses.Count;
+            int n = screen_names.Count;
+            System.Diagnostics.Debug.Assert(statuses.Count - 1 == screen_names.Count);
+            System.Diagnostics.Debug.Assert(links.Count == 2 * screen_names.Count);
+
+            string time_format = "yyyy-MM-ddTHH:mm:ssZ";//2009-11-09T21:57:19Z
+
+            // Loop for the <title>, <link>, <description> and all the other tags
+            for (int i = 0; i < screen_names.Count; i++)
+            {
+                try
+                {
+                    string status = statuses[i + 1].InnerText; // "title" is returned in the header, so we add one here to compensate for it.
+                    SocialItem item = new SocialItem();
+                    if (item.try_populate_artist_track(status, regex))
+                    {
+                        item.Message = status;
+                        string user = screen_names[i].InnerText;
+                        item.User = user.Substring(0, user.IndexOf(' '));// looks like this jsundram (jason Sundram)https:..sdfasdfasdjfh
+
+                        System.Diagnostics.Debug.Assert(links[2 * i + 1].Attributes[0].Value == "image/png");
+                        item.Image = item.GetImage(links[2 * i + 1].Attributes[1].Value);
+                        item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture);
+
+                        Items.Add(item);
+                    }
+                }
+                catch (Exception) { MainForm.Trace(string.Format("TwitterSonos: Exception on item {0} of {1}", i, screen_names.Count)); }
+            }
+
+            return Items;
+        }
+
+    }
+
 }

@@ -132,5 +132,59 @@ namespace Sonar
             // TODO: Update item corresponding to i with status
             
         }
+
+        private void _Feed_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            int borderWidth = 2;
+            int imageWidth = 48;
+            int imageHeight = imageWidth;
+
+            SocialItem item = _Feed.Items[e.Index] as SocialItem;
+            if (item == null) return;
+
+            // Set the DrawMode property to draw fixed sized items.
+            _Feed.DrawMode = DrawMode.OwnerDrawVariable;
+
+            // Draw the background of the ListBox control for each item.
+            e.DrawBackground();
+
+            System.Drawing.Pen myPen = new System.Drawing.Pen(Color.Red);
+            myPen.Width = borderWidth;
+            if (e.Index % 6 < 3)
+                myPen.Color = Color.Blue;
+
+            // Draw border
+            Rectangle border = new Rectangle(e.Bounds.X, e.Bounds.Y+1, e.Bounds.Width - borderWidth, e.Bounds.Height - borderWidth-1);
+            e.Graphics.DrawRectangle(myPen, border);
+
+            // Define the default color of the brush as black.
+            Brush myBrush = Brushes.Black;
+
+            // Draw the current item text based on the current Font and the custom brush settings.
+            Rectangle textRect = new Rectangle(e.Bounds.X + imageWidth + 4, e.Bounds.Y + 1 + 2, 
+                                                e.Bounds.Width - borderWidth - imageWidth - 4, e.Bounds.Height - borderWidth - 1 - 2);
+            e.Graphics.DrawString(item.ToString(), e.Font, myBrush, textRect, StringFormat.GenericDefault);
+
+            // Draw the image
+            if (item.Image != null)
+            {
+                Rectangle imageRect = new Rectangle(e.Bounds.X + 1, e.Bounds.Y + 2, imageWidth, imageHeight);
+                e.Graphics.DrawImage(item.Image, imageRect);
+            }
+
+            // If the ListBox has focus, draw a focus rectangle around the selected item.
+            e.DrawFocusRectangle();
+
+            // Dispose what needs to be disposed of TODO!
+            myPen.Dispose();
+            //myBrush.Dispose();
+        }
+
+        private void _Feed_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = 54;
+            e.ItemWidth = 447;
+        }
+
     }
 }

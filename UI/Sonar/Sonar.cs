@@ -20,8 +20,8 @@ namespace Sonar
         {
             InitializeComponent();
             
-            /*
             PopulateSocial();
+             /* 
             _Images = AmazonGateway.SearchAlbumArt("Please Please Me");
             // PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
             // PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
@@ -36,6 +36,7 @@ namespace Sonar
             
             // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.
              */
+
         }
 
         void _AlbumArt_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -54,9 +55,16 @@ namespace Sonar
 
         private void PopulateSocial()
         {
-            // _social.AddDataSource(new TwitterFriends());
-            _social.AddDataSource(new LastFmFriendsLoved());
-            // _social.AddDataSource(new TwitterSonos());
+            //_social.AddDataSource(new TwitterFriends());
+            //_social.AddDataSource(new LastFmFriendsLoved());
+            //_social.AddDataSource(new TwitterSonos());
+
+            // Add The Hype Machine (hypem.com)
+            //_social.AddDataSource(new TwitterSearch("from%3Ahypem", @"(?<title>.*) by (?<artist>.*) reached"));
+
+            // Add Hunted (wearehunted.com)
+            _social.AddDataSource(new TwitterSearch("%23wearehunted", @".* - (?<title>.*) / (?<artist>.*)"));
+
             // _social.AddDataSource(new LastFmFriends());
             _social.Populate();
         }
@@ -133,6 +141,7 @@ namespace Sonar
         {
             _Sonos.StopListening();
         }
+
     }
 
 

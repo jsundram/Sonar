@@ -34,11 +34,14 @@
             // _Feed
             // 
             this._Feed.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._Feed.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this._Feed.FormattingEnabled = true;
             this._Feed.Location = new System.Drawing.Point(0, 0);
             this._Feed.Name = "_Feed";
-            this._Feed.Size = new System.Drawing.Size(287, 433);
+            this._Feed.Size = new System.Drawing.Size(287, 445);
             this._Feed.TabIndex = 0;
+            this._Feed.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this._Feed_DrawItem);
+            this._Feed.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this._Feed_MeasureItem);
             // 
             // SocialPanel
             // 

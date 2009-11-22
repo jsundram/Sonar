@@ -19,7 +19,8 @@ namespace Sonar
         public string Url; // playable url of track
         public string Key { get { return User + ": " + Message; } }
 
-        public override string ToString() { return Track + " by " + Artist; }
+        //public override string ToString() { return User + ": " + Track + " by " + Artist; }
+        public override string ToString() { return Key; }
 
         public ListViewItem ToListItem()
         {
@@ -71,6 +72,26 @@ namespace Sonar
 
             Regex r2 = new Regex(@"Listening to (?<title>.*) by (?<artist>.*)", RegexOptions.Compiled);
             m = r2.Match(input);
+            if (m.Success)
+            {
+                Artist = m.Groups["artist"].Value;
+                Track = m.Groups["title"].Value;
+                return true;
+            }
+
+            return false;
+        }
+        /// <summary>
+        ///  Populate artist and track using a specified regular expression
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="regex"></param>
+        /// <returns>true if it was able to fill them</returns>
+        public bool try_populate_artist_track(string input, string regex)
+        {
+
+            Regex r = new Regex(regex, RegexOptions.Compiled);
+            Match m = r.Match(input);
             if (m.Success)
             {
                 Artist = m.Groups["artist"].Value;
