@@ -17,7 +17,7 @@ from brisa.upnp.control_point.device_builder import DeviceAssembler
 
 from brisa.core.ireactor import EVENT_TYPE_READ
 
-xml = "http://192.168.2.128:1400/xml/zone_player.xml"
+xml = "http://10.0.0.176:1400/xml/zone_player.xml"
 my_device = Device()
 dev_assembler = DeviceAssembler(my_device, xml)
 dev_assembler.mount_device()
@@ -60,7 +60,7 @@ g_sids = {}
 
 def getHHIDs():
     global cp, g_Households
-    for (udn, device) in cp.get_devices():
+    for (udn, device) in cp.get_devices().iteritems():
         if ("RINCON" in udn):
             dp_svc = device.services[cp.DP_namespace]
             hhid = dp_svc.GetHouseholdID().values()[0]
@@ -73,13 +73,12 @@ def onSub(szHHID, sid, ttl):
     global g_Households, g_sids
     try:
         hhInfo = g_Households[szHHID]
-        hhInfo.["sid"] = sid
+        hhInfo["sid"] = sid
         # We also need to be able to get from a sid back to a HH, so we'll put
         # that in a dict too
         g_sids[sid] = szHHID
     except:
         pass
-    
 
 def _parsezgt(data):
     zgs_xml = data['ZoneGroupState']
@@ -89,6 +88,8 @@ def _parsezgt(data):
     for zg in tree.findall("ZoneGroup"):
         try:        
             dictZones = {}
+            for zone in zg.findall("ZoneGroupMember"):
+                dictZones[zone.attrib["UUID"]] = zone.attrib
             zgs[zg.attrib['ID']] = {"coord" : zg.attrib['Coordinator'],
                                     "zones" : dictZones}
         except:
@@ -96,8 +97,10 @@ def _parsezgt(data):
 
     return {"zgs": zgs}
 
+g_cbZGT = None
+
 def onChange(sid, seq, data):
-    global g_Households
+    global g_Households, g_cbZGT
     try:
         hhInfo = g_Households[g_sids[sid]]
         hhInfo.update(_parsezgt(data))
@@ -106,7 +109,7 @@ def onChange(sid, seq, data):
     except:
         pass
 
-def subToHHID(szHHID):
+def subToHHID(szHHID, zgtCallBack):
     global cp, g_Households
     try:
         hhInfo = g_Households[szHHID]
@@ -115,8 +118,10 @@ def subToHHID(szHHID):
             dev = hhInfo["device"]
             zgt_serv = dev.services[cp.ZT_namespace]
             cp.subscribe("device_event_seq", onChange)
-            zgt_serv.event_subscribe(cp.event_host, cb, szHHID)
-    except:
+            zgt_serv.event_subscribe(cp.event_host, onSub, szHHID)
+        return True
+    except Exception, e:
+        print e
         return False
 
 def getDevicesForHHID(szHHID):
@@ -129,3 +134,57 @@ def getDevicesForHHID(szHHID):
                 setDevs.add(device)
     return setDevs
 
+def getZgIdsForHHID(szHHID):
+    global g_Households
+    try:
+        hhInfo = g_Households[szHHID]
+        return [zgId for zgId in hhInfo["zgs"].keys()]
+    except:
+        return []
+
+g_dictMDCache = {}
+
+def enqueueTrack(hhId, zgId, md):
+    global g_dictMDCache, cp, g_Households
+    try:
+        zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
+        dev = cp.get_devices()["uuid:" + zgCoord]
+        avt = dev.get_service_by_type(cp.AVT_namespace)
+        ret = avt.AddURIToQueue(InstanceID=0, EnqueuedURI=md["Uri"],
+                          EnqueuedURIMetaData=",".join(["A" + md["Title"],
+                                                        md["Artist"],
+                                                        md["Album"],
+                                                        md["PlayTime"]]),
+                          DesiredFirstTrackNumberEnqueued=0,
+                          EnqueueAsNext=False)
+        num = ret['FirstTrackNumberEnqueued']
+        g_dictMDCache[md["Uri"]] = md
+        return True
+    except Exception, e:
+        print e
+        return False
+
+def play(hhId, zgId):
+    global g_dictMDCache, cp, g_Households
+    try:
+        zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
+        dev = cp.get_devices()["uuid:" + zgCoord]
+        avt = dev.get_service_by_type(cp.AVT_namespace)
+        avt.Play(InstanceID=0, Speed="1")
+        return True
+    except Exception, e:
+        print e
+        return False
+
+def seekTrack(hhId, zgId, nTrack):
+    global g_dictMDCache, cp, g_Households
+    try:
+        zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
+        dev = cp.get_devices()["uuid:" + zgCoord]
+        avt = dev.get_service_by_type(cp.AVT_namespace)
+        avt.Seek(InstanceID=0, Unit="TRACK_NR", Target=str(nTrack))
+        return True
+    except Exception, e:
+        print e
+        return False
+    
