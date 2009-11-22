@@ -193,17 +193,31 @@ namespace Sonar
             // Draw the background of the ListBox control for each item.
             e.DrawBackground();
 
-            System.Drawing.Pen myPen = new System.Drawing.Pen(Color.Red);
-            myPen.Width = borderWidth;
-            if (e.Index % 6 < 3)
-                myPen.Color = Color.Blue;
+            // Draw a border around each cell
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Black);
+            pen.Width = borderWidth;
+
+            // Code to select different color border depending on source
+            switch((e.Index % 5)) {     // TODO: replace with real source code
+                case 0:
+                    pen.Color = Color.LightBlue;
+                    break;
+                case 1:
+                    pen.Color = Color.LightGreen;
+                    break;
+                default:
+                    pen.Color = Color.LightSalmon;
+                    break;
+            }
 
             // Draw border
             Rectangle border = new Rectangle(e.Bounds.X, e.Bounds.Y+1, e.Bounds.Width - borderWidth, e.Bounds.Height - borderWidth-1);
-            e.Graphics.DrawRectangle(myPen, border);
+            e.Graphics.DrawRectangle(pen, border);
 
             // Define the default color of the brush as black.
             Brush myBrush = Brushes.Black;
+            if (item.Url != null)
+                myBrush = Brushes.Red;
 
             // Draw the current item text based on the current Font and the custom brush settings.
             Rectangle textRect = new Rectangle(e.Bounds.X + imageWidth + 4, e.Bounds.Y + 1 + 2, 
@@ -221,7 +235,7 @@ namespace Sonar
             e.DrawFocusRectangle();
 
             // Dispose what needs to be disposed of TODO!
-            myPen.Dispose();
+            pen.Dispose();
             //myBrush.Dispose();
         }
 
