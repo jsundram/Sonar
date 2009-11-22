@@ -18,6 +18,7 @@ namespace Sonar
         public DateTime PostTime;
         public string Url; // playable url of track
         public string Key { get { return User + ": " + Message; } }
+        public Resolver.Result Source;
 
         public override string ToString() { return Track + " by " + Artist; }
 

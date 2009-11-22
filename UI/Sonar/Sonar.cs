@@ -14,6 +14,7 @@ namespace Sonar
     public partial class MainForm : Form
     {
         SonosClient _Sonos = new SonosClient("");
+        ContextMenuStrip _PlayMenu = new ContextMenuStrip();
         public MainForm()
         {
             InitializeComponent();
@@ -21,6 +22,14 @@ namespace Sonar
             _Sonos.OnZoneGroupsChanged += UpdateNowPlaying;
 
             PopulateSocial();
+
+            _PlayMenu.Items.Add("Enqueue");
+            _PlayMenu.Items.Add("Get Info");
+            _PlayMenu.ItemClicked += new ToolStripItemClickedEventHandler(_PlayMenu_ItemClicked);
+
+            _SearchResults.ContextMenuStrip = _PlayMenu;
+            _SearchResults.MouseDown += new MouseEventHandler(_SearchResults_MouseDown);
+            _social._Sonos = _Sonos;
             /*
             
             _Images = AmazonGateway.SearchAlbumArt("Please Please Me");
@@ -37,6 +46,36 @@ namespace Sonar
             
             // string playable_url = Resolver.Resolve("The Beatles", "Anna"); // I know I have this one.
              */
+        }
+
+        void  _PlayMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            int curr = _SearchResults.SelectedIndex;
+            if (curr != -1)
+            {
+                Resolver.Result r = _SearchResults.Items[curr] as Resolver.Result;
+                if (r == null)
+                    return;
+
+                if (e.ClickedItem.Text == "Enqueue")
+                    _Sonos.Enqueue(r);
+                else if (e.ClickedItem.Text == "Get Info")
+                {
+                    ArtistInspector a = new ArtistInspector(r.artist, r.album);
+                    a.Show(); // TODO, cache this.
+                }
+            }
+        }
+
+        void _SearchResults_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                _SearchResults.SelectedIndex = _SearchResults.IndexFromPoint(e.Location);
+                if (_SearchResults.SelectedIndex != -1)
+                    _PlayMenu.Show();
+            }
         }
 
         TabPage MakeZoneTab(string zgid)

@@ -38,10 +38,10 @@ namespace Sonar
             this.label1 = new System.Windows.Forms.Label();
             this._SearchResults = new System.Windows.Forms.ListBox();
             this.twitter = new System.Windows.Forms.TabPage();
-            this._social = new Sonar.SocialPanel();
             this.now_playing_tabs = new System.Windows.Forms.TabControl();
             this.now_playing = new System.Windows.Forms.TabPage();
             this.now_playing_panel = new System.Windows.Forms.Panel();
+            this._social = new Sonar.SocialPanel();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -172,14 +172,6 @@ namespace Sonar
             this.twitter.Text = "twitter";
             this.twitter.UseVisualStyleBackColor = true;
             // 
-            // _social
-            // 
-            this._social.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._social.Location = new System.Drawing.Point(3, 3);
-            this._social.Name = "_social";
-            this._social.Size = new System.Drawing.Size(268, 404);
-            this._social.TabIndex = 0;
-            // 
             // now_playing_tabs
             // 
             this.now_playing_tabs.Controls.Add(this.now_playing);
@@ -208,6 +200,14 @@ namespace Sonar
             this.now_playing_panel.Name = "now_playing_panel";
             this.now_playing_panel.Size = new System.Drawing.Size(548, 404);
             this.now_playing_panel.TabIndex = 0;
+            // 
+            // _social
+            // 
+            this._social.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._social.Location = new System.Drawing.Point(3, 3);
+            this._social.Name = "_social";
+            this._social.Size = new System.Drawing.Size(268, 404);
+            this._social.TabIndex = 0;
             // 
             // MainForm
             // 

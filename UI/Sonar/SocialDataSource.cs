@@ -60,7 +60,7 @@ namespace Sonar
 
     public abstract class LastFm : RateLimitedSource
     {
-        protected static LastFmClient get_client()
+        public static LastFmClient get_client()
         {
             MD5Hash key = new MD5Hash(Credentials.LastFmKey, true, System.Text.Encoding.ASCII);
             MD5Hash secret = new MD5Hash(Credentials.LastFmSecret, true, System.Text.Encoding.ASCII);

@@ -29,6 +29,54 @@ namespace Sonar
             return clean.Trim();
         }
 
+        public static List<string> SearchAlbumArtUris(string keywords)
+        {
+            try
+            {
+                keywords = CleanString(keywords);
+
+                ItemSearchRequest itemRequest = new ItemSearchRequest();
+                itemRequest.Keywords = keywords;
+                // http://docs.amazonwebservices.com/AWSECommerceService/2009-02-01/DG/index.html?ItemLookup.html
+                itemRequest.SearchIndex = "Music"; // Other possibly valid choices:Classical, DigitalMusic, Mp3Downloads, Music, MusicTracks, 
+                itemRequest.ResponseGroup = new string[] { "Images" }; // images only
+
+                ItemSearch request = new ItemSearch();
+                request.AWSAccessKeyId = Credentials.AmazonAccessKeyId;
+                request.Request = new ItemSearchRequest[] { itemRequest };
+
+                BasicHttpBinding binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
+                binding.MaxReceivedMessageSize = int.MaxValue;
+
+                AWSECommerceServicePortTypeClient client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress("https://webservices.amazon.com/onca/soap?Service=AWSECommerceService"));
+                client.ChannelFactory.Endpoint.Behaviors.Add(new AmazonSigningEndpointBehavior(Credentials.AmazonAccessKeyId, Credentials.AmazonSecretKey));
+                ItemSearchResponse response = client.ItemSearch(request);
+
+                // Determine if item was found
+                bool itemFound = ((response.Items[0].Item != null) && (response.Items[0].Item.Length > 0));
+
+                if (itemFound)
+                {
+                    List<string> images = new List<string>();
+                    foreach (Item currItem in response.Items[0].Item)
+                    {
+                        try
+                        {
+                            if (currItem != null && currItem.LargeImage != null)
+                                images.Add(currItem.LargeImage.URL);
+                        }
+                        catch { }
+                    }
+
+                    return images;
+                }
+            }
+            catch (Exception) {}
+
+            return null;
+        }
+
+
         public static List<System.Drawing.Image> SearchAlbumArt(string keywords)
         {
             try

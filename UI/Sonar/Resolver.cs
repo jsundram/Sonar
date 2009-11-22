@@ -8,6 +8,7 @@ using System.ComponentModel;
 using Jayrock.Json;
 
 using Jayrock.Json.Conversion; // based on sample code from here: http://jayrock.googlegroups.com/attach/1ef3b7784efef53d/jayrock-t4428c08b81d43485.cs?view=1&part=2
+using CookComputing.XmlRpc;
 
 namespace Sonar
 {
@@ -53,10 +54,25 @@ namespace Sonar
             public int bitrate { get; set; }        // 'bitrate':320,
             public int size { get; set; }           // 'size':7223637,
             public string source { get; set; }      // 'source':'WIN-F1DNH76QUS3'
-            public string get_play_url() { return "http://localhost:60210/sid/" + sid; }
+            public string get_play_url() 
+            { 
+                return string.Format("http://localhost:60210/sid/track.{0}?sid={1}", SonosClient.MimeTypeToExt(mimetype), sid); 
+            }
             public override string ToString()
             {
                 return track + " by " + artist + " (" + album + ")";
+            }
+
+            public XmlRpcStruct ToXmlRpc()
+            {
+                XmlRpcStruct metadata = new XmlRpcStruct();
+                metadata.Add("Artist", artist);
+                metadata.Add("Album", album);
+                metadata.Add("Title", track);
+                metadata.Add("Uri", get_play_url());
+                metadata.Add("AlbumArtUri", ""); 
+                metadata.Add("PlayTime", duration);
+                return metadata;
             }
 
             #region IComparable<Result> Members
@@ -107,7 +123,7 @@ namespace Sonar
         }
         // For use by ResolveWorker. Seemed to make more sense to have it here.
         // If we don't support cancellation, can probably use Resolve(artist, track) below.
-        public static string Resolve(BackgroundWorker w, SocialItem i)
+        public static Result Resolve(BackgroundWorker w, SocialItem i)
         {
             string qid = _Resolve(i.Artist, i.Track);
             MainForm.Trace("Attempting to resolve " + i.Artist + " " + i.Track + " " + "qid=" + qid);
@@ -122,9 +138,7 @@ namespace Sonar
                 r = GetResults(qid);
                 poll_count += 1;
             }
-            Resolver.Result answer = r != null ? r.get_answer() : null;
-
-            return answer != null ? answer.get_play_url() : "";
+            return r != null ? r.get_answer() : null;
         }
         /// <summary>
         /// Returns a playable url for the given input, if possible. 
