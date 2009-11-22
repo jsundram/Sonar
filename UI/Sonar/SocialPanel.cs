@@ -34,7 +34,7 @@ namespace Sonar
             _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);
             try
             {
-                twitterLogo = Image.FromFile(@"c:\work\Sonar\images\twitter-logo-large.png");
+                twitterLogo = Image.FromFile(@"c:..\..\..\..\images\twitter-logo-large.png");
                 //twitterLogo = Image.FromFile(@"c:\work\Sonar\images\twitter.png");  // TODO total hack - fix this!
             }
             catch { };
@@ -263,17 +263,6 @@ namespace Sonar
         {
             e.ItemHeight = 54;
             e.ItemWidth = 447;
-        }
-
-        private void _Feed_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Add to queue TODO: Shouldn't be this event - should be hitting red text area
-            SocialItem item = _Feed.SelectedItem as SocialItem;
-            if (item == null)
-                return;
-            if (item.Url == null)
-                return;
-
         }
 
     }

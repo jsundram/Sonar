@@ -42,7 +42,6 @@
             this._Feed.TabIndex = 0;
             this._Feed.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this._Feed_DrawItem);
             this._Feed.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this._Feed_MeasureItem);
-            this._Feed.SelectedIndexChanged += new System.EventHandler(this._Feed_SelectedIndexChanged);
             // 
             // SocialPanel
             // 
