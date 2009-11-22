@@ -1,0 +1,134 @@
+python-brisa 0.10.1, 2009-10-19
+-------------------------------
+- Fix bug where query strings were being ignored on URLs
+- Make MSearch send from and listen on a random free port
+- Make action template methods also work without "soap_" in the name (e.g. def
+  SetTarget() instead of def Soap_SetTarget())
+- Fixed select reactor shutdown
+- Fix unhandled exception when handling embedded devices
+- Added more examples, refactoring on old ones
+- Fixed embedded devices's services build
+- Fixed embedded devices XML generation
+- Fixed embedded devices announcement on ssdp:alive
+- MSearch now uses provided search_type
+- Removed DLNA attributes from devices built with BRisa, which are only part of
+  DLNA-specific devices
+- Implemented force_event_reload method for forcing event messages when state
+  variables are updated
+- Finished eventing API
+- Fixed ecore-reactor fd event handler
+- Changed default value for sendEvents to 'yes'
+- Implemented multicast eventing
+- Added Qt-based reactor
+
+python-brisa 0.9.0, 2009-05-11
+------------------------------
+- Implented WSGI server adapters for cherrypy, circuits.web and paste
+- Webserver is now WSGI with pluggable server adapters
+- Implemented ServiceBuilder that builds the service object from a scpd.xml
+- Implemented two ways of creating a service: with a scpd.xml file or by
+  specifying service parameters through code - and the framework generates
+  the scpd.xml
+- Fixed arguments parsing bug (was not parsing arguments properly)
+- Fixed examples XML files
+- Reactor infrastructure added
+- Webserver is not a singleton anymore
+- Arrangement for device abstracts the user from a lot of things, such as the
+  webserver
+- Implemented Gtk2Reactor, Glib2Reactor, EcoreReactor, SelectReactor (default)
+- Plugin architecture refactored
+- Log messages are a bit more cleaner now. Most log messages were for debug
+  purposes, so, changed most of them to DEBUG. INFO level now should be only
+  used for informing the user high-level events, such as "New device",
+  "Device is gone", "Publishing device", and so on.
+- Control point objects are now reusable (they weren't). They can now be
+  stopped, and started again.
+- Closure procedure is now chained. Some classes (such as ssdp
+  msearch) now have these 3 methods: start(), stop(), destroy().
+  start() - starts the class,  stop() - stops the class,
+  but it can be start()'ed again later and destroy() - stops
+  the class DEFINITELY, clean references to help with garbage collection,
+  makes the class unusable. For a more clearer view, take a look
+  at upnp/control_point/control_point.py. You will notice that these three
+  methods are chained.
+- Device webserver publishing is now chained and transparent to the user.
+- Added some options to brisa for customizing device/service build (and these
+  options have default values for making everything work as automatic as
+  possible)
+- Packages created: core: framework core stuff, core.reactors: reactors
+  implementations. upnp.control_point: API for writing control points,
+  upnp.device: API for writing devices, upnp.services: general services
+  implemented by us (ConnectionManager, ContentDirectory), upnp.services.xmls:
+  XML folder for the services of the item above
+- Removed deprecated modules: utils.sqlite, threading
+- Moved package utils.network -> core.network
+- Moved package utils.network_listeners -> core.network_listeners
+- Moved package utils.network_senders -> core.network_senders
+- Moved package utils.system -> core.system
+- Moved package utils.failure -> core.failure
+- Moved package threading.threaded_call -> core.threaded_call
+- Moved package log -> core.log
+- Moved package config -> core.config
+- Moved package control_point -> upnp.control_point
+- Moved package xml_descriptions -> upnp.services.xmls
+- Moved package services.web_server -> core.webserver
+- Removed lots of threads: everything is now integrated with the main loop (fd's and sleeps)
+- Fixed looping call bug when the parameter "now" is False
+- Implemented UPnP eventing API on the device side
+
+python-brisa 0.8.0, 2009-02-02
+------------------------------
+- Major cleanup on the framework (old/unused modules removed)
+- Fixed PEP8 errors and files/methods/variables with wrong naming convention 
+- Split between framework and applications
+- Separate documentation for developers and users
+- Various bug-fixes on the framework and applicationss
+- Thread management improvements (assured control over threads)
+- Better programmatic control over the control point
+- Better support for multiple instances of BRisa
+- Configuration API stabilized, using cPickle
+- Logging with more information (file, line, time)
+- DIDL completely refactored and now uses cElementTree
+- Added a simple command line tool for configuring (brisa-conf)
+- UPnP A/V specifics moved out from python-brisa
+- Added simple watch API for objects and SQLite databases
+- Improved debian packaging
+- Installation script (setup.py) enhanced
+- Added more examples to the directory
+
+python-brisa 0.7.2, 2008-11-27
+----------------------------------
+- removed extern/python-id3 which is not a dependency anymore
+- created a colored logging module for developers
+- configuration persistence moved from text file to sqlite database
+- configuration API holds a runtime state that can be save()'d or update()'d with the configuration persistence
+- optimization on the new configuration API: save only modifications
+- pep8 corrections
+- DIDL-Lite completely refactored and now uses cElementTree (faster)
+- removed old media-server things from content directory
+- removed old binaries (media-server, media-renderer, up-server)
+- added simplified platform name to config module
+- removed old redundant classes from services.cds.plugin (Mem*)
+- added brisa-conf cmdline tool to setup.py installation
+
+
+python-brisa 0.7.1, 2008-11-11
+------------------------------
+- API change: modules from brisa/utils/python moved to brisa/utils
+- added watch facilities for SQLLite databases and objects bool attributes
+- partial optimization on the filesystem plugin persistence
+- fixed bugs #2980, #2950
+- fixed examples with old import names
+
+
+python-brisa 0.7.0, 2008-10-30
+------------------------------
+- control point API cleaned: now contains a basic control_point.py and a A/V implementation
+- removed SQLObject dependency
+- removed Twisted dependency
+- removed sqlite2 dependency (sqlite3 is being shipped with python2.5)
+- removed pymad and libmad dependency (now we use python-mutagen)
+- new implementation of XML DIDLite generation
+- plugins browser methods can return all matches or perform internal optimized sorting/slicing (has_browse_filter flag)
+- added maemo multimedia and canola plugins
+- added UPnP-UP (User Profile) initial implementation

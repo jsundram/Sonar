@@ -72,8 +72,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlbumArtWorker.cs" />
     <Compile Include="Amazon.cs" />
+    <Compile Include="ArtistInspector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ArtistInspector.Designer.cs">
+      <DependentUpon>ArtistInspector.cs</DependentUpon>
+    </Compile>
     <Compile Include="EchoNest.cs" />
+    <Compile Include="NowPlayingPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NowPlayingPanel.Designer.cs">
+      <DependentUpon>NowPlayingPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="PlayMe.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -104,6 +117,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ArtistInspector.resx">
+      <DependentUpon>ArtistInspector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NowPlayingPanel.resx">
+      <DependentUpon>NowPlayingPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SocialPanel.resx">
       <DependentUpon>SocialPanel.cs</DependentUpon>
     </EmbeddedResource>

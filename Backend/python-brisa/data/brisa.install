@@ -1,0 +1,11 @@
+[install]
+repo_name = maemo Extras
+repo_deb = deb http://repository.maemo.org/extras/ gregale free non-free
+repo_deb_3 = deb http://repository.maemo.org/ bora free-non-free
+catalogues = maemo-extras
+package = python2.5-brisa
+
+[maemo-extras]
+name = maemo Extras
+uri = http://repository.maemo.org/extras/
+components = free non-free

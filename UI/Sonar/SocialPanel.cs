@@ -17,13 +17,58 @@ namespace Sonar
         DateTime _LastUpdate = DateTime.MinValue;
 
         System.Threading.Timer _timer = null;
-
+        ContextMenuStrip _PlayMenu = new ContextMenuStrip();
+        public SonosClient _Sonos;
         public SocialPanel()
         {
             InitializeComponent();
 
+            _PlayMenu.Items.Add("Enqueue");
+            _PlayMenu.Items.Add("Get Info");
+            _PlayMenu.ItemClicked += new ToolStripItemClickedEventHandler(_PlayMenu_ItemClicked);
+
+            _Feed.ContextMenuStrip = _PlayMenu;
+            _Feed.MouseDown += new MouseEventHandler(_Feed_MouseDown);
+
             _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);            
         }
+
+        void _PlayMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            int curr = _Feed.SelectedIndex;
+            if (curr != -1)
+            {
+                SocialItem i = _Feed.Items[curr] as SocialItem;
+
+                if (e.ClickedItem.Text == "Get Info")
+                {
+                    ArtistInspector a = new ArtistInspector(i.Artist, "");
+                    a.Show(); // TODO, cache this.
+                }
+
+                if (i.Source == null)
+                    return;
+
+                if (e.ClickedItem.Text == "Enqueue")
+                    _Sonos.Enqueue(i.Source);
+            }
+        }
+
+        void _Feed_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                _Feed.SelectedIndex = _Feed.IndexFromPoint(e.Location);
+                if (_Feed.SelectedIndex != -1)
+                {
+                    SocialItem i = _Feed.Items[_Feed.SelectedIndex] as SocialItem;
+                    _PlayMenu.Items[0].Enabled = (i != null && i.Source != null);
+                    _PlayMenu.Show();
+                }
+            }
+        }
+
 
         public void AddDataSource(ISocialDataSource i)
         {

@@ -1,0 +1,10 @@
+*.pyc
+*.pyo
+*~
+*#*
+gmon.out
+*.swp
+*.swo
+*.out
+package-all
+build/

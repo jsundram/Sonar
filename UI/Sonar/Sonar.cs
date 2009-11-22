@@ -13,15 +13,26 @@ namespace Sonar
 {
     public partial class MainForm : Form
     {
-        List<Image> _Images = null;
-        int _Index = 0;
         SonosClient _Sonos = new SonosClient("");
+        ContextMenuStrip _PlayMenu = new ContextMenuStrip();
         public MainForm()
         {
             InitializeComponent();
-            
+
+            UpdateNowPlaying();
+            _Sonos.OnZoneGroupsChanged += UpdateNowPlaying;
+
             PopulateSocial();
-             /* 
+
+            _PlayMenu.Items.Add("Enqueue");
+            _PlayMenu.Items.Add("Get Info");
+            _PlayMenu.ItemClicked += new ToolStripItemClickedEventHandler(_PlayMenu_ItemClicked);
+
+            _SearchResults.ContextMenuStrip = _PlayMenu;
+            _SearchResults.MouseDown += new MouseEventHandler(_SearchResults_MouseDown);
+            _social._Sonos = _Sonos;
+            /*
+            
             _Images = AmazonGateway.SearchAlbumArt("Please Please Me");
             // PlayMe.AlbumResponse r = PlayMe.GetAlbum("Please Please Me"); // This returns 9 albums, none of which are the right one.
             // PlayMe.Album a = PlayMe.GetAlbum("The Beatles", "Please Please Me");
@@ -39,10 +50,56 @@ namespace Sonar
 
         }
 
-        void _AlbumArt_MouseDoubleClick(object sender, MouseEventArgs e)
+        void  _PlayMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            _Index = (_Index + 1) % _Images.Count;
-            _AlbumArt.Image = _Images[_Index];
+            int curr = _SearchResults.SelectedIndex;
+            if (curr != -1)
+            {
+                Resolver.Result r = _SearchResults.Items[curr] as Resolver.Result;
+                if (r == null)
+                    return;
+
+                if (e.ClickedItem.Text == "Enqueue")
+                    _Sonos.Enqueue(r);
+                else if (e.ClickedItem.Text == "Get Info")
+                {
+                    ArtistInspector a = new ArtistInspector(r.artist, r.album);
+                    a.Show(); // TODO, cache this.
+                }
+            }
+        }
+
+        void _SearchResults_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                _SearchResults.SelectedIndex = _SearchResults.IndexFromPoint(e.Location);
+                if (_SearchResults.SelectedIndex != -1)
+                    _PlayMenu.Show();
+            }
+        }
+
+        TabPage MakeZoneTab(string zgid)
+        {
+            TabPage t = new TabPage(zgid);
+            NowPlayingPanel p = new NowPlayingPanel(_Sonos, zgid);
+            p.Dock = DockStyle.Fill;
+            t.Controls.Add(p);
+            return t;
+        }
+
+        public void UpdateNowPlaying()
+        {
+            List<string> zgids = _Sonos.GetZoneGroups();
+            
+            foreach (string zgid in zgids)
+                if (!now_playing_tabs.TabPages.ContainsKey(zgid))
+                    now_playing_tabs.TabPages.Add(MakeZoneTab(zgid));
+
+            foreach (TabPage t in now_playing_tabs.TabPages)
+                if (!zgids.Contains(t.Text))
+                    now_playing_tabs.TabPages.Remove(t);
         }
 
         public static void WriteToFile(string filename, object data)
@@ -57,15 +114,16 @@ namespace Sonar
         {
             //_social.AddDataSource(new TwitterFriends());
             //_social.AddDataSource(new LastFmFriendsLoved());
-            //_social.AddDataSource(new TwitterSonos());
+            _social.AddDataSource(new TwitterSonos());
 
             // Add The Hype Machine (hypem.com)
-            //_social.AddDataSource(new TwitterSearch("from%3Ahypem", @"(?<title>.*) by (?<artist>.*) reached"));
+            _social.AddDataSource(new TwitterSearch("from%3Ahypem", @"(?<title>.*) by (?<artist>.*) reached"));
 
             // Add Hunted (wearehunted.com)
             _social.AddDataSource(new TwitterSearch("%23wearehunted", @".* - (?<title>.*) / (?<artist>.*)"));
 
             // _social.AddDataSource(new LastFmFriends());
+
             _social.Populate();
         }
 

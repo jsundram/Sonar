@@ -37,7 +37,12 @@ namespace Sonar
             SocialItem i = (SocialItem)e.Argument;
 
             // Start the time-consuming operation.
-            i.Url = Resolver.Resolve(worker, i);
+            Resolver.Result r = Resolver.Resolve(worker, i);
+            if (r != null)
+            {
+                i.Url = r.get_play_url();
+                i.Source = r;
+            }
             e.Result = i;
             // If the operation was canceled by the user, 
             // set the DoWorkEventArgs.Cancel property to true.

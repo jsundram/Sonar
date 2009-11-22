@@ -12,7 +12,7 @@ namespace Sonar
     
     public class SonosClient
     {
-        const string SonosServerUrl = "http://192.168.2.7:8000/RPC2";
+        const string SonosServerUrl = "http://localhost:8000/RPC2";
 
         #region Helper Classes
         public class Metadata
@@ -50,6 +50,10 @@ namespace Sonar
             public string AlbumArtUri { get; set; }
             public int PlayTime { get; set; }
 
+            public override string ToString()
+            {
+                return Track + " by " + Artist + " (" + Album + ")";
+            }
             public XmlRpcStruct ToXmlRpc()
             {
                 XmlRpcStruct metadata = new XmlRpcStruct();
@@ -84,19 +88,19 @@ namespace Sonar
                 switch (Name)
                 {
                     case "OnMuteChanged":
-                        c.OnMuteChanged((string)Args[0], (bool)Args[1]); break;
+                        if (c.OnMuteChanged != null) c.OnMuteChanged((string)Args[0], (bool)Args[1]); break;
                     case "OnPlayStateChanged":
-                        c.OnPlayStateChanged((string)Args[0], (bool)Args[1]); break;
+                        if (c.OnPlayStateChanged != null) c.OnPlayStateChanged((string)Args[0], (bool)Args[1]); break;
                     case "OnQueueChanged":
-                        c.OnQueueChanged((string)Args[0]); break;
+                        if (c.OnQueueChanged != null) c.OnQueueChanged((string)Args[0]); break;
                     case "OnTick":
-                        c.OnTrackProgress((string)Args[0], (int)Args[1]); break;
+                        if (c.OnTrackProgress != null) c.OnTrackProgress((string)Args[0], (int)Args[1]); break;
                     case "OnTrackChanged":
-                        c.OnTrackChanged((string)Args[0]); break;
+                        if (c.OnTrackChanged != null) c.OnTrackChanged((string)Args[0]); break;
                     case "OnVolumeChanged":
-                        c.OnVolumeChanged((string)Args[0], (int)Args[1]); break;
+                        if (c.OnVolumeChanged != null) c.OnVolumeChanged((string)Args[0], (int)Args[1]); break;
                     case "OnZoneGroupsChanged":
-                        c.OnZoneGroupsChanged(); break;
+                        if (c.OnZoneGroupsChanged != null) c.OnZoneGroupsChanged(); break;
                     default:
                         break;/*do nothing*/
                 }
@@ -105,6 +109,23 @@ namespace Sonar
         }
         #endregion
 
+
+        // returns, e.g. "mp3"
+        public static string MimeTypeToExt(string mime)
+        {
+            switch (mime)
+            {
+                case "audio/mpeg": return "mp3";
+                case "audio/wav": return "wav";
+                case "audio/x-ms-wma": return "wma";
+                case "audio/mp4": return "m4a"; // mp4?
+                case "audio/aiff": return "aiff";
+                case "audio/flac": return "flac";
+                case "application/ogg": return "ogg";
+                default:
+                    return "mp3"; // as good a guess as any.
+            }
+        }
         // If you subscribe to these events and do stuff with the UI, be sure to do it via Invoke.
         public delegate void ZoneChange(string zgid);
         public delegate void Tick(string zgid, int n);
@@ -166,11 +187,10 @@ namespace Sonar
         {
             return new List<string>(_Proxy.GetAllZoneGroups());
         }
-        // TODO: We need to mangle the Uri to have the format http://playdar/sid/track.mp3?sid=blah
         // returns position the queue.
-        public int Enqueue(Metadata m)
+        public int Enqueue(Resolver.Result r)
         {
-            return _Proxy.EnqueueTrack(m.ToXmlRpc());
+            return _Proxy.EnqueueTrack(r.ToXmlRpc());
         }
 
         public int GetTrackTime(string zgid)
@@ -183,12 +203,36 @@ namespace Sonar
             return new Metadata(_Proxy.GetTrackMetadata(zgid));
         }
 
+        public bool Next(string zgid) { return _Proxy.Next(zgid); }
+
+        public bool Back(string zgid) { return _Proxy.Back(zgid); }
+
+        public bool Play(string zgid, int index) { return _Proxy.Play(zgid, index); }
+
+        public bool Pause(string zgid) { return _Proxy.Pause(zgid); }
+
+        public bool IsPlaying(string zgid) { return _Proxy.IsPlaying(zgid); }
+
+        public void SetVolume(string zgid, int volume) { _Proxy.SetVolume(zgid, volume); } // volume [0,100]
+
+        public int GetVolume(string zgid) { return _Proxy.GetVolume(zgid); }
+
+        public bool SetMute(string zgid, bool mute) { return _Proxy.SetMute(zgid, mute); }
+
+        public bool IsMuted(string zgid) { return _Proxy.IsMuted(zgid); }
+
         List<Event> _PollForEvents(int timeout)
         {
-            XmlRpcStruct[] xmlEvents = _Proxy.PollForEvents(timeout);
             List<Event> events = new List<Event>();
-            foreach (XmlRpcStruct x in xmlEvents)
-                events.Add(new Event(x));
+            try
+            {
+                XmlRpcStruct[] xmlEvents = _Proxy.PollForEvents(timeout);
+                foreach (XmlRpcStruct x in xmlEvents)
+                    events.Add(new Event(x));
+            }
+            catch (Exception)
+            {
+            }
             return events;
         }
 
@@ -240,6 +284,9 @@ namespace Sonar
             [XmlRpcMethod("Play")]
             bool Play(string zgid, int queue_index);
 
+            [XmlRpcMethod("Pause")]
+            bool Pause(string zgid);
+
             [XmlRpcMethod("IsPlaying")]
             bool IsPlaying(string zgid);
 
@@ -249,12 +296,14 @@ namespace Sonar
             [XmlRpcMethod("GetVolume")]
             int GetVolume(string zgid);//0-100
 
+            [XmlRpcMethod("SetMute")]
+            bool SetMute(string zgid, bool mute);
+
             [XmlRpcMethod("IsMuted")]
             bool IsMuted(string zgid);
 
             [XmlRpcMethod("PollForEvents")]
             XmlRpcStruct[] PollForEvents(int timeout);
-
         }
 
     }

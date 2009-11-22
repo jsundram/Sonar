@@ -1,1 +1,0 @@
-scp -r /home/mark/UPnP/BRisa/Sonos3/*.py root@192.168.0.$1:/home/user/MyDocs/Sonos

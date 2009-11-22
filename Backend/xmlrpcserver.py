@@ -1,12 +1,14 @@
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
+import sonos
+
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 # Create server
-server = SimpleXMLRPCServer(("192.168.2.7", 8000),
+server = SimpleXMLRPCServer(("localhost", 8000),
                             requestHandler=RequestHandler)
 server.register_introspection_functions()
 
@@ -26,6 +28,8 @@ g_dictMyFakeTrackMD = {"Title" : "All My Sundays",
                        "Artist": "Your Mom",
                        "Album": "Greatest Hits",
                        "AlbumArtUri": "http://www.ibiblio.org/wm/paint/auth/hopper/street/hopper.early-sunday.jpg",
+                       # Optional, and still mostly work-safe image:
+                       # "AlbumArtUri": "http://promo.spunkyangels.com/amyredcowgirl/001.jpg",
                        "Uri": "http://www.yourmom.com/Sundays_I_Have_Loved.flac",
                        "PlayTime": TRACK_TIME}
 
@@ -33,6 +37,10 @@ g_lstCurrentQs = [[g_dictMyFakeTrackMD],[]]
 g_qEvents = Queue(10)
 g_qSignals = Queue(1)
 g_aePlayState = [PS_STOPPED, PS_STOPPED]
+g_anVolume = [30,30]
+g_abMute = [False, False]
+g_currentHHID = None
+g_lstCurrentHHIDs = []
 
 def PostEvent(szName, lstArgs):
     global g_qEvents
@@ -44,6 +52,11 @@ def PostEvent(szName, lstArgs):
 def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
 
+def zgtCallback(szHHID):
+    global g_currentHHID
+    if (szHHID == g_currentHHID):
+        OnZoneGroupsChanged()
+
 def OnTick(szZGID, nSeconds):
     PostEvent("OnTick", [szZGID, nSeconds])
 
@@ -53,46 +66,63 @@ def OnQueueChanged(szZGID):
 def OnTrackChanged(szZGID):
     PostEvent("OnTrackChanged", [szZGID])
 
-def EnqueueTrack(szZGID, dictMD):
-    global g_lstFakeZGIDs, g_lstCurrentQs
+def OnVolumeChanged(szZGID, nVol):
+    PostEvent("OnVolumeChanged", [szZGID, nVol])
+
+def OnMuteChanged(szZGID, bMute):
+    PostEvent("OnMuteChanged", [szZGID, bMute])
+
+def OnPlayStateChanged(szZGID, bPlaying):
+    PostEvent("OnPlayStateChanged", [szZGID, bPlaying])    
+
+def EnqueueTrack(zgId, dictMD):
+    global g_dictMDCache, g_currentHHID
     try:
-        ix = g_lstFakeZGIDs.index(szZGID)
-        g_lstCurrentQs[ix].append(dictMD)
-        print "Enqueued track at:", dictMD["URI"], "with MD:", dictMD
-        OnQueueChanged(szZGID)
-        return True
-    except:
-        return False
+        if (sonos.enqueueTrack(g_currentHHID, zgId, dictMD)):
+            print "Enqueued track at:", dictMD["Uri"], "with MD:", dictMD
+            # Review: don't send this from here, wait for the event to bubble up from
+            # the zp when that is plumbed
+            OnQueueChanged(zgId)
+            return True
+    except Exception, e:
+        print e
+
+    return False
 
 # Register EnqueueTrack() function; this will use the value of
 # EnqueueTrack.__name__ as the name, which is just 'EnqueueTrack'.
 server.register_function(EnqueueTrack)
 
 def SearchForHHIDs():
-    global g_szFakeHHID
-    return [g_szFakeHHID]
+    global g_lstCurrentHHIDs
+    g_lstCurrentHHIDs = sonos.getHHIDs()
+    return g_lstCurrentHHIDs
 
 server.register_function(SearchForHHIDs)
 
 def SubscribeToHH(szHHID):
-    global g_szFakeHHID, g_bSubscribed
-    if (g_bSubscribed == False and szHHID == g_szFakeHHID):
-        g_bSubscribed = True
+    global g_lstCurrentHHIDs, g_currentHHID
+    
+    if (g_currentHHID == szHHID):
         return True
+    if (szHHID in g_lstCurrentHHIDs):
+        if (sonos.subToHHID(szHHID, zgtCallback)):
+            g_currentHHID = szHHID
+            return True
     return False
 
 server.register_function(SubscribeToHH)
 
 def GetAllZoneGroups():
-    global g_bSubscribed, g_lstFakeZGIDs
-    if(g_bSubscribed):
-        return g_lstFakeZGIDs
+    global g_currentHHID
+    if(g_currentHHID):
+        return sonos.getZgIdsForHHID(g_currentHHID)
     return []
 
 server.register_function(GetAllZoneGroups)
 
 def GetQueue(szZGID):
-    global g_lstFakeZGIDs, g_lstCurrentQs
+    global g_lstCurrentQs
     try:
         return g_lstCurrentQs[g_lstFakeZGIDs.index(szZGID)]
     except:
@@ -122,6 +152,7 @@ def Pause(szZGID):
         ix = g_lstFakeZGIDs.index(szZGID)
         if (g_aePlayState[ix] == PS_PLAYING):
             g_aePlayState[ix] = PS_PAUSED
+            OnPlayStateChanged(szZGID, False)
     except:
         return -1
 
@@ -130,8 +161,8 @@ server.register_function(Pause)
 def Play(szZGID, nIx):
     global g_lstFakeZGIDs, g_aePlayState, g_lstCurrentQs, g_nCurrentlyPlayingTrackNums
     try:
-        ix = g_lstFakeZGIDs.index(szZGID)
         if (nIx != -1):
+            return False
             nTracks = len(g_lstCurrentQs[ix])
             if (0 <= nIx < nTracks):
                 g_nCurrentlyPlayingTrackNums[ix] = nIx
@@ -140,13 +171,75 @@ def Play(szZGID, nIx):
             else:
                 return False
 
-        g_aePlayState[ix] = PS_PLAYING
+        if (g_aePlayState[0] != PS_PLAYING):
+            g_aePlayState[0] = PS_PLAYING
+            sonos.play(g_currentHHID, szZGID)
+            OnPlayStateChanged(szZGID, True)
         return True
 
-    except:
+    except Exception, e:
+        print e
         return False
 
 server.register_function(Play)
+
+def IsPlaying(szZGID):
+    global g_lstFakeZGIDs, g_aePlayState
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return (g_aePlayState[ix] == PS_PLAYING)
+    except:
+        return False
+
+server.register_function(IsPlaying)
+
+def SetVolume(szZGID, nVol):
+    global g_lstFakeZGIDs, g_anVolume, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        if (0 <= nVol <= 100):
+            if (g_anVolume[ix] != nVol):
+                g_anVolume[ix] = nVol
+                OnVolumeChanged(szZGID, nVol)
+            return True
+    except:
+        pass
+    return False
+
+server.register_function(SetVolume)
+
+def SetMute(szZGID, bMute):
+    global g_lstFakeZGIDs, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        if (g_abMute[ix] != bMute):
+            g_abMute[ix] = bMute
+            OnMuteChanged(szZGID, bMute)
+        return True
+    except:
+        return False
+
+server.register_function(SetMute)
+
+def GetVolume(szZGID):
+    global g_lstFakeZGIDs, g_anVolume
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return g_anVolume[ix]
+    except:
+        return -1
+    
+server.register_function(GetVolume)
+
+def IsMuted(szZGID):
+    global g_lstFakeZGIDs, g_abMute
+    try:
+        ix = g_lstFakeZGIDs.index(szZGID)
+        return g_abMute[ix]
+    except:
+        return False
+
+server.register_function(IsMuted)
 
 def nextTrack(n, bWrap):
     global g_nCurrentlyPlayingTrackNums, g_lstFakeZGIDs, g_lstCurrentQs
@@ -235,6 +328,15 @@ from threading import Thread
 eventLoop = Thread(target=Eventer, name="EventLoop")
 eventLoop.start()
 # Run the server's main loop
-server.serve_forever()
-g_qSignals.put(True)
-eventLoop.join()
+serverLoop = Thread(target=server.serve_forever, name="serverLoop")
+serverLoop.start()
+
+sonos.cp._ssdp_server._register('uuid:RINCON_000E5850027001400',
+				'upnp:rootdevice',
+				"http://10.0.0.176:1400/xml/zone_player.xml",
+				"Linux UPnP/1.0 Sonos/12.3-22270", 1800)
+
+
+# To kill:
+# g_qSignals.put(True)
+# eventLoop.join()

@@ -160,11 +160,11 @@ namespace Yedda {
 						}
 					}
 
-					throw ex;
+					//throw ex;
 				}
 			}
 
-			//return null; // silence the "unreachable code detected"
+			return null; // silence the "unreachable code detected"
 		}
 
 		/// <summary>
