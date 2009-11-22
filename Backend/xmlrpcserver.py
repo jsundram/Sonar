@@ -331,6 +331,8 @@ eventLoop.start()
 serverLoop = Thread(target=server.serve_forever, name="serverLoop")
 serverLoop.start()
 
+# Until we correctly discover devices, we can use this to kick-start the
+# process.
 sonos.cp._ssdp_server._register('uuid:RINCON_000E5850027001400',
 				'upnp:rootdevice',
 				"http://10.0.0.176:1400/xml/zone_player.xml",

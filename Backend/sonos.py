@@ -3,6 +3,8 @@ import sys
 # Set ourselves up to be able to import the pycpoint stuff without having to
 # move it all to our local directory
 sys.path.insert(1,"./pycpoint")
+# Also import the rest of brisa from local sources
+sys.path.insert(2,"./python-brisa")
 
 from brisa.core import log
 from brisa.core.log import modcheck
@@ -17,10 +19,10 @@ from brisa.upnp.control_point.device_builder import DeviceAssembler
 
 from brisa.core.ireactor import EVENT_TYPE_READ
 
-xml = "http://10.0.0.176:1400/xml/zone_player.xml"
-my_device = Device()
-dev_assembler = DeviceAssembler(my_device, xml)
-dev_assembler.mount_device()
+##xml = "http://10.0.0.176:1400/xml/zone_player.xml"
+##my_device = Device()
+##dev_assembler = DeviceAssembler(my_device, xml)
+##dev_assembler.mount_device()
 cp = ControlPointSonos()
 #cp.start()
 #cp.start_search(60)
