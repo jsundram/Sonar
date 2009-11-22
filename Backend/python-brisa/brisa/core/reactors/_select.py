@@ -257,7 +257,7 @@ class SelectReactor(ReactorInterface):
                     raise
             elif s.args[0] == EINTR:
                 pass
-            elif s.args[0] == EBADF:
+            else:
                 self._main_cleanup_fds()
         except socket.error, s:
             if s.args[0] == EBADF:
@@ -342,9 +342,15 @@ class SelectReactor(ReactorInterface):
     def _get_min_timeout(self):
         """ Returns the minimum timeout among registered timers.
         """
-        min = 0
+        # wait forever by default
+        min = None
+        # if we are running on Windows, the death pipe has been removed, so
+        # reduce our timeout to a second since we're no longer able to signal
+        # ourselves on quit.
+        if self._death_pipe_r not in self._read_fds:
+            min = 1
         for callback in self._timers.values():
-            if min == 0 or callback.timeout_rel < min:
+            if min == None or callback.timeout_rel < min:
                 min = callback.timeout_rel
         return min
 
