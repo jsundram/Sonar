@@ -197,16 +197,19 @@ namespace Sonar
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.Black);
             pen.Width = borderWidth;
 
-            // Code to select different color border depending on source
-            switch((e.Index % 5)) {     // TODO: replace with real source code
-                case 0:
+            // Code to select different color border depending on service
+            switch(item.Service) {
+                case "twitter":
                     pen.Color = Color.LightBlue;
                     break;
-                case 1:
-                    pen.Color = Color.LightGreen;
+                case "twitter-sonos":
+                    pen.Color = Color.DarkBlue;
+                    break;
+                case "lastfm":
+                    pen.Color = Color.Red;
                     break;
                 default:
-                    pen.Color = Color.LightSalmon;
+                    pen.Color = Color.Black;
                     break;
             }
 
@@ -215,14 +218,14 @@ namespace Sonar
             e.Graphics.DrawRectangle(pen, border);
 
             // Define the default color of the brush as black.
-            Brush myBrush = Brushes.Black;
+            Brush textBrush = Brushes.Black;
             if (item.Url != null)
-                myBrush = Brushes.Red;
+                textBrush = Brushes.Red;
 
             // Draw the current item text based on the current Font and the custom brush settings.
             Rectangle textRect = new Rectangle(e.Bounds.X + imageWidth + 4, e.Bounds.Y + 1 + 2, 
                                                 e.Bounds.Width - borderWidth - imageWidth - 4, e.Bounds.Height - borderWidth - 1 - 2);
-            e.Graphics.DrawString(item.ToString(), e.Font, myBrush, textRect, StringFormat.GenericDefault);
+            e.Graphics.DrawString(item.ToString(), e.Font, textBrush, textRect, StringFormat.GenericDefault);
 
             // Draw the image
             if (item.Image != null)
@@ -236,7 +239,7 @@ namespace Sonar
 
             // Dispose what needs to be disposed of TODO!
             pen.Dispose();
-            //myBrush.Dispose();
+
         }
 
         private void _Feed_MeasureItem(object sender, MeasureItemEventArgs e)

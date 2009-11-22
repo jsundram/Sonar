@@ -15,6 +15,7 @@ namespace Sonar
         public string Message;
         public string Artist;
         public string Track;
+        public string Service;
         public DateTime PostTime;
         public string Url; // playable url of track
         public string Key { get { return User + ": " + Message; } }
