@@ -286,8 +286,9 @@ namespace Sonar
         void _Artist_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             // Show form with awesome echo-nesty data here.
-            //ArtistInspector a = new ArtistInspector(_Artist.Text, _Album.Text);
-            ArtistInspector a = GetArtistInspector("Tori Amos", "Boys for Pele");
+            ArtistInspector a = new ArtistInspector(_Artist.Text, _Album.Text);
+            if (_Artist.Text == "Your Mom")
+                a = GetArtistInspector("Tori Amos", "Boys for Pele");
 
             a.Show();
         }

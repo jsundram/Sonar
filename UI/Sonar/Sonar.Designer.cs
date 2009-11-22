@@ -169,7 +169,7 @@ namespace Sonar
             this.twitter.Padding = new System.Windows.Forms.Padding(3);
             this.twitter.Size = new System.Drawing.Size(274, 410);
             this.twitter.TabIndex = 1;
-            this.twitter.Text = "twitter";
+            this.twitter.Text = "social";
             this.twitter.UseVisualStyleBackColor = true;
             // 
             // now_playing_tabs

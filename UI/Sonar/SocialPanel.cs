@@ -61,7 +61,11 @@ namespace Sonar
                 //select the item under the mouse pointer
                 _Feed.SelectedIndex = _Feed.IndexFromPoint(e.Location);
                 if (_Feed.SelectedIndex != -1)
+                {
+                    SocialItem i = _Feed.Items[_Feed.SelectedIndex] as SocialItem;
+                    _PlayMenu.Items[0].Enabled = (i != null && i.Source != null);
                     _PlayMenu.Show();
+                }
             }
         }
 
