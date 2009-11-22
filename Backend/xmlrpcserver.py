@@ -26,6 +26,8 @@ g_dictMyFakeTrackMD = {"Title" : "All My Sundays",
                        "Artist": "Your Mom",
                        "Album": "Greatest Hits",
                        "AlbumArtUri": "http://www.ibiblio.org/wm/paint/auth/hopper/street/hopper.early-sunday.jpg",
+                       # Optional, and stil mostly work-safe image:
+                       # "AlbumArtUri": "http://promo.spunkyangels.com/amyredcowgirl/001.jpg",
                        "Uri": "http://www.yourmom.com/Sundays_I_Have_Loved.flac",
                        "PlayTime": TRACK_TIME}
 
