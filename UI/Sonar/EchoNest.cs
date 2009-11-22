@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Xml;
+using System.Web;
 
 namespace Sonar
 {
@@ -66,6 +67,8 @@ namespace Sonar
                             familiarity = Convert.ToSingle(value); break;
                         case "rank":
                             rank = Convert.ToInt32(value); break; 
+                        case "images":
+                            images.Add(new Document(child)); break;
                         default:
                             MainForm.Trace("Don't know what to do with field: " + varname);
                             break; // pass
@@ -78,6 +81,7 @@ namespace Sonar
             public float hotttness { get; set; }
             public float familiarity { get; set; }
             public int rank { get; set; }
+            public List<Document> images = new List<Document>();
 
             public static List<Artist> ReadListFromXml(XmlNodeList x)
             {
@@ -127,6 +131,7 @@ namespace Sonar
         }
         public class Status
         {
+            public Status(int code, string message) { Code = code; Message = message; }
             public Status(XmlNodeList x)
             {
                 XmlNode n = x[0];
@@ -142,12 +147,17 @@ namespace Sonar
             public Response(string xml)
             {
                 XmlDocument doc = new XmlDocument();
-                doc.LoadXml(xml);
-                version = doc.DocumentElement.Attributes[0].Value;
-                query = new Query(doc.GetElementsByTagName("query"));
-                artists = Artist.ReadListFromXml(doc.GetElementsByTagName("artist"));
-                status = new Status(doc.GetElementsByTagName("status"));
-                documents = Document.ReadListFromXml(doc.GetElementsByTagName("doc"));
+                if (doc != null)
+                {
+                    doc.LoadXml(xml);
+                    version = doc.DocumentElement.Attributes[0].Value;
+                    query = new Query(doc.GetElementsByTagName("query"));
+                    artists = Artist.ReadListFromXml(doc.GetElementsByTagName("artist"));
+                    status = new Status(doc.GetElementsByTagName("status"));
+                    documents = Document.ReadListFromXml(doc.GetElementsByTagName("doc"));
+                }
+                else
+                    status = new Status(-1,"A terrible error occurred");
             }
 
             // returns first artist on list, or null if there are none.
@@ -170,7 +180,7 @@ namespace Sonar
         #region Privates
         static string MakeQuery(string function, string argname, string arg)
         {
-            return string.Format("{0}/{1}?api_key={2}&{3}={4}&version=3", BaseUrl, function, _ApiKey, argname, arg);
+            return string.Format("{0}/{1}?api_key={2}&{3}={4}&version=3", BaseUrl, function, _ApiKey, argname, HttpUtility.UrlPathEncode(arg));
         }
 
         static string GetArtistID(string id)
@@ -213,11 +223,12 @@ namespace Sonar
                         }
                     }
 
-                    throw ex;
+                    //throw ex;
                 }
             }
 
-            //return null; // silence the "unreachable Code detected"
+            MainForm.Trace("Unable to process: " + url); 
+            return null; // silence the "unreachable Code detected"
         }
         #endregion
 
@@ -239,7 +250,6 @@ namespace Sonar
 
             // Download all the images (this may be best expressed on more than one line)
             List<Image> images = GetImages(a.id).documents.ConvertAll<Image>(delegate(Document d) { return GetImage(d.url); });
-            
         }
 
         public static Response GetImages(string id)
@@ -294,7 +304,8 @@ namespace Sonar
 		            </artist>
 	            </artists>
             </response>  */
-            string url = MakeQuery("search_artists", "query", artist);            
+            string url = MakeQuery("search_artists", "query", artist);
+            url += "&bucket=familiarity&bucket=hotttnesss&bucket=images";
             return new Response(ExecuteGetCommand(url));
         }
     }

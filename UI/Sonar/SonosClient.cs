@@ -187,11 +187,10 @@ namespace Sonar
         {
             return new List<string>(_Proxy.GetAllZoneGroups());
         }
-        // TODO: We need to mangle the Uri to have the format http://playdar/sid/track.mp3?sid=blah
         // returns position the queue.
-        public int Enqueue(Metadata m)
+        public int Enqueue(Resolver.Result r)
         {
-            return _Proxy.EnqueueTrack(m.ToXmlRpc());
+            return _Proxy.EnqueueTrack(r.ToXmlRpc());
         }
 
         public int GetTrackTime(string zgid)

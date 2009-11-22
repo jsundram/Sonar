@@ -11,8 +11,8 @@ namespace Sonar
     public class AlbumArtWorker
     {
         BackgroundWorker _Worker = new BackgroundWorker();
-        public delegate void OnResolveCompleted(object sender, SocialItem i);
-        OnResolveCompleted _OnComplete;
+        public delegate void OnAlbumArtRetrieved(object sender, Dictionary<string, Image> image);
+        OnAlbumArtRetrieved _OnProgress;
         object _Caller;
 
         public AlbumArtWorker()
@@ -23,17 +23,25 @@ namespace Sonar
 
         public static Image GetImage(string url)
         {
-            WebClient wc = new WebClient();
-            byte[] data = wc.DownloadData(url);
-            MemoryStream ms = new MemoryStream(data);
-            return new Bitmap(ms);
+            try
+            {
+                WebClient wc = new WebClient();
+                byte[] data = wc.DownloadData(url);
+                MemoryStream ms = new MemoryStream(data);
+                return new Bitmap(ms);
+            }
+            catch (Exception)
+            {
+
+            }
+            return null;
         }
 
-        public void Start(object sender, SocialItem i, OnResolveCompleted on_complete)
+        public void Start(object sender, List<string> imageUris, OnAlbumArtRetrieved on_progress)
         {
-            _OnComplete = on_complete;
+            _OnProgress = on_progress;
             _Caller = sender;
-            _Worker.RunWorkerAsync(i);
+            _Worker.RunWorkerAsync(imageUris);
         }
 
         public void Cancel()
@@ -46,40 +54,44 @@ namespace Sonar
             BackgroundWorker worker = sender as BackgroundWorker;
 
             // Extract the argument.
-            SocialItem i = (SocialItem)e.Argument;
+            List<string> imageUris = (List<string>)e.Argument;
 
-            // Start the time-consuming operation.
-            i.Url = Resolver.Resolve(worker, i);
-            e.Result = i;
-            // If the operation was canceled by the user, 
-            // set the DoWorkEventArgs.Cancel property to true.
-            if (worker.CancellationPending)
+            Dictionary<string, Image> all = new Dictionary<string, Image>();
+            foreach (string url in imageUris)
             {
-                e.Cancel = true;
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+
+                if (url == null)
+                    continue;
+
+                Dictionary<string, Image> d = new Dictionary<string, Image>();
+                d.Add(url, GetImage(url));
+
+                if (_OnProgress != null)
+                    this._OnProgress.DynamicInvoke(new object[] { _Caller, d });
+
+                all.Add(url, d[url]);
             }
 
+            e.Result = all;
         }
 
         void WorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
-                MainForm.Trace("ResolveWorker thread was cancelled");
+                MainForm.Trace("AlbumArtWorker thread was cancelled.");
             else if (e.Error != null)
                 MainForm.Trace(e.Error.Message);
             else
             {
                 // do something with e.Result
-                SocialItem i = e.Result as SocialItem;
-                if (i != null)
-                {
-                    if (!string.IsNullOrEmpty(i.Url))
-                        MainForm.Trace(string.Format("Resolved {0} by {1} to {2}", i.Track, i.Artist, i.Url));
-                    else
-                        MainForm.Trace(string.Format("Unable to resolve {0} by {1}", i.Track, i.Artist));
-                }
-                this._OnComplete.DynamicInvoke(new object[] { _Caller, i });
+                Dictionary<string, Image> d = e.Result as Dictionary<string, Image>;
+                //this._OnProgress.DynamicInvoke(new object[] { _Caller, d });
             }
-
         }
 
     }
