@@ -631,6 +631,7 @@ class ControlPointSonos(ControlPointAV):
     def play(self):
         ssresult = self.get_at_service().Play(InstanceID=0, Speed=1)
         log.debug('play result: %s', ssresult)
+        return ssresult
 
     def seek(self, unit, target):
         '''
@@ -640,19 +641,23 @@ class ControlPointSonos(ControlPointAV):
         '''
         ssresult = self.get_at_service().Seek(InstanceID=0, Unit=unit, Target=target)
         log.debug('seek result: %s', ssresult)
+        return ssresult
 
     def pause(self):
         ssresult = self.get_at_service().Pause(InstanceID=0)
         log.debug('pause result: %s', ssresult)
+        return ssresult
 
     def unpause(self):
         ssresult = self.get_at_service().Play(InstanceID=0, Speed=1)
         log.debug('unpause result: %s', ssresult)
+        return ssresult
 
     def stop(self):
         if self._current_renderer:
             ssresult = self.get_at_service().Stop(InstanceID=0)
             log.debug('stop result: %s', ssresult)
+            return ssresult
 
     def next(self):
         avt = self.get_at_service()
