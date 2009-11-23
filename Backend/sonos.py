@@ -189,4 +189,12 @@ def seekTrack(hhId, zgId, nTrack):
     except Exception, e:
         print e
         return False
-    
+
+def pause(hhId, zgId):
+    return False
+
+def skipNext(hhId, zgId):
+    return False
+
+def skipBack(hhId, zgId):
+    return False
