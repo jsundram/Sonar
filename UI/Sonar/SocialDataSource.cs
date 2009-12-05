@@ -101,6 +101,7 @@ namespace Sonar
                                 i.Image = image; // set this to user profile image.
 
                             i.PostTime = track.Time;
+                            i.Service = "lastfm";
                             
                             Items.Add(i);
                         }
@@ -142,6 +143,7 @@ namespace Sonar
                                 i.Image = image; // set this to user profile image.
 
                             i.PostTime = track.StartDate; // TODO: Deal with time zones?
+                            i.Service = "lastfm";
 
                             Items.Add(i);
                         }
@@ -210,6 +212,7 @@ namespace Sonar
 
                         item.Image = item.GetImage(images[6 + 2 * i].Attributes[1].Value);
                         item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture);
+                        item.Service = "twitter-sonos";
 
                         Items.Add(item);
                     }
@@ -261,6 +264,7 @@ namespace Sonar
                         item.Image = item.GetImage(images[i].InnerText);
 
                         item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture); // e.g. Tue Nov 10 21:01:23 +0000 2009
+                        item.Service = "twitter";
 
                         Items.Add(item);
                     }
@@ -348,6 +352,7 @@ namespace Sonar
                         System.Diagnostics.Debug.Assert(links[2 * i + 1].Attributes[0].Value == "image/png");
                         item.Image = item.GetImage(links[2 * i + 1].Attributes[1].Value);
                         item.PostTime = DateTime.ParseExact(post_times[i].InnerText, time_format, CultureInfo.InvariantCulture);
+                        item.Service = "twitter";
 
                         Items.Add(item);
                     }

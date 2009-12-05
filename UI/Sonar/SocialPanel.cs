@@ -13,6 +13,7 @@ namespace Sonar
     public partial class SocialPanel : UserControl
     {
         static int RefreshDelayMs = 5 * 60 * 1000; // 5 minutes.
+        Image twitterLogo = null;                   // TODO: Should be static
         private List<ISocialDataSource> _DataSources = new List<ISocialDataSource>();
         DateTime _LastUpdate = DateTime.MinValue;
 
@@ -30,7 +31,13 @@ namespace Sonar
             _Feed.ContextMenuStrip = _PlayMenu;
             _Feed.MouseDown += new MouseEventHandler(_Feed_MouseDown);
 
-            _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);            
+            _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);
+            try
+            {
+                twitterLogo = Image.FromFile(@"c:..\..\..\..\images\twitter-logo-large.png");
+                //twitterLogo = Image.FromFile(@"c:\work\Sonar\images\twitter.png");  // TODO total hack - fix this!
+            }
+            catch { };
         }
 
         void _PlayMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -197,16 +204,22 @@ namespace Sonar
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.Black);
             pen.Width = borderWidth;
 
-            // Code to select different color border depending on source
-            switch((e.Index % 5)) {     // TODO: replace with real source code
-                case 0:
+            // Code to select different color border depending on service
+            bool displayTwitterLogo = false;
+            switch(item.Service) {
+                case "twitter":
                     pen.Color = Color.LightBlue;
+                    displayTwitterLogo = true;
                     break;
-                case 1:
-                    pen.Color = Color.LightGreen;
+                case "twitter-sonos":
+                    pen.Color = Color.DarkBlue;
+                    displayTwitterLogo = true;
+                    break;
+                case "lastfm":
+                    pen.Color = Color.Red;
                     break;
                 default:
-                    pen.Color = Color.LightSalmon;
+                    pen.Color = Color.Black;
                     break;
             }
 
@@ -215,14 +228,14 @@ namespace Sonar
             e.Graphics.DrawRectangle(pen, border);
 
             // Define the default color of the brush as black.
-            Brush myBrush = Brushes.Black;
+            Brush textBrush = Brushes.Black;
             if (item.Url != null)
-                myBrush = Brushes.Red;
+                textBrush = Brushes.Red;
 
             // Draw the current item text based on the current Font and the custom brush settings.
             Rectangle textRect = new Rectangle(e.Bounds.X + imageWidth + 4, e.Bounds.Y + 1 + 2, 
                                                 e.Bounds.Width - borderWidth - imageWidth - 4, e.Bounds.Height - borderWidth - 1 - 2);
-            e.Graphics.DrawString(item.ToString(), e.Font, myBrush, textRect, StringFormat.GenericDefault);
+            e.Graphics.DrawString(item.ToString(), e.Font, textBrush, textRect, StringFormat.GenericDefault);
 
             // Draw the image
             if (item.Image != null)
@@ -231,12 +244,19 @@ namespace Sonar
                 e.Graphics.DrawImage(item.Image, imageRect);
             }
 
+            // Draw the logo
+            if (displayTwitterLogo && twitterLogo != null)
+            {
+                Rectangle imageRect = new Rectangle(e.Bounds.X + e.Bounds.Width - 80, e.Bounds.Y + e.Bounds.Height - 20 , 64, 15);
+                e.Graphics.DrawImage(twitterLogo, imageRect);
+            }
+
             // If the ListBox has focus, draw a focus rectangle around the selected item.
             e.DrawFocusRectangle();
 
             // Dispose what needs to be disposed of TODO!
             pen.Dispose();
-            //myBrush.Dispose();
+
         }
 
         private void _Feed_MeasureItem(object sender, MeasureItemEventArgs e)
