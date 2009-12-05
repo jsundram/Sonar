@@ -5,6 +5,8 @@ import sys
 sys.path.insert(1,"./pycpoint")
 # Also import the rest of brisa from local sources
 sys.path.insert(2,"./python-brisa")
+# And CherryPy
+sys.path.insert(3,"./python-cherrypy")
 
 from brisa.core import log
 from brisa.core.log import modcheck
