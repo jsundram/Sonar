@@ -323,7 +323,7 @@ serverLoop.start()
 # process.
 sonos.cp._ssdp_server._register('uuid:RINCON_000E5850027001400',
 				'upnp:rootdevice',
-				"http://192.168.2.222:1400/xml/zone_player.xml",
+				"http://192.168.0.101:1400/xml/zone_player.xml",
 				"Linux UPnP/1.0 Sonos/12.3-22270", 1800)
 
 
