@@ -21,7 +21,7 @@ PS_PLAYING, PS_PAUSED, PS_STOPPED = range(3)
 
 # Initialize Global Variables
 g_bSubscribed = False
-g_szFakeHHID = "HHID_12345ABCDE"
+g_szFakeHHID = "HHID_DEBUG"
 #g_lstFakeZGIDs = ["ZGID_1", "ZGID_2"]
 g_dictCurrentlyPlayingTrackNums = {}
 g_dictMyFakeTrackMD = {"Title" : "All My Sundays",
