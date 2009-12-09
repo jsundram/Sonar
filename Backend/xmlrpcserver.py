@@ -53,9 +53,17 @@ def PostEvent(szName, lstArgs):
 def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
 
+def popQueues():
+    global g_currentHHID, g_dictCurrentQs
+    g_dictCurrentQs.clear()
+    for zgId in sonos.getZgIdsForHHID(g_currentHHID):
+        g_dictCurrentQs[zgId] = sonos.getQueue(g_currentHHID, zgId)
+
 def zgtCallback(szHHID):
-    global g_currentHHID
+    global g_currentHHID, g_dictCurrentQs
     if (szHHID == g_currentHHID):
+        # Refresh the Qs
+        popQueues()
         OnZoneGroupsChanged()
 
 def OnTick(szZGID, nSeconds):
@@ -154,8 +162,10 @@ def Pause(szZGID):
             g_aePlayState[szZGID] = PS_PAUSED
             if (sonos.pause(g_currentHHID, szZGID)):
                 OnPlayStateChanged(szZGID, False)
-    except:
-        return -1
+
+    except Exception, e:
+        print e
+        return False
 
 server.register_function(Pause)
 
