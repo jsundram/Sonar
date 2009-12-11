@@ -340,7 +340,9 @@ namespace Yedda {
             string url = TwitterBaseSearchUrl + urlencoded_query + "&lang=en";
             //url += "?rpp=100"; // max allowed. Could do paging if fanciness is required.
             XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(ExecuteGetCommand(url, null, null));
+            string xml = ExecuteGetCommand(url, null, null);
+            if (!string.IsNullOrEmpty(xml))
+                xmlDocument.LoadXml(xml);
             return xmlDocument;
         }
         #endregion

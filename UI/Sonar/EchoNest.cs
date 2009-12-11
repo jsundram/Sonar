@@ -62,11 +62,11 @@ namespace Sonar
                         case "name":
                             name = value; break;
                         case "hotttnesss":
-                            hotttness = Convert.ToSingle(value); break;
+                            hotttness = Convert.ToSingle(string.IsNullOrEmpty(value) ? "0" : value); break;
                         case "familiarity":
-                            familiarity = Convert.ToSingle(value); break;
+                            familiarity = Convert.ToSingle(string.IsNullOrEmpty(value) ? "0" : value); break;
                         case "rank":
-                            rank = Convert.ToInt32(value); break; 
+                            rank = Convert.ToInt32(string.IsNullOrEmpty(value) ? "0" : value); break; 
                         case "images":
                             images.Add(new Document(child)); break;
                         default:
@@ -147,7 +147,7 @@ namespace Sonar
             public Response(string xml)
             {
                 XmlDocument doc = new XmlDocument();
-                if (doc != null)
+                if (xml != null)
                 {
                     doc.LoadXml(xml);
                     version = doc.DocumentElement.Attributes[0].Value;
@@ -178,9 +178,16 @@ namespace Sonar
         #endregion
 
         #region Privates
+        static string ActuallyUrlEncode(string s)
+        {
+            // return Uri.EscapeDataString(s); // This doesn't preserve &.
+            s = HttpUtility.UrlPathEncode(s);
+            return s.Replace("&", "%26");
+        }
+
         static string MakeQuery(string function, string argname, string arg)
         {
-            return string.Format("{0}/{1}?api_key={2}&{3}={4}&version=3", BaseUrl, function, _ApiKey, argname, HttpUtility.UrlPathEncode(arg));
+            return string.Format("{0}/{1}?api_key={2}&{3}={4}&version=3", BaseUrl, function, _ApiKey, argname, ActuallyUrlEncode(arg));
         }
 
         static string GetArtistID(string id)

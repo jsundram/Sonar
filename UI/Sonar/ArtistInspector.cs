@@ -18,15 +18,18 @@ namespace Sonar
         EchoNest.Artist _EnArtist;
         string _album;
         string _artist;
+        string _track;
         int _Index = 0;
         List<Image> _Images = new List<Image>();
         List<string> _SimilarArtists = new List<string>();
         AlbumInfo _AlbumInfo;
-        public ArtistInspector(string artist, string album)
+        public ArtistInspector(string artist, string album, string track)
         {
             _artist = artist;
             _album = album;
+            _track = track;
             InitializeComponent();
+
             EchoNest.Response r = EchoNest.SearchArtist(artist);
             _EnArtist = r.GetArtist();
 
@@ -40,7 +43,7 @@ namespace Sonar
                     _SimilarArtists.Add(a.name);
             }
             else
-                _Artist.Text = "EchoNest API error";
+                _Artist.Text = "Echonest API Error";
         }
 
         public bool LoadedSuccessfully()
@@ -62,7 +65,7 @@ namespace Sonar
             }
             _AlbumInfo = FindAlbumOnLastFm();
 
-            string info = "Couldn't find album on last.fm";
+            string info = "";
             if (_AlbumInfo != null)
             {
                 info = string.Format("{0}:\r\n\r\n{1:d} listeners\r\n{2:d} plays\r\nreleased: {3}\r\n\r\n", _AlbumInfo.AlbumName, _AlbumInfo.NumListeners, _AlbumInfo.PlayCount, _AlbumInfo.ReleaseDate.ToShortDateString());
@@ -71,7 +74,26 @@ namespace Sonar
                     foreach (string key in _AlbumInfo.Tags.Keys)
                         info += key + ", ";
             }
+
+            ArtistInfo _LastFmArtist = FindArtistOnLastFm();
+            if (_LastFmArtist != null)
+            {
+                info += string.Format("{0}:\r\n\r\n{1:d} listeners\r\n{2:d} plays\r\n\r\n", _LastFmArtist.Name, _LastFmArtist.NumListeners, _LastFmArtist.PlayCount);
+                info += "Tags: ";
+                if (_LastFmArtist.Tags != null)
+                    foreach (string key in _LastFmArtist.Tags.Keys)
+                        info += key + ", ";
+
+                info += "Similar Artists: ";
+                if (_LastFmArtist.SimilarArtists != null)
+                    foreach (string key in _LastFmArtist.SimilarArtists.Keys)
+                        info += key + ", ";
+
+            }
+            if (info == "")
+                info = "Couldn't find album/artist on last.fm";
             _LastFmInfo.Text = info;
+            _LastFmInfo.Select(0,0);
         }
 
         bool fuzzy_match(string s1, string s2)
@@ -79,11 +101,47 @@ namespace Sonar
             return s1.ToLower().Equals(s2.ToLower());
         }
 
+        ArtistInfo FindArtistOnLastFm()
+        {
+            LastFmClient c = LastFm.get_client();
+            ArtistInfo i = null;
+            try
+            {
+                i = c.Artist.GetInfo(_artist, "en");
+            }
+            catch (Exception)
+            {
+
+            }
+            return (i != null && i.Name == null) ? null : i;
+
+        }
         AlbumInfo FindAlbumOnLastFm()
         {
             LastFmClient c = LastFm.get_client();
-            return c.Album.GetInfo(_artist, _album, false,  "en");
+            AlbumInfo i = null;
+            try
+            {
+                TrackInformation t = c.Track.GetInfo(_artist, _track);
+                i = t.Album;
+            }
+            catch (Exception)
+            {
+                // track doesn't seem to work.
+            }
+            // Try another tack.
+            if (i == null)
+            {
+                try
+                {
+                    i = c.Album.GetInfo(_artist, _album, false, "en");
+                }
+                catch (Exception) { }
+            }
+            return (i != null && i.AlbumName == null) ? null : i;
         }
+
+
         public void AddImages(Dictionary<string, Image> images)
         {
             _Images.AddRange(images.Values);

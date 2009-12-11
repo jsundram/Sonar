@@ -6,6 +6,8 @@ using System.Data;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Reflection;
+using System.IO;
 
 namespace Sonar
 {
@@ -13,7 +15,7 @@ namespace Sonar
     public partial class SocialPanel : UserControl
     {
         static int RefreshDelayMs = 5 * 60 * 1000; // 5 minutes.
-        Image twitterLogo = null;                   // TODO: Should be static
+        static Image twitterLogo = null;                   // TODO: Should be static
         private List<ISocialDataSource> _DataSources = new List<ISocialDataSource>();
         DateTime _LastUpdate = DateTime.MinValue;
 
@@ -32,24 +34,29 @@ namespace Sonar
             _Feed.MouseDown += new MouseEventHandler(_Feed_MouseDown);
 
             _timer = new System.Threading.Timer(new TimerCallback(Update), _DataSources, Timeout.Infinite, RefreshDelayMs);
+        }
+
+        static SocialPanel()
+        {
             try
             {
-                twitterLogo = Image.FromFile(@"c:..\..\..\..\images\twitter-logo-large.png");
-                //twitterLogo = Image.FromFile(@"c:\work\Sonar\images\twitter.png");  // TODO total hack - fix this!
+                Assembly a = Assembly.GetExecutingAssembly();
+                // string[] names = a.GetManifestResourceNames(); // for debugging
+                Stream s = a.GetManifestResourceStream("Sonar.images.twitter-logo-large.png");
+                twitterLogo = Image.FromStream(s); 
             }
             catch { };
         }
-
         void _PlayMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             int curr = _Feed.SelectedIndex;
             if (curr != -1)
             {
                 SocialItem i = _Feed.Items[curr] as SocialItem;
-
+                    
                 if (e.ClickedItem.Text == "Get Info")
                 {
-                    ArtistInspector a = new ArtistInspector(i.Artist, "");
+                    ArtistInspector a = new ArtistInspector(i.Artist, "", i.Track);
                     a.Show(); // TODO, cache this.
                 }
 
@@ -57,7 +64,11 @@ namespace Sonar
                     return;
 
                 if (e.ClickedItem.Text == "Enqueue")
-                    _Sonos.Enqueue(i.Source);
+                {
+                    MainForm f = this.ParentForm as MainForm;
+                    bool success = _Sonos.Enqueue(f.GetCurrentZoneGroup(), i.Source);
+                    System.Diagnostics.Debug.Assert(success);
+                }
             }
         }
 
@@ -185,12 +196,15 @@ namespace Sonar
             
         }
 
-        private void _Feed_DrawItem(object sender, DrawItemEventArgs e)
+        void _Feed_DrawItem(object sender, DrawItemEventArgs e)
         {
             int borderWidth = 2;
             int imageWidth = 48;
             int imageHeight = imageWidth;
 
+            if (e.Index < 0)
+                return;
+ 
             SocialItem item = _Feed.Items[e.Index] as SocialItem;
             if (item == null) return;
 

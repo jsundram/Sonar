@@ -54,9 +54,19 @@ namespace Sonar
             public int bitrate { get; set; }        // 'bitrate':320,
             public int size { get; set; }           // 'size':7223637,
             public string source { get; set; }      // 'source':'WIN-F1DNH76QUS3'
+
+            public string getIP()
+            {
+                string host = Dns.GetHostName();
+                foreach (IPAddress ip in Dns.GetHostEntry(host).AddressList)
+                    if (!ip.IsIPv6LinkLocal && !ip.IsIPv6Multicast && !ip.IsIPv6SiteLocal)
+                        return ip.ToString();
+                return "localhost"; // sorry boss.
+            }
             public string get_play_url() 
-            { 
-                return string.Format("http://localhost:60210/sid/track.{0}?sid={1}", SonosClient.MimeTypeToExt(mimetype), sid); 
+            {
+                string ip = getIP();
+                return string.Format("http://{0}:60210/sid/track.{1}?sid={2}", ip, SonosClient.MimeTypeToExt(mimetype), sid); 
             }
             public override string ToString()
             {
