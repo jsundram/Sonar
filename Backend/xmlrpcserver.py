@@ -206,7 +206,7 @@ def Pause(szZGID):
             g_dictPlayState[szZGID] = PS_PAUSED
             if (sonos.pause(g_currentHHID, szZGID)):
                 OnPlayStateChanged(szZGID, False)
-
+        return True
     except Exception, e:
         print e
         return False
@@ -296,7 +296,7 @@ server.register_function(IsMuted)
 def nextTrack(zgId, bWrap):
     global g_currentHHID, g_dictCurrentQs, g_dictTimes, g_dictCurrentlyPlayingTrackNums
     nTracks = len(g_dictCurrentQs[zgId])
-    if (bWrap or g_dictCurrentlyPlayingTrackNums[zgId] < nTracks):
+    if (bWrap or g_dictCurrentlyPlayingTrackNums[zgId] < nTracks - 1):
         g_dictCurrentlyPlayingTrackNums[zgId] += 1
         g_dictCurrentlyPlayingTrackNums[zgId] %= nTracks
         g_dictTimes[zgId] = 0
