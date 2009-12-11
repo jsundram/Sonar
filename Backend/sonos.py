@@ -229,6 +229,7 @@ g_dictMDCache = {}
 
 def getQueue(hhId, zgId):
     global g_dictMDCache, cp, g_Households
+    ret = {}
     try:
         zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
         dev = cp.get_devices()["uuid:" + zgCoord]
@@ -246,6 +247,7 @@ def getQueue(hhId, zgId):
 
 def enqueueTrack(hhId, zgId, md):
     global g_dictMDCache, cp, g_Households
+    ret = {}
     try:
         zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
         dev = cp.get_devices()["uuid:" + zgCoord]
@@ -262,6 +264,7 @@ def enqueueTrack(hhId, zgId, md):
         return True
     except Exception, e:
         print e
+        print ret
         return False
 
 def play(hhId, zgId):

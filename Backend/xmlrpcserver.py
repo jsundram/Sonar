@@ -129,15 +129,17 @@ def OnPlayStateChanged(szZGID, bPlaying):
 def EnqueueTrack(zgId, dictMD):
     global g_dictMDCache, g_currentHHID
     try:
+        print "Trying to enqueue track at:", dictMD["Uri"], "with MD:", dictMD
         if (sonos.enqueueTrack(g_currentHHID, zgId, dictMD)):
-            print "Enqueued track at:", dictMD["Uri"], "with MD:", dictMD
+            print "Success"
             # Review: don't send this from here, wait for the event to bubble up from
             # the zp when that is plumbed
             OnQueueChanged(zgId)
             return True
     except Exception, e:
-        print e
+        print "Exception:", e
 
+    print "Failure"
     return False
 
 # Register EnqueueTrack() function; this will use the value of
