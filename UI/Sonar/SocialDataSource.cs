@@ -211,9 +211,13 @@ namespace Sonar
             XmlNodeList post_times = timeline.GetElementsByTagName("published");
             int s = statuses.Count;
             int n = screen_names.Count;
-            System.Diagnostics.Debug.Assert(statuses.Count-1 == screen_names.Count);
-            System.Diagnostics.Debug.Assert(images.Count - 5 == 2 * screen_names.Count);
-            
+            if (s != 0)
+            {
+                System.Diagnostics.Debug.Assert(statuses.Count-1 == screen_names.Count);
+                System.Diagnostics.Debug.Assert(images.Count - 5 == 2 * screen_names.Count);
+            }
+            else
+                MainForm.Trace("TwitterSonos update failed");
                                 
             string time_format = "yyyy-MM-ddTHH:mm:ssZ";//2009-11-09T21:57:19Z
  
