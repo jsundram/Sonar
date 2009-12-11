@@ -288,6 +288,8 @@ def Eventer():
     global g_qSignals, g_dictTimes, g_dictCurrentQs, g_aePlayState
     while (1):
         sleep(1)
+        if (not g_currentHHID):
+            continue
         for zgId in sonos.getZgIdsForHHID(g_currentHHID):
             nTracks = len(g_dictCurrentQs[zgId])
             if (nTracks == 0 or g_dictPlayState[zgId] != PS_PLAYING):
