@@ -122,6 +122,9 @@ def convertHMSToS(hms):
 
     return total
 
+def convertSToHMS(s):
+    return "%02d:%02d:%02d" % (s/3600, s / 60 % 60, s % 60)
+
 def _parseQueue(data):
     q_xml = data['Result']
     from xml.etree import ElementTree
@@ -256,7 +259,7 @@ def enqueueTrack(hhId, zgId, md):
                           EnqueuedURIMetaData=",".join(["A" + md["Title"],
                                                         md["Artist"],
                                                         md["Album"],
-                                                        md["PlayTime"]]),
+                                                        convertSToHMS(md["PlayTime"])]),
                           DesiredFirstTrackNumberEnqueued=0,
                           EnqueueAsNext=False)
         num = ret['FirstTrackNumberEnqueued']
