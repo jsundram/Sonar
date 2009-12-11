@@ -84,6 +84,19 @@ def onSub(szHHID, sid, ttl):
     except Exception, e:
         print e
 
+g_zgSids = {}
+
+def onSubAvt(zgId, sid, ttl):
+    global g_Households, g_zgSids
+    try:
+        hhInfo = g_Households[szHHID]
+        hhInfo["sid"] = sid
+        # We also need to be able to get from a sid back to a HH, so we'll put
+        # that in a dict too
+        g_sids[sid] = szHHID
+    except Exception, e:
+        print e
+
 def _parsezgt(data):
     zgs_xml = data['ZoneGroupState']
     from xml.etree import ElementTree
@@ -123,7 +136,7 @@ def _parseQueue(data):
         trackMD = {}
         res = track.find(didl+'res')
         trackMD['Uri'] = res.text
-        trackMD['PlayTime'] = convertHMSToS(res.attrib['duration'])
+        trackMD['PlayTime'] = convertHMSToS(res.attrib.get('duration', '0'))
         trackMD['Title'] = track.findtext(dc + 'title')
         trackMD['Artist'] = track.findtext(dc + 'creator')
         trackMD['Album'] = track.findtext(upnp + 'album')
@@ -145,13 +158,13 @@ def onChange(sid, seq, data):
     except Exception, e:
         print e
 
-def subToHHID(szHHID, zgtCallBack):
+def subToHHID(szHHID, zgtCallBack = None):
     global cp, g_Households, g_cbZGT
     try:
         g_cbZGT = zgtCallBack
         hhInfo = g_Households[szHHID]
         # if we're not already subscribed to this household
-        if not hhInfo.get("sid"):
+        if "sid" not in hhInfo:
             dev = hhInfo["device"]
             zgt_serv = dev.services[cp.ZT_namespace]
             cp.subscribe("device_event_seq", onChange)
@@ -179,6 +192,38 @@ def getZgIdsForHHID(szHHID):
     except Exception, e:
         print e
         return []
+
+def getTrackInfoForZg(hhId, zgId):
+    global cp, g_Households
+    res = {}
+    try:
+        zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
+        dev = cp.get_devices()["uuid:" + zgCoord]
+        avt = dev.get_service_by_type(cp.AVT_namespace)
+        res = avt.GetPositionInfo(InstanceID=0)
+        num = int(res['Track'])
+        dur = convertHMSToS(res['TrackDuration'])
+        currTime = convertHMSToS(res['RelTime'])
+        return (num - 1, currTime, dur) # tracks numbers are '1' based in upnp
+    except Exception, e:
+        print e
+        print res
+        return -1
+
+def getPlayStateForZg(hhId, zgId):
+    global cp, g_Households
+    res = {}
+    try:
+        zgCoord = g_Households[hhId]["zgs"][zgId]["coord"]
+        dev = cp.get_devices()["uuid:" + zgCoord]
+        avt = dev.get_service_by_type(cp.AVT_namespace)
+        res = avt.GetTransportInfo(InstanceID=0)
+        ps = res['CurrentTransportState']
+        return ps
+    except Exception, e:
+        print e
+        print res
+        return "UNKNOWN"
 
 g_dictMDCache = {}
 

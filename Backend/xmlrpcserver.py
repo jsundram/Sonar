@@ -17,7 +17,16 @@ TRACK_TIME = 1234
 
 from Queue import Queue, Empty, Full
 
-PS_PLAYING, PS_PAUSED, PS_STOPPED = range(3)
+PS_PLAYING, PS_PAUSED, PS_STOPPED, PS_INVALID = range(4)
+ps_map = ["PLAYING", "PAUSED_PLAYBACK", "STOPPED"]
+
+def psForString(ps_str):
+    global ps_map
+    try:
+        return ps_map.index(ps_str)
+    except:
+        return PS_INVALID
+
 
 # Initialize Global Variables
 g_bSubscribed = False
@@ -54,17 +63,50 @@ def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
 
 def popQueues():
-    global g_currentHHID, g_dictCurrentQs
-    g_dictCurrentQs.clear()
-    for zgId in sonos.getZgIdsForHHID(g_currentHHID):
-        g_dictCurrentQs[zgId] = sonos.getQueue(g_currentHHID, zgId)
+    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums
+    currZgIds = sonos.getZgIdsForHHID(g_currentHHID)
+    zgsToRemove = frozenset(g_dictCurrentQs.keys()).difference(currZgIds)
+    for zgId in zgsToRemove:
+        del g_dictCurrentQs[zgId]
+        del g_dictCurrentlyPlayingTrackNums[zgId]
+        del g_dictPlayState[zgId]
+        del g_dictTimes[zgId]
+
+    for zgId in currZgIds:
+        updateNPVars(zgId)
+
+def updateNPVars(zgId):
+    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums, g_dictTimes, g_dictPlayState
+    newQ = sonos.getQueue(g_currentHHID, zgId)
+    if (g_dictCurrentQs.get(zgId) != newQ):
+        g_dictCurrentQs[zgId] = newQ
+        OnQueueChanged(zgId)
+    (num, currTime, dur) = sonos.getTrackInfoForZg(g_currentHHID, zgId)
+    if (g_dictCurrentlyPlayingTrackNums.get(zgId) != num):
+        g_dictCurrentlyPlayingTrackNums[zgId] = num
+        OnTrackChanged(zgId)
+    
+    g_dictCurrentQs[zgId][num]['PlayTime'] = dur # Solve the problem that the duration is sometimes unknown until late in the process
+    if (g_dictTimes.get(zgId) != currTime):
+        g_dictTimes[zgId] = currTime
+        OnTick(zgId, currTime)
+    ps = psForString(sonos.getPlayStateForZg(g_currentHHID, zgId))
+    if (g_dictPlayState.get(zgId) != ps):
+        g_dictPlayState[zgId]= ps
+        OnPlayStateChanged(zgId, ps == PS_PLAYING)
 
 def zgtCallback(szHHID):
-    global g_currentHHID, g_dictCurrentQs
+    global g_currentHHID
     if (szHHID == g_currentHHID):
         # Refresh the Qs
         popQueues()
         OnZoneGroupsChanged()
+
+def zgAvtCallback(hhId, zgId):
+    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums, g_dictTimes
+
+    if (hhId == g_currentHHID):
+        updateNPVars(zgId)
 
 def OnTick(szZGID, nSeconds):
     PostEvent("OnTick", [szZGID, nSeconds])
@@ -159,7 +201,7 @@ def Pause(szZGID):
     global g_dictPlayState, g_currentHHID
     try:
         if (g_dictPlayState[szZGID] == PS_PLAYING):
-            g_aePlayState[szZGID] = PS_PAUSED
+            g_dictPlayState[szZGID] = PS_PAUSED
             if (sonos.pause(g_currentHHID, szZGID)):
                 OnPlayStateChanged(szZGID, False)
 
@@ -285,7 +327,7 @@ def Back(szZGID):
 server.register_function(Back)
 
 def Eventer():
-    global g_qSignals, g_dictTimes, g_dictCurrentQs, g_aePlayState
+    global g_qSignals, g_dictTimes, g_dictCurrentQs, g_dictPlayState
     while (1):
         sleep(1)
         if (not g_currentHHID):
