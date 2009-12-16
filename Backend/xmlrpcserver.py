@@ -124,7 +124,7 @@ def OnMuteChanged(szZGID, bMute):
     PostEvent("OnMuteChanged", [szZGID, bMute])
 
 def OnPlayStateChanged(szZGID, bPlaying):
-    PostEvent("OnPlayStateChanged", [szZGID, bPlaying])    
+    PostEvent("OnPlayStateChanged", [szZGID, bPlaying])
 
 def EnqueueTrack(zgId, dictMD):
     global g_dictMDCache, g_currentHHID
