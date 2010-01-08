@@ -125,6 +125,10 @@ def convertHMSToS(hms):
 def convertSToHMS(s):
     return "%02d:%02d:%02d" % (s/3600, s / 60 % 60, s % 60)
 
+def _fixupAAURI(s):
+    if s.startswith('/getaa?'):
+        return "http://" + "10.20.10.100:1400" + s
+
 def _parseQueue(data):
     q_xml = data['Result']
     from xml.etree import ElementTree
@@ -143,7 +147,7 @@ def _parseQueue(data):
         trackMD['Title'] = track.findtext(dc + 'title')
         trackMD['Artist'] = track.findtext(dc + 'creator')
         trackMD['Album'] = track.findtext(upnp + 'album')
-        trackMD['AlbumArtUri'] = track.findtext(upnp + 'albumArtURI')
+        trackMD['AlbumArtUri'] = _fixupAAURI(track.findtext(upnp + 'albumArtURI'))
         q.append(trackMD)
 
     return q
