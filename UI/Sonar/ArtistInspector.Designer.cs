@@ -91,7 +91,7 @@
             // _Familiarity
             // 
             this._Familiarity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this._Familiarity.ForeColor = System.Drawing.SystemColors.HotTrack;
             this._Familiarity.Location = new System.Drawing.Point(314, 0);
             this._Familiarity.Name = "_Familiarity";
@@ -101,7 +101,7 @@
             // _Hotness
             // 
             this._Hotness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this._Hotness.ForeColor = System.Drawing.Color.Orange;
             this._Hotness.Location = new System.Drawing.Point(346, 0);
             this._Hotness.Name = "_Hotness";

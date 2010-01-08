@@ -143,6 +143,7 @@
             this._Mute.TabIndex = 9;
             this._Mute.Text = "Mute";
             this._Mute.UseVisualStyleBackColor = false;
+            this._Mute.Click += new System.EventHandler(this._Mute_Click);
             // 
             // _Play
             // 
@@ -154,6 +155,7 @@
             this._Play.TabIndex = 10;
             this._Play.Text = "Play";
             this._Play.UseVisualStyleBackColor = false;
+            this._Play.Click += new System.EventHandler(this._Play_Click);
             // 
             // _Back
             // 
@@ -165,6 +167,7 @@
             this._Back.TabIndex = 11;
             this._Back.Text = "Back";
             this._Back.UseVisualStyleBackColor = false;
+            this._Back.Click += new System.EventHandler(this._Back_Click);
             // 
             // _Next
             // 
@@ -176,6 +179,7 @@
             this._Next.TabIndex = 12;
             this._Next.Text = "Next";
             this._Next.UseVisualStyleBackColor = false;
+            this._Next.Click += new System.EventHandler(this._Next_Click);
             // 
             // _Artist
             // 

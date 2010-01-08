@@ -70,6 +70,26 @@ namespace Sonar
             return LastFmClient.Create(credentials);
         }
 
+        public static List<FriendUser> GetFriends(LastFmClient c)
+        {
+            List<FriendUser> friends = new List<FriendUser>();
+            int tries = 0;
+            while (friends.Count == 0 && tries < 3)
+            {
+                try
+                {
+                    c.User.GetFriends(Credentials.LastFmUser, false, 50);// arbitrary number of friends
+                }
+                catch (Exception)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+                tries++;
+            }
+            return friends;
+        }
+
     }
 
     public class LastFmFriendsLoved : LastFm
@@ -77,7 +97,8 @@ namespace Sonar
         protected override List<SocialItem> _Update()
         {
             LastFmClient c = get_client();
-            List<FriendUser> friends = c.User.GetFriends(Credentials.LastFmUser, false, 50);// arbitrary number of friends
+            List<FriendUser> friends = GetFriends(c);
+
             friends.Add(new FriendUser(Credentials.LastFmUser, null)); // I want to see my own favorites, too.
 
             Items = new List<SocialItem>();
@@ -113,6 +134,7 @@ namespace Sonar
 
             return Items;
         }
+
     }
 
     public class LastFmFriends : LastFm
@@ -120,9 +142,8 @@ namespace Sonar
         protected override List<SocialItem> _Update()
         {
             LastFmClient c = get_client();
-
-            Items = new List<SocialItem>();
-            List<FriendUser> friends = c.User.GetFriends(Credentials.LastFmUser, false, 50);// arbitrary number of friends
+            List<FriendUser> friends = GetFriends(c);
+            List<SocialItem> Items = new List<SocialItem>();
             foreach (FriendUser f in friends)
             {
                 string name = f.Name;

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace Sonar
 {
@@ -18,7 +19,16 @@ namespace Sonar
         public string Service;
         public DateTime PostTime;
         public string Url; // playable url of track
-        public string Key { get { return User + ": " + Message; } }
+        public string Key 
+        { 
+            get 
+            { 
+                // last.fm hack:
+                if (string.IsNullOrEmpty(Message))
+                    Message = Track + " by " + Artist;
+                return User + ": " + Message; 
+            } 
+        }
         public Resolver.Result Source;
 
         //public override string ToString() { return User + ": " + Track + " by " + Artist; }
@@ -103,6 +113,57 @@ namespace Sonar
             return false;
         }
     }
-    
 
+    public class DisplayInfo
+    {
+        public DisplayInfo(Image i, Color c)
+        {
+            Color = c;
+            Logo = i;
+        }
+        public Color Color { get; private set; }
+        public Image Logo { get; private set; }
+    }
+
+    public static class DisplayInfoFactory
+    {
+        static Image GetResource(string name)
+        {
+            Image i = null;
+            try
+            {
+                Assembly a = Assembly.GetExecutingAssembly();
+                // string[] names = a.GetManifestResourceNames(); // for debugging
+                Stream s = a.GetManifestResourceStream("Sonar.images." + name);
+                i = Image.FromStream(s);
+            }
+            catch { };
+            return i;
+        }
+
+        static Image _twitterLogo;
+        static Image _lastfmLogo;
+
+        static DisplayInfoFactory()
+        {
+            _twitterLogo = GetResource("twitter-logo-large.png");
+            _lastfmLogo = GetResource("lastfm-logo-small.png");
+        }
+
+        public static DisplayInfo Get(SocialItem i)
+        {
+            switch (i.Service)
+            {
+                case "twitter":
+                    return new DisplayInfo(_twitterLogo, Color.LightBlue);
+                case "twitter-sonos":
+                    return new DisplayInfo(_twitterLogo, Color.DarkBlue);
+                case "lastfm":
+                    return new DisplayInfo(_lastfmLogo, Color.Red);
+                default:
+                    return new DisplayInfo(null, Color.Black);
+            }
+        }
+
+    }
 }

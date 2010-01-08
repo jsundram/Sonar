@@ -60,10 +60,10 @@ namespace Sonar
                     return;
 
                 if (e.ClickedItem.Text == "Enqueue")
-                    _Sonos.Enqueue(r);
+                    _Sonos.Enqueue(GetCurrentZoneGroup(), r);
                 else if (e.ClickedItem.Text == "Get Info")
                 {
-                    ArtistInspector a = new ArtistInspector(r.artist, r.album);
+                    ArtistInspector a = new ArtistInspector(r.artist, r.album, r.track);
                     a.Show(); // TODO, cache this.
                 }
             }
@@ -80,9 +80,10 @@ namespace Sonar
             }
         }
 
-        TabPage MakeZoneTab(string zgid)
+        TabPage MakeZoneTab(string zgid, string friendly_name)
         {
-            TabPage t = new TabPage(zgid);
+            TabPage t = new TabPage(friendly_name);
+            t.Name = zgid;
             NowPlayingPanel p = new NowPlayingPanel(_Sonos, zgid);
             p.Dock = DockStyle.Fill;
             t.Controls.Add(p);
@@ -91,15 +92,27 @@ namespace Sonar
 
         public void UpdateNowPlaying()
         {
+            if (InvokeRequired)
+            {
+                // We're not in the UI thread, so we need to call BeginInvoke
+                BeginInvoke(new SonosClient.WorldChanged(UpdateNowPlaying));
+                return;
+            }
+
             List<string> zgids = _Sonos.GetZoneGroups();
             
             foreach (string zgid in zgids)
                 if (!now_playing_tabs.TabPages.ContainsKey(zgid))
-                    now_playing_tabs.TabPages.Add(MakeZoneTab(zgid));
+                    now_playing_tabs.TabPages.Add(MakeZoneTab(zgid, zgid));
 
             foreach (TabPage t in now_playing_tabs.TabPages)
-                if (!zgids.Contains(t.Text))
+                if (!zgids.Contains(t.Name))
                     now_playing_tabs.TabPages.Remove(t);
+        }
+
+        public string GetCurrentZoneGroup()
+        {
+            return now_playing_tabs.SelectedTab.Text;
         }
 
         public static void WriteToFile(string filename, object data)
@@ -113,7 +126,8 @@ namespace Sonar
         private void PopulateSocial()
         {
             //_social.AddDataSource(new TwitterFriends());
-            //_social.AddDataSource(new LastFmFriendsLoved());
+            _social.AddDataSource(new LastFmFriendsLoved());
+            
             _social.AddDataSource(new TwitterSonos());
 
             // Add The Hype Machine (hypem.com)
@@ -122,8 +136,8 @@ namespace Sonar
             // Add Hunted (wearehunted.com)
             _social.AddDataSource(new TwitterSearch("%23wearehunted", @".* - (?<title>.*) / (?<artist>.*)"));
 
-            // _social.AddDataSource(new LastFmFriends());
-
+            _social.AddDataSource(new LastFmFriends());
+            
             _social.Populate();
         }
 

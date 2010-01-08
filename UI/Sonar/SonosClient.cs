@@ -188,9 +188,9 @@ namespace Sonar
             return new List<string>(_Proxy.GetAllZoneGroups());
         }
         // returns position the queue.
-        public int Enqueue(Resolver.Result r)
+        public bool Enqueue(string zgid, Resolver.Result r)
         {
-            return _Proxy.EnqueueTrack(r.ToXmlRpc());
+            return _Proxy.EnqueueTrack(zgid, r.ToXmlRpc());
         }
 
         public int GetTrackTime(string zgid)
@@ -270,7 +270,7 @@ namespace Sonar
             XmlRpcStruct GetTrackMetadata(string zgid);
 
             [XmlRpcMethod("EnqueueTrack")]
-            int EnqueueTrack(XmlRpcStruct metadata);
+            bool EnqueueTrack(string zgid, XmlRpcStruct metadata);
 
             [XmlRpcMethod("Next")]
             bool Next(string zgid);

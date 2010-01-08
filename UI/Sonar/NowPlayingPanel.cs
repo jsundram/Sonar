@@ -33,7 +33,6 @@ namespace Sonar
 
             _Queue.ContextMenuStrip = _PlayMenu;
             _Queue.MouseDown += new MouseEventHandler(_PlayMenu_MouseDown);
-
         }
 
 
@@ -48,7 +47,7 @@ namespace Sonar
 
                 if (e.ClickedItem.Text == "Get Info")
                 {
-                    ArtistInspector a = new ArtistInspector(r.Artist, r.Album);
+                    ArtistInspector a = new ArtistInspector(r.Artist, r.Album, r.Track);
                     a.Show(); // TODO, cache this.
                 }
             }
@@ -95,7 +94,9 @@ namespace Sonar
         void PopulateQueue()
         {
             List<SonosClient.Metadata> q = _Sonos.GetQueue(_ZoneGroup);
-            _Queue.Items.AddRange(q.ToArray()); // Probably want something else.
+            // TODO: be fancy about redraw?
+            _Queue.Items.Clear();
+            _Queue.Items.AddRange(q.ToArray()); 
         }
 
         void PopulateNowPlaying()
@@ -268,7 +269,7 @@ namespace Sonar
         }
 
         Dictionary<string, ArtistInspector> _inspectors = new Dictionary<string, ArtistInspector>();
-        ArtistInspector GetArtistInspector(string artist, string album)
+        ArtistInspector GetArtistInspector(string artist, string album, string track)
         {
             string key = artist + album;
             if (_inspectors.ContainsKey(key))
@@ -278,7 +279,7 @@ namespace Sonar
                     return a;
             }
 
-            ArtistInspector b = new ArtistInspector(artist, album);
+            ArtistInspector b = new ArtistInspector(artist, album, track);
             _inspectors[key] = b;
             return b;
         }
@@ -286,9 +287,9 @@ namespace Sonar
         void _Artist_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             // Show form with awesome echo-nesty data here.
-            ArtistInspector a = new ArtistInspector(_Artist.Text, _Album.Text);
+            ArtistInspector a = new ArtistInspector(_Artist.Text, _Album.Text, _Track.Text);
             if (_Artist.Text == "Your Mom")
-                a = GetArtistInspector("Tori Amos", "Boys for Pele");
+                a = GetArtistInspector("Tori Amos", "Boys for Pele", "");
 
             a.Show();
         }
