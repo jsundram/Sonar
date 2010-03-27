@@ -203,7 +203,7 @@ def subToHHID(szHHID, zgtCallBack = None):
 def getDevicesForHHID(szHHID):
     global cp
     setDevs = set()
-    for (udn, device) in cp.get_devices():
+    for (udn, device) in cp.get_devices().iteritems():
         if ("RINCON" in udn):
             dp_svc = device.services['urn:schemas-upnp-org:service:DeviceProperties:1']
             if (szHHID == dp_svc.GetHouseholdID().values()[0]):

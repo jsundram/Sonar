@@ -137,7 +137,7 @@ class EventListener(webserver.CustomResource):
         for k, service in device.services.items():
             if service.event_sid == subscription_id:
                 return service
-        for k, child_dev in device.devices:
+        for k, child_dev in device.devices.iteritems():
             service = self._find_service(child_dev, subscription_id)
             if service:
                 return service

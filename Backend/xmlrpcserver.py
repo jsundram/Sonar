@@ -58,7 +58,7 @@ def PostEvent(szName, lstArgs):
         print "Posting event: %s" % szName
         g_qEvents.put_nowait({"Name": szName, "Args": lstArgs})
     except Exception, Full:
-        print "somethign fucked up happened in PostEvent, %s: %s" % (szName, Full)
+        print "something fucked up happened in PostEvent, %s: %s" % (szName, Full)
 
 def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
