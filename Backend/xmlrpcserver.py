@@ -8,8 +8,8 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 # Create server
-server = SimpleXMLRPCServer(("localhost", 8000),
-                            requestHandler=RequestHandler)
+server = SimpleXMLRPCServer(("localhost", 8000),requestHandler=RequestHandler)
+
 server.register_introspection_functions()
 
 # Defines
@@ -55,9 +55,10 @@ g_lstCurrentHHIDs = []
 def PostEvent(szName, lstArgs):
     global g_qEvents
     try:
+        print "Posting event: %s" % szName
         g_qEvents.put_nowait({"Name": szName, "Args": lstArgs})
-    except Full:
-        pass
+    except Exception, Full:
+        print "somethign fucked up happened in PostEvent, %s: %s" % (szName, Full)
 
 def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
@@ -192,7 +193,7 @@ def GetQueue(szZGID):
     global g_dictCurrentQs
     try:
         return g_dictCurrentQs[szZGID]
-    except:
+    except Exception:
         return []
 
 server.register_function(GetQueue)
@@ -213,7 +214,7 @@ def PollForEvents(nTimeout):
         while (1):
             # Once we have one, drain the queue in case there were
             ret.append(g_qEvents.get_nowait())
-    except Empty:
+    except Exception:
         pass
     return ret
 
@@ -279,7 +280,7 @@ def SetVolume(szZGID, nVol):
                 g_dictVolume[szZGID] = nVol
                 OnVolumeChanged(szZGID, nVol)
             return True
-    except:
+    except Exception:
         pass
     return False
 
@@ -293,7 +294,7 @@ def SetMute(szZGID, bMute):
             g_dictMute[szZGID] = bMute
             OnMuteChanged(szZGID, bMute)
         return True
-    except:
+    except Exception:
         return False
 
 server.register_function(SetMute)
@@ -368,7 +369,7 @@ def Eventer():
         try:
             if (g_qSignals.get_nowait()):
                 return
-        except Empty:
+        except Exception, Empty:
             pass
     
 
