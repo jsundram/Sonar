@@ -152,6 +152,25 @@ def _parseQueue(data):
 
     return q
 
+def _parseAudioIn(data, devName):
+    q_xml = data['Result']
+    from xml.etree import ElementTree
+    tree = ElementTree.fromstring(q_xml)
+    aiList = []
+    # heinous, heinous namespaces
+    didl = "{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}"
+    dc = "{http://purl.org/dc/elements/1.1/}"
+    upnp = "{urn:schemas-upnp-org:metadata-1-0/upnp/}"
+    r = "{urn:schemas-rinconnetworks-com:metadata-1-0/}"
+    for ai in tree.findall(didl+"item"):
+        aiMD = {}
+        res = ai.find(didl+'res')
+        aiMD['Uri'] = res.text
+        aiMD['Title'] = "%s: %s" % (ai.findtext(dc + 'title'), devName)
+        aiList.append(trackMD)
+
+    return aiList
+
 g_cbZGT = None
 
 def onChange(sid, seq, data):
@@ -251,6 +270,22 @@ def getQueue(hhId, zgId):
         print e
         print ret
         return []
+
+def getLineIn(hhId, zpId):
+    global g_dictMDCache, cp, g_Households
+    ret = {}
+    try:
+        dev = cp.get_devices()["uuid:" + zpId]
+        cd = dev.get_service_by_type(cp.CD_namespace)
+        ret = cd.Browse(ObjectID="AI:", BrowseFlag="BrowseDirectChildren",
+                        Filter="", SortCriteria="", StartingIndex=0, RequestedCount=0)
+        ai = _parseAudioIn(ret)
+        return ai
+    except Exception, e:
+        print e
+        print ret
+        return []
+
 
 def enqueueTrack(hhId, zgId, md):
     global g_dictMDCache, cp, g_Households

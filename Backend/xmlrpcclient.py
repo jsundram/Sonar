@@ -1,6 +1,6 @@
 import xmlrpclib
 
-s = xmlrpclib.ServerProxy('http://localhost:8000')
+s = xmlrpclib.ServerProxy('http://192.168.0.113:8000')
 
 from time import sleep
 

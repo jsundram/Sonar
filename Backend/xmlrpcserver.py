@@ -92,7 +92,7 @@ def updateNPVars(zgId):
         OnTick(zgId, currTime)
     ps = psForString(sonos.getPlayStateForZg(g_currentHHID, zgId))
     if (g_dictPlayState.get(zgId) != ps):
-        g_dictPlayState[zgId]= ps
+        g_dictPlayState[zgId] = ps
         OnPlayStateChanged(zgId, ps == PS_PLAYING)
 
 def zgtCallback(szHHID):
@@ -103,10 +103,24 @@ def zgtCallback(szHHID):
         OnZoneGroupsChanged()
 
 def zgAvtCallback(hhId, zgId):
-    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums, g_dictTimes
+    global g_currentHHID
 
     if (hhId == g_currentHHID):
         updateNPVars(zgId)
+
+# For now, the handling is the same as it is in the zgAvtCallback
+def cdQCallback(hhId, zgId):
+    zgAvtCallback(hhId, zgId)
+
+def cdAICallback(hhId, zpId):
+    pass
+
+def updateLineIn(zpId):
+    pass
+
+def updateAllLineIn():
+    for dev in sonos.getDevicesForHHID(g_currentHHID):
+        
 
 def OnTick(szZGID, nSeconds):
     PostEvent("OnTick", [szZGID, nSeconds])
@@ -182,6 +196,15 @@ def GetQueue(szZGID):
         return []
 
 server.register_function(GetQueue)
+
+def GetLineIns():
+    global g_currentHHID
+    try:
+        return sorted(g_dictLineIns)
+    except:
+        return []
+
+server.register_function(GetLineIns)
 
 def PollForEvents(nTimeout):
     ret = []
