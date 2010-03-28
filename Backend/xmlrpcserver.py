@@ -121,7 +121,7 @@ def updateLineIn(zpId):
 
 def updateAllLineIn():
     for dev in sonos.getDevicesForHHID(g_currentHHID):
-        
+        pass
 
 def OnTick(szZGID, nSeconds):
     PostEvent("OnTick", [szZGID, nSeconds])
