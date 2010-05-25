@@ -73,30 +73,6 @@ def getHHIDs():
                 g_Households[hhid] = {"device": device}
     return g_Households.keys()
 
-def onSub(szHHID, sid, ttl):
-    global g_Households, g_sids
-    try:
-        hhInfo = g_Households[szHHID]
-        hhInfo["sid"] = sid
-        # We also need to be able to get from a sid back to a HH, so we'll put
-        # that in a dict too
-        g_sids[sid] = szHHID
-    except Exception, e:
-        print e
-
-g_zgSids = {}
-
-def onSubAvt(zgId, sid, ttl):
-    global g_Households, g_zgSids
-    try:
-        hhInfo = g_Households[szHHID]
-        hhInfo["sid"] = sid
-        # We also need to be able to get from a sid back to a HH, so we'll put
-        # that in a dict too
-        g_sids[sid] = szHHID
-    except Exception, e:
-        print e
-
 def _parsezgt(data):
     zgs_xml = data['ZoneGroupState']
     from xml.etree import ElementTree
@@ -110,11 +86,17 @@ def _parsezgt(data):
             zgs[zg.attrib['ID']] = {"coord" : zg.attrib['Coordinator'],
                                     "zones" : dictZones}
         except Exception, e:
+            print "Exception in _parsezgt"
             print e
 
     return {"zgs": zgs}
 
 def convertHMSToS(hms):
+    # Catch the case where we are trying to convert strings from a stream
+    # rather than an actual track.
+    if (hms == 'NOT_IMPLEMENTED'):
+        return -1
+    
     total = 0
     for num in hms.split(":"):
         total *= 60
@@ -173,30 +155,116 @@ def _parseAudioIn(data, devName):
 
 g_cbZGT = None
 
-def onChange(sid, seq, data):
-    global g_Households, g_cbZGT, g_sids
+def onEvent(sid, seq, data):
+    global g_sids
+    if (sid in g_sids):
+        fun, args = g_sids[sid]
+        fun(seq, data, *args)
+
+def onZgtChange(seq, data, szHHID):
+    global g_Households, g_cbZGT
     try:
-        szHHID = g_sids[sid]
         hhInfo = g_Households[szHHID]
+        oldZgs = hhInfo.get("zgs", {})
         hhInfo.update(_parsezgt(data))
+        newZgs = hhInfo.get("zgs", {})
+        # we need to now subscribe to all the zgs that we just discovered
+        # And unsubscribe to the ones that went away
+        # First figure out what Zone Groups have gone away
+        oldZgIds = set(oldZgs.iterkeys())
+        newZgIds = set(newZgs.iterkeys())
+        zgsGone = oldZgIds - newZgIds
+        zgsNew = newZgIds - oldZgIds
+        zgCoordsSub = dict(((newZgs[zgid]["coord"], zgid) for zgid in zgsNew))
+        zgCoordsUnsub = {}
+        for zgid in zgsGone:
+            # if we never managed to subscribe, then there's nothing else to do with it.
+            if ("sid" not in oldZgs[zgid]):
+                continue
+            
+            coord = oldZgs[zgid]["coord"]
+            # If a coordinator for a now defunct zg is also the coordinator for a new shiny group
+            if (coord in zgCoordsSub):
+                # Copy the sid from the old zonegroup to the new one
+                newZgs[zgCoordsSub[coord]]['sid'] = oldZgs[zgid]['sid']
+            else:
+                # Otherwise, add it to the reject list.
+                zgCoordsUnsub[coord] = oldZgs[zgid]['sid']
+
+        # Now unsubscribe the old ones
+        for (coord, sid) in zgCoordsUnsub.iteritems():
+            uuid = "uuid:" + coord
+            if (uuid in cp.get_devices()):
+                dev = cp.get_devices()[uuid]
+                avt_serv = dev.services[cp.AVT_namespace]
+                if (avt_serv.event_sid == sid):
+                    avt_serv.event_unsubscribe(cp.event_host)
+                g_sids.pop(sid, None)
+            else:
+                print "Unsubscribe: Unable to find coordinator", coord, "for subscription", sid
+
+        # And subscribe to the new ones
+        for (coord, zgid) in zgCoordsSub.iteritems():
+            uuid = "uuid:" + coord
+            if (uuid in cp.get_devices()):
+                dev = cp.get_devices()[uuid]
+                avt_serv = dev.services[cp.AVT_namespace]
+                avt_serv.event_subscribe(cp.event_host, onSubAvt, (szHHID, zgid))
+            else:
+                print "Subscribe: Unable to find coordinator", coord, "for zone group", zgid
+
         if (g_cbZGT):
             g_cbZGT(szHHID)
     except Exception, e:
+        print "Exception in onZgtChange"
         print e
 
-def subToHHID(szHHID, zgtCallBack = None):
+def onSubZgt(szHHID, sid, ttl):
+    global g_Households, g_sids, onZgtChange
+    try:
+        hhInfo = g_Households[szHHID]
+        hhInfo["sid"] = sid
+        # We also need to be able to get from a sid back to a change function
+        # and its arguments, so we'll put that in a dict too
+        g_sids[sid] = (onZgtChange, (szHHID,))
+    except Exception, e:
+        print "Exception in onSubZgt"
+        print e
+
+g_cbAVT = None
+
+def onAvtChange(seq, data, hhid, zgid):
+    global g_Households, g_cbAVT
+    if (g_cbAVT):
+        g_cbAVT(hhid, zgid)
+
+def onSubAvt((szHHID, zgId), sid, ttl):
+    global g_Households, g_sids, onAvtChange
+    try:
+        zgInfo = g_Households[szHHID]['zgs'][zgId]
+        zgInfo["sid"] = sid
+        # We also need to be able to get from a sid back to a HH, so we'll put
+        # that in a dict too
+        g_sids[sid] = (onAvtChange, (szHHID, zgId))
+    except Exception, e:
+        print e
+
+
+def subToHHID(szHHID, zgtCallBack = None, avtCallback = None):
     global cp, g_Households, g_cbZGT
     try:
         g_cbZGT = zgtCallBack
+        g_cbAVT = avtCallback
         hhInfo = g_Households[szHHID]
         # if we're not already subscribed to this household
         if "sid" not in hhInfo:
             dev = hhInfo["device"]
             zgt_serv = dev.services[cp.ZT_namespace]
-            cp.subscribe("device_event_seq", onChange)
-            zgt_serv.event_subscribe(cp.event_host, onSub, szHHID)
+            cp.subscribe("device_event_seq", onEvent)
+            zgt_serv.event_subscribe(cp.event_host, onSubZgt, szHHID)
         return True
     except Exception, e:
+        print "Exception in subToHHID"
         print e
         return False
 
@@ -216,6 +284,7 @@ def getZgIdsForHHID(szHHID):
         hhInfo = g_Households[szHHID]
         return [zgId for zgId in hhInfo["zgs"].keys()]
     except Exception, e:
+        print "Exception in getZgIdsForHHID"
         print e
         return []
 
@@ -232,6 +301,7 @@ def getTrackInfoForZg(hhId, zgId):
         currTime = convertHMSToS(res['RelTime'])
         return (num - 1, currTime, dur) # tracks numbers are '1' based in upnp
     except Exception, e:
+        print "Exception in getTrackInfoForZg"
         print e
         print res
         return -1
@@ -247,6 +317,7 @@ def getPlayStateForZg(hhId, zgId):
         ps = res['CurrentTransportState']
         return ps
     except Exception, e:
+        print "Exception in getPlayStateForZg"
         print e
         print res
         return "UNKNOWN"
@@ -267,6 +338,7 @@ def getQueue(hhId, zgId):
         q = map(lambda x: g_dictMDCache.get(x["Uri"],x), q)
         return q
     except Exception, e:
+        print "Exception in getQueue"
         print e
         print ret
         return []
@@ -282,10 +354,10 @@ def getLineIn(hhId, zpId):
         ai = _parseAudioIn(ret)
         return ai
     except Exception, e:
+        print "Exception in getLineIn"
         print e
         print ret
         return []
-
 
 def enqueueTrack(hhId, zgId, md):
     global g_dictMDCache, cp, g_Households
@@ -305,6 +377,7 @@ def enqueueTrack(hhId, zgId, md):
         g_dictMDCache[md["Uri"]] = md
         return True
     except Exception, e:
+        print "Exception in enqueueTrack"
         print e
         print ret
         return False
@@ -318,6 +391,7 @@ def play(hhId, zgId):
         avt.Play(InstanceID=0, Speed="1")
         return True
     except Exception, e:
+        print "Exception in play"
         print e
         return False
 
@@ -330,6 +404,7 @@ def seekTrack(hhId, zgId, nTrack):
         avt.Seek(InstanceID=0, Unit="TRACK_NR", Target=str(nTrack))
         return True
     except Exception, e:
+        print "Exception in seekTrack"
         print e
         return False
 
@@ -342,6 +417,7 @@ def pause(hhId, zgId):
         avt.Pause(InstanceID=0)
         return True
     except Exception, e:
+        print "Exception in pause"
         print e
         return False
 
@@ -354,6 +430,7 @@ def skipNext(hhId, zgId):
         avt.Next(InstanceID=0)
         return True
     except Exception, e:
+        print "Exception in skipNext"
         print e
         return False
 
@@ -366,5 +443,6 @@ def skipBack(hhId, zgId):
         avt.Back(InstanceID=0)
         return True
     except Exception, e:
+        print "Exception in skipBack"
         print e
         return False

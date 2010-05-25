@@ -28,11 +28,19 @@ def psForString(ps_str):
         return PS_INVALID
 
 
+class ZoneGroup:
+    def __init__(self):
+        self.currTrack = -1
+        self.currQ = []
+        self.playState = PS_INVALID
+        self.vol = -1
+        self.mute = None
+        self.currPos = 0
+
+
 # Initialize Global Variables
 g_bSubscribed = False
 g_szFakeHHID = "HHID_DEBUG"
-#g_lstFakeZGIDs = ["ZGID_1", "ZGID_2"]
-g_dictCurrentlyPlayingTrackNums = {}
 g_dictMyFakeTrackMD = {"Title" : "All My Sundays",
                        "Artist": "Your Mom",
                        "Album": "Greatest Hits",
@@ -43,12 +51,9 @@ g_dictMyFakeTrackMD = {"Title" : "All My Sundays",
                        "PlayTime": TRACK_TIME}
 
 #g_lstCurrentQs = [[g_dictMyFakeTrackMD],[]]
-g_dictCurrentQs = {}
+g_dictZgs = {}
 g_qEvents = Queue(10)
 g_qSignals = Queue(1)
-g_dictPlayState = {}
-g_dictVolume = {}
-g_dictMute = {}
 g_currentHHID = None
 g_lstCurrentHHIDs = []
 
@@ -58,42 +63,41 @@ def PostEvent(szName, lstArgs):
         print "Posting event: %s" % szName
         g_qEvents.put_nowait({"Name": szName, "Args": lstArgs})
     except Exception, Full:
-        print "something fucked up happened in PostEvent, %s: %s" % (szName, Full)
+        print "Something fucked up happened in PostEvent, %s: %s" % (szName, Full)
 
 def OnZoneGroupsChanged():
     PostEvent("OnZoneGroupsChanged", [])
 
 def popQueues():
-    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums
+    global g_currentHHID, g_dictZgs
     currZgIds = sonos.getZgIdsForHHID(g_currentHHID)
-    zgsToRemove = frozenset(g_dictCurrentQs.keys()).difference(currZgIds)
+    zgsToRemove = frozenset(g_dictZgs.keys()).difference(currZgIds)
     for zgId in zgsToRemove:
-        del g_dictCurrentQs[zgId]
-        del g_dictCurrentlyPlayingTrackNums[zgId]
-        del g_dictPlayState[zgId]
-        del g_dictTimes[zgId]
+        del g_dictZgs[zgId]
 
     for zgId in currZgIds:
         updateNPVars(zgId)
 
 def updateNPVars(zgId):
-    global g_currentHHID, g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums, g_dictTimes, g_dictPlayState
+    global g_currentHHID, g_dictZgs
+    zg = g_dictZgs.setdefault(zgId, ZoneGroup())
     newQ = sonos.getQueue(g_currentHHID, zgId)
-    if (g_dictCurrentQs.get(zgId) != newQ):
-        g_dictCurrentQs[zgId] = newQ
+    if (zg.currQ != newQ):
+        zg.currQ = newQ
         OnQueueChanged(zgId)
     (num, currTime, dur) = sonos.getTrackInfoForZg(g_currentHHID, zgId)
-    if (g_dictCurrentlyPlayingTrackNums.get(zgId) != num):
-        g_dictCurrentlyPlayingTrackNums[zgId] = num
+    if (zg.currTrack != num):
+        zg.currTrack = num
         OnTrackChanged(zgId)
-    
-    g_dictCurrentQs[zgId][num]['PlayTime'] = dur # Solve the problem that the duration is sometimes unknown until late in the process
-    if (g_dictTimes.get(zgId) != currTime):
-        g_dictTimes[zgId] = currTime
+    # The duration is sometimes unknown until late in the process
+    zg.currQ[num]['PlayTime'] = dur
+    if (zg.currPos != currTime):
+        zg.currPos = currTime
         OnTick(zgId, currTime)
+        
     ps = psForString(sonos.getPlayStateForZg(g_currentHHID, zgId))
-    if (g_dictPlayState.get(zgId) != ps):
-        g_dictPlayState[zgId] = ps
+    if (zg.playState != ps):
+        zg.playState = ps
         OnPlayStateChanged(zgId, ps == PS_PLAYING)
 
 def zgtCallback(szHHID):
@@ -103,7 +107,7 @@ def zgtCallback(szHHID):
         popQueues()
         OnZoneGroupsChanged()
 
-def zgAvtCallback(hhId, zgId):
+def avtCallback(hhId, zgId):
     global g_currentHHID
 
     if (hhId == g_currentHHID):
@@ -142,7 +146,7 @@ def OnPlayStateChanged(szZGID, bPlaying):
     PostEvent("OnPlayStateChanged", [szZGID, bPlaying])
 
 def EnqueueTrack(zgId, dictMD):
-    global g_dictMDCache, g_currentHHID
+    global g_currentHHID
     try:
         print "Trying to enqueue track at:", dictMD["Uri"], "with MD:", dictMD
         if (sonos.enqueueTrack(g_currentHHID, zgId, dictMD)):
@@ -174,7 +178,7 @@ def SubscribeToHH(szHHID):
     if (g_currentHHID == szHHID):
         return True
     if (szHHID in g_lstCurrentHHIDs):
-        if (sonos.subToHHID(szHHID, zgtCallback)):
+        if (sonos.subToHHID(szHHID, zgtCallback, avtCallback)):
             g_currentHHID = szHHID
             return True
     return False
@@ -190,16 +194,16 @@ def GetAllZoneGroups():
 server.register_function(GetAllZoneGroups)
 
 def GetQueue(szZGID):
-    global g_dictCurrentQs
+    global g_dictZgs
     try:
-        return g_dictCurrentQs[szZGID]
+        return g_dictZgs[szZGID].currQ
     except Exception:
         return []
 
 server.register_function(GetQueue)
-
+g_dictLineIns = {}
 def GetLineIns():
-    global g_currentHHID
+    global g_currentHHID, g_dictLineIns
     try:
         return sorted(g_dictLineIns)
     except:
@@ -221,13 +225,12 @@ def PollForEvents(nTimeout):
 server.register_function(PollForEvents)
 
 from time import sleep
-g_dictTimes = {}
 
 def Pause(szZGID):
-    global g_dictPlayState, g_currentHHID
+    global g_dictZgs, g_currentHHID
     try:
-        if (g_dictPlayState[szZGID] == PS_PLAYING):
-            g_dictPlayState[szZGID] = PS_PAUSED
+        if (g_dictZgs[szZGID].playState == PS_PLAYING):
+            g_dictZgs[szZGID].playState = PS_PAUSED
             if (sonos.pause(g_currentHHID, szZGID)):
                 OnPlayStateChanged(szZGID, False)
         return True
@@ -238,21 +241,21 @@ def Pause(szZGID):
 server.register_function(Pause)
 
 def Play(szZGID, nIx):
-    global g_dictCurrentlyPlayingTrackNums, g_dictTimes, g_dictCurrentQs, g_currentHHID
-    global g_currentHHID
+    global g_dictZgs, g_currentHHID
     try:
+        zg = g_dictZgs[szZGID]
         if (nIx != -1):
-            nTracks = len(g_dictCurrentQs[szZGID])
+            nTracks = len(zg.currQ)
             if (0 <= nIx < nTracks):
-                g_dictCurrentlyPlayingTrackNums[szZGID] = nIx
-                g_dictTimes[szZGID] = 0
+                zg.currTrack = nIx
+                zg.currPos = 0
                 sonos.seekTrack(g_currentHHID, szZGID, nIx)
                 OnTrackChanged(szZGID)
             else:
                 return False
 
-        if (g_dictPlayState[szZGID] != PS_PLAYING):
-            g_dictPlayState[szZGID] = PS_PLAYING
+        if (zg.playState != PS_PLAYING):
+            zg.playState = PS_PLAYING
             if (sonos.play(g_currentHHID, szZGID)):
                 OnPlayStateChanged(szZGID, True)
         return True
@@ -264,20 +267,20 @@ def Play(szZGID, nIx):
 server.register_function(Play)
 
 def IsPlaying(szZGID):
-    global g_dictPlayState, PS_PLAYING
+    global g_dictZgs, PS_PLAYING
     try:
-        return (g_dictPlayState[szZGID] == PS_PLAYING)
+        return (g_dictZgs[szZGID].playState == PS_PLAYING)
     except:
         return False
 
 server.register_function(IsPlaying)
 
 def SetVolume(szZGID, nVol):
-    global g_dictVolume
+    global g_dictZgs
     try:
         if (0 <= nVol <= 100):
-            if (g_dictVolume.get(szZGID, -1) != nVol):
-                g_dictVolume[szZGID] = nVol
+            if (g_dictZgs.vol != nVol):
+                g_dictZgs.vol = nVol
                 OnVolumeChanged(szZGID, nVol)
             return True
     except Exception:
@@ -287,11 +290,11 @@ def SetVolume(szZGID, nVol):
 server.register_function(SetVolume)
 
 def SetMute(szZGID, bMute):
-    global g_dictMute
+    global g_dictZgs
     try:
-        bCurrentMute = g_dictMute.get(szZGID)
+        bCurrentMute = g_dictZgs[szZGID].mute
         if (bCurrentMute == None or bCurrentMute != bMute):
-            g_dictMute[szZGID] = bMute
+            g_dictZgs[szZGID].mute = bMute
             OnMuteChanged(szZGID, bMute)
         return True
     except Exception:
@@ -300,43 +303,46 @@ def SetMute(szZGID, bMute):
 server.register_function(SetMute)
 
 def GetVolume(szZGID):
-    global g_dictVolume
+    global g_dictZgs
     try:
-        return g_dictVolume.get(szZGID, 30)
+        vol = g_dictZgs[szZGID].vol
+        return (vol if vol >= 0 else 30)
     except:
         return -1
-    
+
 server.register_function(GetVolume)
 
 def IsMuted(szZGID):
-    global g_dictMute
+    global g_dictZgs
     try:
-        return g_dictMute.get(szZGID, False)
+        return (True if g_dictZgs[szZGID].mute else False)
     except:
         return False
 
 server.register_function(IsMuted)
 
 def nextTrack(zgId, bWrap):
-    global g_currentHHID, g_dictCurrentQs, g_dictTimes, g_dictCurrentlyPlayingTrackNums
-    nTracks = len(g_dictCurrentQs[zgId])
-    if (bWrap or g_dictCurrentlyPlayingTrackNums[zgId] < nTracks - 1):
-        g_dictCurrentlyPlayingTrackNums[zgId] += 1
-        g_dictCurrentlyPlayingTrackNums[zgId] %= nTracks
-        g_dictTimes[zgId] = 0
+    global g_currentHHID, g_dictZgs
+    zg = g_dictZgs[zgId]
+    nTracks = len(zg.currQ)
+    if (bWrap or zg.currTrack < nTracks - 1):
+        zg.currTrack += 1
+        zg.currTrack %= nTracks
+        zg.currPos = 0
         sonos.skipNext(g_currentHHID, zgId)
         OnTrackChanged(zgId)
         return True
     return False
 
 def prevTrack(zgId, bWrap):
-    global g_currentHHID, g_dictCurrentQs, g_dictTimes, g_dictCurrentlyPlayingTrackNums
-    nTracks = len(g_dictCurrentQs[zgId])
-    if (bWrap or g_dictCurrentlyPlayingTrackNums[zgId] > 0):
-        g_dictCurrentlyPlayingTrackNums[zgId] -= 1
-        if (g_dictCurrentlyPlayingTrackNums[zgId] < 0):
-            g_dictCurrentlyPlayingTrackNums[zgId] += nTracks
-        g_dictTimes[zgId] = 0
+    global g_currentHHID, g_dictZgs
+    zg = g_dictZgs[zgId]
+    nTracks = len(zg.currQ)
+    if (bWrap or zg.currTrack > 0):
+        zg.currTrack -= 1
+        if (zg.currTrack < 0):
+            zg.currTrack += nTracks
+        zg.currPos = 0
         sonos.skipBack(g_currentHHID, zgId)
         OnTrackChanged(zgId)
         return True
@@ -353,19 +359,22 @@ def Back(szZGID):
 server.register_function(Back)
 
 def Eventer():
-    global g_qSignals, g_dictTimes, g_dictCurrentQs, g_dictPlayState
+    global g_qSignals, g_dictZgs
     while (1):
         sleep(1)
         if (not g_currentHHID):
             continue
-        for zgId in sonos.getZgIdsForHHID(g_currentHHID):
-            nTracks = len(g_dictCurrentQs[zgId])
-            if (nTracks == 0 or g_dictPlayState[zgId] != PS_PLAYING):
+        for zg in g_dictZgs.itervalues():
+            nTracks = len(zg.currQ)
+            if (nTracks == 0 or zg.playState != PS_PLAYING):
                 continue
-            q = g_dictCurrentQs[zgId]
-            if (g_dictTimes[zgId] > q[g_dictCurrentlyPlayingTrackNums[zgId]]["PlayTime"]):
-                g_dictTimes[zgId] += 1
-                OnTick(zgId, g_dictTimes[zgId])
+
+            # We only need to increment the counter until we reach the end,
+            # once we reach the end, we should be receiving an event from
+            # the sonos module to tell us to update the track.
+            if (zg.currPos < zg.currQ[zg.currTrack]["PlayTime"]):
+                zg.currPos += 1
+                OnTick(zgId, zg.currPos)
         try:
             if (g_qSignals.get_nowait()):
                 return
@@ -374,18 +383,19 @@ def Eventer():
     
 
 def GetCurrentTrackTime(szZGID):
-    global g_dictTimes
+    global g_dictZgs
     try:
-        return g_dictTimes[szZGID]
+        return g_dictZgs[szZGID].currPos
     except:
         return -1
 
 server.register_function(GetCurrentTrackTime)
 
 def GetCurrentTrackMD(szZGID):
-    global g_dictCurrentQs, g_dictCurrentlyPlayingTrackNums
+    global g_dictZgs
     try:
-        return g_dictCurrentQs[szZGID][g_dictCurrentlyPlayingTrackNums[szZGID]]
+        zg = g_dictZgs[szZGID]
+        return zg.currQ[zg.currTrack]
     except:
         return {}
     
@@ -401,10 +411,10 @@ serverLoop.start()
 
 # Until we correctly discover devices, we can use this to kick-start the
 # process.
-sonos.cp._ssdp_server._register('uuid:RINCON_000E5850027001400',
-				'upnp:rootdevice',
-				"http://192.168.0.101:1400/xml/zone_player.xml",
-				"Linux UPnP/1.0 Sonos/12.3-22270", 1800)
+##sonos.cp._ssdp_server._register('uuid:RINCON_000E5850027001400',
+##				'upnp:rootdevice',
+##				"http://192.168.0.101:1400/xml/zone_player.xml",
+##				"Linux UPnP/1.0 Sonos/12.3-22270", 1800)
 
 
 # To kill:
